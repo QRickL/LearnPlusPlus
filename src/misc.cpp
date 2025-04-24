@@ -7,9 +7,6 @@ double dot(const std::vector<double> &vec1, const std::vector<double> &vec2) {
     }
 
     double val = 0;
-
-    // Calculate dot product
     for (int i = 0; i < vec1.size(); i++) val += (vec1[i] * vec2[i]);
-
     return val;
 }

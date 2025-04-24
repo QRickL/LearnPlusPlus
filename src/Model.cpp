@@ -1,3 +1,3 @@
 #include "Model.h"
 
-Model::Model() : learningRate{DEFAULT_LEARNING_RATE} {}
+Model::Model() : learningRate{DEFAULT_LEARNING_RATE}, compiled{false} {}

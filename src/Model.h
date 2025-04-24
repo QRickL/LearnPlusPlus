@@ -9,14 +9,17 @@ class Model {
 
     protected:
         double learningRate;
+        bool compiled;
 
     public:
         Model();
         virtual ~Model() = 0;
 
-        virtual void fit(const std::vector<std::vector<double>> &trainingData, const std::vector<double> &labels, const std::size_t epochs) = 0;
-        virtual void compile();
         // TO DO: compile()
+        virtual void compile();
+        // fit() should only run after compile()
+        virtual void fit(const std::vector<std::vector<double>> &trainingData, const std::vector<double> &labels, const std::size_t epochs) = 0;
+        // predict() should only run after fit()
         virtual std::vector<double> predict(const std::vector<std::vector<double>> &inputs) = 0;
 };
 

@@ -13,10 +13,10 @@ class LinearRegression : public Model {
 
     public:
         LinearRegression();
-
-        void fit(const std::vector<std::vector<double>> &trainingData, const std::vector<double> &labels, const std::size_t epochs) override;
-        // void compile() override;
+        
         // TO DO: compile()
+        // void compile() override;
+        void fit(const std::vector<std::vector<double>> &trainingData, const std::vector<double> &labels, const std::size_t epochs) override;
         std::vector<double> predict(const std::vector<std::vector<double>> &inputs) override;
 
         double getBias();
