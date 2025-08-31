@@ -26,6 +26,9 @@ std::vector<double> LinearRegression::predict(const std::vector<std::vector<doub
     if (inputs.size() == 0) {
         throw std::invalid_argument("No inputs given to predict on");
     }
+    if (numFeatures == 0) {
+        throw std::logic_error("Model has not yet been trained");
+    }
 
     std::vector<double> predictions(inputs.size());
 
@@ -48,6 +51,6 @@ std::vector<double> LinearRegression::getCoefficients() {
     if (coefficients.size() == 0) {
         throw std::logic_error("Model has not yet been trained");
     }
-    
+
     return coefficients;
 }
