@@ -4,9 +4,10 @@
 #include "vector"
 #include "exception"
 #include "thread"
+#include "iostream"
 
 // ***
-// Create a custom namespace later
+// TO DO: Create a custom namespace later
 // ***
 
 std::vector<double> add_vectors(const std::vector<double>& v1, const std::vector<double>& v2);
@@ -27,18 +28,20 @@ public:
     Matrix(const size_t row, const size_t column);
 
     // ***
-    // Should probably have more constructors
+    // TO DO: Should probably have more constructors
     // ***
 
     // Setting entries
     std::vector<double>& operator[](size_t row);
 
     // Supports matrix-vector multiplication
-    std::vector<double> operator*(std::vector<double>& x);
+    std::vector<double> operator*(const std::vector<double>& x);
 
     size_t getRows() const;
 
     size_t getCols() const;
+
+    void display_entries() const;
 };
 
 #endif

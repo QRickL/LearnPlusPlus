@@ -111,7 +111,7 @@ void Matrix::multiplication_helper(std::vector<double>& result, const std::vecto
     }
 }
 
-std::vector<double> Matrix::operator*(std::vector<double>& x) {
+std::vector<double> Matrix::operator*(const std::vector<double>& x) {
     if (getCols() != x.size()) {
         throw std::runtime_error("Bad matrix vector multiplication (dimensions)");
     }
@@ -137,4 +137,13 @@ std::vector<double> Matrix::operator*(std::vector<double>& x) {
     for (auto& t : threads) t.join();
 
     return result;
+}
+
+void Matrix::display_entries() const {
+    for (const auto& row : entry) {
+        for (const auto& col : row) {
+            std::cout << col << ' ';
+        }
+        std::cout << '\n';
+    }
 }
