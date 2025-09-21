@@ -3,7 +3,8 @@
 
 #include "matrix.h"
 
-class Network {
+class Network
+{
 
 public:
     // compile
@@ -13,9 +14,6 @@ public:
 
     // Network should be an abstract class
     virtual ~Network() = 0;
-
 };
-
-Network::~Network() {}
 
 #endif

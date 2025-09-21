@@ -11,17 +11,20 @@ MLP_Layer::MLP_Layer(size_t input_size, size_t output_size, activation_ptr af)
     activation_function = af;
 }
 
-void MLP_Layer::display_weight_dimensions() const {
+void MLP_Layer::display_weight_dimensions() const
+{
     std::cout << weights.getRows() << 'x' << weights.getCols();
 }
 
-void MLP_Layer::display_weights() const {
-    std::cout << "Weights:\n"; 
+void MLP_Layer::display_weights() const
+{
+    std::cout << "Weights:\n";
     weights.display_entries();
     std::cout << '\n';
 
     std::cout << "Biases:\n";
-    for (const auto d : biases) {
+    for (const auto d : biases)
+    {
         std::cout << d << '\n';
     }
 }
@@ -30,8 +33,10 @@ void MLP_Layer::display_weights() const {
 // Multilayer perceptron
 // ***
 
-MultiLayerPerceptron::MultiLayerPerceptron(size_t input_size, const std::vector<std::tuple<size_t, activation_ptr>>& given_layers) {
-    if (given_layers.empty()) {
+MultiLayerPerceptron::MultiLayerPerceptron(size_t input_size, const std::vector<std::tuple<size_t, activation_ptr>> &given_layers)
+{
+    if (given_layers.empty())
+    {
         throw std::runtime_error("No layers provided to MLP");
     }
 
@@ -40,27 +45,32 @@ MultiLayerPerceptron::MultiLayerPerceptron(size_t input_size, const std::vector<
     size_t cur_input = input_size;
     size_t cur_output;
 
-    for (const auto& l : given_layers) {
+    for (const auto &l : given_layers)
+    {
         cur_output = std::get<0>(l);
 
         // Adds layers to the network
         layers.push_back(std::make_unique<MLP_Layer>(cur_input, cur_output, std::get<1>(l)));
-        
+
         cur_input = cur_output;
     }
 }
 
-void MultiLayerPerceptron::display_mlp_dimensions() const {
-    for (const auto& l : layers) {
+void MultiLayerPerceptron::display_mlp_dimensions() const
+{
+    for (const auto &l : layers)
+    {
         l->display_weight_dimensions();
         std::cout << ' ';
     }
     std::cout << std::endl;
 }
 
-void MultiLayerPerceptron::display_mlp() const {
+void MultiLayerPerceptron::display_mlp() const
+{
     int i = 1;
-    for (const auto& l : layers) {
+    for (const auto &l : layers)
+    {
         std::cout << "Layer " << i << ":\n";
         l->display_weights();
         std::cout << '\n';
@@ -70,7 +80,8 @@ void MultiLayerPerceptron::display_mlp() const {
 }
 
 // currently working on
-std::vector<double> MultiLayerPerceptron::forward_prop_train(std::vector<double> activation) {
+std::vector<double> MultiLayerPerceptron::forward_prop_train(std::vector<double> activation)
+{
     /*
     // set up safety when everything else is done
     if (!compiled) {
@@ -78,14 +89,17 @@ std::vector<double> MultiLayerPerceptron::forward_prop_train(std::vector<double>
     }
     */
 
-    for (const auto& l : layers) {
+    for (const auto &l : layers)
+    {
         activation = add_vectors(l->weights * activation, l->biases);
 
-        if (l->activation_function) {
+        if (l->activation_function)
+        {
             // ***
             // TO DO: parallelize this
             // ***
-            for (auto& a : activation) {
+            for (auto &a : activation)
+            {
                 a = l->activation_function(a);
             }
         }
