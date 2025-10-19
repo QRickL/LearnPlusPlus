@@ -1,3 +1,3 @@
 #include "network.h"
 
-Network::~Network() {}
+LPP::Network::~Network() {}
