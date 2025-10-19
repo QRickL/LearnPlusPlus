@@ -1,3 +1,3 @@
 #include "layer.h"
 
-Layer::~Layer() {}
+LPP::Layer::~Layer() {}
