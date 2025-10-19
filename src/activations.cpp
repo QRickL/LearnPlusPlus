@@ -1,15 +1,52 @@
-#include "cmath"
+#include "activations.h"
+#include <cmath>
 
-// To use identity function, pass in nullptr to layer constructor
-// Custom activations can be used, just pass in the ptr for a double -> double function
-// Hyberbolic tanget already defined in cmath
+LPP::Activation::~Activation() {}
 
-// Sigmoid
-inline double sigmoid(double x) {
-    return 1/(1+exp(-x));
+// Identity
+double LPP::Identity::apply_itself(double x) const
+{
+    return x;
 }
 
-// Rectified linear unit
-inline double ReLU(double x) {
-    return (x > 0) ? x : 0;
+double LPP::Identity::apply_derivative(double x) const
+{
+    return 1.0;
+}
+
+// ReLU (rectified linear unit)
+double LPP::ReLU::apply_itself(double x) const
+{
+    return (x >= 0) ? x : 0.0;
+}
+
+double LPP::ReLU::apply_derivative(double x) const
+{
+    // Mathematically speaking, it should be undefined at zero
+    // For convenience, we assign it 1
+    return (x >= 0) ? 1 : 0.0;
+}
+
+// Sigmoid
+double LPP::Sigmoid::apply_itself(double x) const
+{
+    return 1 / (1 + std::exp(-x));
+}
+
+double LPP::Sigmoid::apply_derivative(double x) const
+{
+    const double s = LPP::Sigmoid::apply_itself(x);
+    return s * (1-s);
+}
+
+// Tanh
+double LPP::Tanh::apply_itself(double x) const
+{
+    return std::tanh(x);
+}
+
+double LPP::Tanh::apply_derivative(double x) const
+{
+    const double s = std::cosh(x);
+    return 1 / (s * s);
 }
