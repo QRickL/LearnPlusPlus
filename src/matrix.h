@@ -1,48 +1,49 @@
-#ifndef MATRIX_H
-#define MATRIX_H
+#ifndef LPP_MATRIX_H
+#define LPP_MATRIX_H
 
-#include "vector"
-#include "exception"
-#include "thread"
-#include "iostream"
+#include <vector>
 
-// ***
-// TO DO: Create a custom namespace later
-// ***
+// Vector addition
+std::vector<double> operator+(const std::vector<double>& v1, const std::vector<double>& v2);
 
-std::vector<double> add_vectors(const std::vector<double> &v1, const std::vector<double> &v2);
+// Vector dot product
+double operator*(const std::vector<double>&v1, const std::vector<double>& v2);
 
-double dot_prod(const std::vector<double> &v1, const std::vector<double> &v2);
+// For adding biases
+std::vector<double> operator+(const std::vector<double>& v1, double c);
+std::vector<double> operator+(double c, const std::vector<double>& v2);
 
-class Matrix
+// Vector scalar multiplication
+std::vector<double> operator*(const std::vector<double>& v1, double c);
+std::vector<double> operator*(double c, const std::vector<double>& v2);
+
+namespace LPP
 {
-    std::vector<std::vector<double>> entry;
 
-    void multiplication_helper(std::vector<double> &result, const std::vector<double> &x, size_t start, size_t end);
+class Matrix {
+    std::vector<std::vector<double>> entries;
 
 public:
-    // Construct by explicitly stating entries
-    // m is not to be used after initialization
-    Matrix(const std::vector<std::vector<double>> &m);
+    // Construct using another matrix
+    Matrix(const std::vector<std::vector<double>>& m);
 
-    // Construct using row and column dimensions
-    Matrix(const size_t row, const size_t column);
+    // Construct based on given sizes
+    Matrix(const size_t rows, const size_t cols);
 
-    // ***
-    // TO DO: Should probably have more constructors
-    // ***
+    // TODO: more constructors
 
-    // Setting entries
-    std::vector<double> &operator[](size_t row);
+    // Display information
+    size_t rows() const;
+    size_t cols() const;
+    void print_entries() const;
 
-    // Supports matrix-vector multiplication
-    std::vector<double> operator*(const std::vector<double> &x);
+    // Matrix operations
+    double get(size_t i, size_t j) const;
+    void set(size_t i, size_t j, double s);
+    std::vector<double> operator*(const std::vector<double>& v) const;
 
-    size_t getRows() const;
-
-    size_t getCols() const;
-
-    void display_entries() const;
 };
+
+} // namespace LPP
 
 #endif
