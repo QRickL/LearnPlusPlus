@@ -1,5 +1,5 @@
-#ifndef LAYER_H
-#define LAYER_H
+#ifndef LPP_LAYER_H
+#define LPP_LAYER_H
 
 class Layer
 {
