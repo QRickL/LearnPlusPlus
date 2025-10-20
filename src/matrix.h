@@ -17,6 +17,9 @@ std::vector<double> operator+(double c, const std::vector<double>& v2);
 std::vector<double> operator*(const std::vector<double>& v1, double c);
 std::vector<double> operator*(double c, const std::vector<double>& v2);
 
+// Display a vector
+void print_elements(const std::vector<double>& v);
+
 namespace LPP
 {
 
@@ -29,6 +32,9 @@ public:
 
     // Construct based on given sizes
     Matrix(const size_t rows, const size_t cols);
+
+    // Construct based on sizes and initial value
+    Matrix(const size_t rows, const size_t cols, const double c);
 
     // TODO: more constructors
 

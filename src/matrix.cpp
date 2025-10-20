@@ -1,6 +1,6 @@
 #include "matrix.h"
 #include <exception>
-#include <format>
+//#include <format>
 #include <iostream>
 
 // Later: see if we stil need some of the vectors, that way we can rewrite the input and save copying
@@ -9,7 +9,7 @@
 std::vector<double> operator+(const std::vector<double>& v1, const std::vector<double>& v2) 
 {
     if (v1.size() != v1.size()) {
-        throw std::invalid_argument(std::format("Adding vectors of sizes {} and {}", v1.size(), v2.size()));
+        //throw std::invalid_argument(std::format("Adding vectors of sizes {} and {}", v1.size(), v2.size()));
     }
 
     std::vector<double> res(v1.size());
@@ -23,7 +23,7 @@ std::vector<double> operator+(const std::vector<double>& v1, const std::vector<d
 double operator*(const std::vector<double>& v1, const std::vector<double>& v2)
 {
     if (v1.size() != v1.size()) {
-        throw std::invalid_argument(std::format("Dotting vectors of sizes {} and {}", v1.size(), v2.size()));
+        //throw std::invalid_argument(std::format("Dotting vectors of sizes {} and {}", v1.size(), v2.size()));
     }
 
     double res = 0.0;
@@ -61,6 +61,15 @@ std::vector<double> operator*(double c, const std::vector<double>& v2) {
     return v2 * c;
 }
 
+void print_elements(const std::vector<double>& v)
+{
+    std::cout << '{';
+    for (const double d : v) {
+        std::cout << d << ", ";
+    }
+    std::cout << "}\n";
+}
+
 // TODO: Parallelize later
 // See if we can steal m instead of copying it
 LPP::Matrix::Matrix(const std::vector<std::vector<double>>& m):
@@ -78,6 +87,15 @@ LPP::Matrix::Matrix(const size_t rows, const size_t cols):
     }
 }
 
+// TODO: Parallelize later
+LPP::Matrix::Matrix(const size_t rows, const size_t cols, const double c):
+    entries{rows}
+{
+    for (size_t r = 0; r < rows; r++) {
+        entries[r] = std::vector<double>(cols, c);
+    }
+}
+
 size_t LPP::Matrix::rows() const {return entries.size();}
 
 size_t LPP::Matrix::cols() const
@@ -89,13 +107,11 @@ size_t LPP::Matrix::cols() const
 
 void LPP::Matrix::print_entries() const
 {
+    std::cout << "{\n";
     for (size_t i = 0; i < entries.size(); i++) {
-        for (size_t j = 0; j < entries[0].size(); j++) {
-            std::cout << entries[i][j] << ' ';
-        }
-        std::cout << '\n';
+        print_elements(entries[i]);
     }
-    std::cout << std::flush;
+    std::cout << "}\n";
 }
 
 double LPP::Matrix::get(size_t i, size_t j) const
@@ -118,7 +134,7 @@ void LPP::Matrix::set(size_t i, size_t j, double s)
 std::vector<double> LPP::Matrix::operator*(const std::vector<double>& v) const
 {
     if (entries.empty() || entries[0].size() != v.size()) {
-        throw std::invalid_argument(std::format("Matrix vector multiplication with bad dimensions {}x{} * {}*1", entries.size(), entries.empty() ? 0 : entries[0].size(), v.size()));
+        //throw std::invalid_argument(std::format("Matrix vector multiplication with bad dimensions {}x{} * {}*1", entries.size(), entries.empty() ? 0 : entries[0].size(), v.size()));
     }
 
     std::vector<double> res(entries.size());
