@@ -67,13 +67,18 @@ std::vector<double> operator*(double c, const std::vector<double>& v2) {
     return v2 * c;
 }
 
-void LPP::print_elements(const std::vector<double>& v)
+void LPP::print_object(const std::vector<double>& v)
 {
     std::cout << '{';
     for (const double d : v) {
         std::cout << d << ", ";
     }
     std::cout << "}\n";
+}
+
+void LPP::print_object(const Matrix& m)
+{
+    m.print_entries();
 }
 
 // TODO: Parallelize later
@@ -115,7 +120,7 @@ void LPP::Matrix::print_entries() const
 {
     std::cout << "{\n";
     for (size_t i = 0; i < entries.size(); i++) {
-        print_elements(entries[i]);
+        print_object(entries[i]);
     }
     std::cout << "}\n";
 }

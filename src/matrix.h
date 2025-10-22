@@ -20,9 +20,6 @@ std::vector<double> operator*(double c, const std::vector<double>& v2);
 namespace LPP
 {
 
-// Display a vector
-void print_elements(const std::vector<double>& v);
-
 class Matrix {
     std::vector<std::vector<double>> entries;
 
@@ -49,6 +46,12 @@ public:
     std::vector<double> operator*(const std::vector<double>& v) const;
 
 };
+
+// Display a matrix
+void print_object(const Matrix& m);
+
+// Display a vector
+void print_object(const std::vector<double>& v);
 
 } // namespace LPP
 
