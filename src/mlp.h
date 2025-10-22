@@ -1,46 +1,71 @@
-#ifndef MLP_H
-#define MLP_H
+#ifndef LPP_MLP_H
+#define LPP_MLP_H
 
-#include "network.h"
 #include "layer.h"
+#include "network.h"
 #include "memory"
-#include "exception"
-#include "iostream"
+#include "matrix.h"
 
-typedef double (*activation_ptr)(double);
+namespace LPP {
 
-class MLP_Layer : public Layer
-{
-    Matrix weights;
-    std::vector<double> biases;
-    activation_ptr activation_function;
-    friend class MultiLayerPerceptron;
+class MLP_Layer : public Layer {
+    std::unique_ptr<Matrix> weights;
+    std::unique_ptr<std::vector<double>> biases;
+    std::vector<double> intermed_val;  // Used for backpropagation
+    std::shared_ptr<Activation> act_func;
+
+    friend class MLP;
 
 public:
-    // Construct using input size and output size and activation function
-    MLP_Layer(size_t input_size, size_t output_size, activation_ptr af);
-    void display_weight_dimensions() const;
-    void display_weights() const;
+    // Construct with in size, out size, and pointer to activation function
+    MLP_Layer(const size_t input_size, const size_t output_size, std::shared_ptr<Activation> af = IDENTITY);
+
+    // TODO: add the constructor used when reading model from file
+    //MLP_Layer(std::unique_ptr<Matrix> given_weights, std::shared_ptr<Activation> af = IDENTITY);
+
+    // Display information
+    void display() const;
+
+    // Apply activation function to all entries
+    void apply_activation(std::vector<double>& x) const;
 
     ~MLP_Layer() {}
 };
 
-class MultiLayerPerceptron : public Network
-{
+class MLP : public Network {
     std::vector<std::unique_ptr<MLP_Layer>> layers;
-    bool compiled = false;
+
+    // Used to perform backpropagation
+    //std::vector<std::vector<double>> intermed_values;
+    // Is this truly const, if I'm changing the values of the things pointing to?
+    std::vector<double> forward_propagation(const std::vector<double>&x, const bool saving) const;
+
+    // calculate gradients
+
+    // backpropagate
+
+    // training = calculate it for everything then update weights. repeat
 
 public:
-    // Construct using {#neurons in layer, ptr to activation function}
-    MultiLayerPerceptron(size_t input_size, const std::vector<std::tuple<size_t, activation_ptr>> &given_layers);
-    void display_mlp_dimensions() const;
-    void display_mlp() const;
+    // Manually specify model architecture
+    MLP(
+        const size_t input_size,
+        const std::vector<std::pair<size_t, std::shared_ptr<Activation>>> s
+    );
 
-    // currently working on
-    std::vector<double> forward_prop_train(std::vector<double> activation);
-    // have a separate one for normal inference, with no need for storing intermediate values
+    // Load model + weights from file
+    MLP(const std::string& filepath);
 
-    ~MultiLayerPerceptron() {}
+    // Fire through network, will not save intermediate values
+    // Not used for traninig
+    std::vector<double> inference(const std::vector<double>& layer_info) const;
+
+    // Saving weights to a file
+    void save_model(const std::string& filepath) const override;
+
+    ~MLP() {}
 };
+
+} // namespace LPP
 
 #endif
