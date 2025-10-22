@@ -17,11 +17,11 @@ std::vector<double> operator+(double c, const std::vector<double>& v2);
 std::vector<double> operator*(const std::vector<double>& v1, double c);
 std::vector<double> operator*(double c, const std::vector<double>& v2);
 
-// Display a vector
-void print_elements(const std::vector<double>& v);
-
 namespace LPP
 {
+
+// Display a vector
+void print_elements(const std::vector<double>& v);
 
 class Matrix {
     std::vector<std::vector<double>> entries;

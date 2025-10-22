@@ -8,7 +8,10 @@
 // TODO: Parallelize later
 std::vector<double> operator+(const std::vector<double>& v1, const std::vector<double>& v2) 
 {
-    if (v1.size() != v1.size()) {
+    if (v1.size() != v2.size()) {
+        const auto msg = "Adding vectors of sizes " + std::to_string(v1.size()) + " and "  + std::to_string(v2.size());
+        throw std::invalid_argument(msg);
+
         //throw std::invalid_argument(std::format("Adding vectors of sizes {} and {}", v1.size(), v2.size()));
     }
 
@@ -22,7 +25,10 @@ std::vector<double> operator+(const std::vector<double>& v1, const std::vector<d
 // TODO: Parallelize later
 double operator*(const std::vector<double>& v1, const std::vector<double>& v2)
 {
-    if (v1.size() != v1.size()) {
+    if (v1.size() != v2.size()) {
+        const auto msg = "Dotting vectors of sizes " + std::to_string(v1.size()) + " and "  + std::to_string(v2.size());
+        throw std::invalid_argument(msg);
+
         //throw std::invalid_argument(std::format("Dotting vectors of sizes {} and {}", v1.size(), v2.size()));
     }
 
@@ -61,7 +67,7 @@ std::vector<double> operator*(double c, const std::vector<double>& v2) {
     return v2 * c;
 }
 
-void print_elements(const std::vector<double>& v)
+void LPP::print_elements(const std::vector<double>& v)
 {
     std::cout << '{';
     for (const double d : v) {
@@ -133,8 +139,13 @@ void LPP::Matrix::set(size_t i, size_t j, double s)
 // TODO: Parallelize later
 std::vector<double> LPP::Matrix::operator*(const std::vector<double>& v) const
 {
-    if (entries.empty() || entries[0].size() != v.size()) {
-        //throw std::invalid_argument(std::format("Matrix vector multiplication with bad dimensions {}x{} * {}*1", entries.size(), entries.empty() ? 0 : entries[0].size(), v.size()));
+    if (entries.empty()) {
+        const auto msg = "Attempting to multiply by empty matrix";
+        throw std::invalid_argument(msg);
+    }
+    if (entries[0].size() != v.size()) {
+        const auto msg = "Attempting to multiply " + std::to_string(entries.size()) + 'x' + std::to_string(entries[0].size()) + " by a 1x" + std::to_string(v.size()) + " vector";
+        throw std::invalid_argument(msg);
     }
 
     std::vector<double> res(entries.size());
