@@ -19,6 +19,7 @@ public:
 
     // Network is abstract
     virtual ~Network() = 0;
+    virtual void save_model(const std::string& filepath) const = 0;
 };
 
 } // namespace LPP
