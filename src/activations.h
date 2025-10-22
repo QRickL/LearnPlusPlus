@@ -13,8 +13,8 @@ namespace LPP {
 
 class Activation {
 public:
-    virtual double apply_itself(double x) const;
-    virtual double apply_derivative(double x) const;
+    virtual double apply_itself(double x) const = 0;
+    virtual double apply_derivative(double x) const = 0;
 
     // Activation is abstract
     virtual ~Activation() = 0;

@@ -20,7 +20,7 @@ double LPP::ReLU::apply_itself(double x) const
     return (x >= 0) ? x : 0.0;
 }
 
-double LPP::ReLU::apply_derivative(double x) const
+double LPP::ReLU::apply_derivative(double x) const 
 {
     // Mathematically speaking, it should be undefined at zero
     // For convenience, we assign it 1
