@@ -71,6 +71,13 @@ const std::string STRING_RELU      = "RELU";
 const std::string STRING_SIGMOID   = "SIGMOID";
 const std::string STRING_TANH      = "TANH";
 
+const std::unordered_map<std::string, std::shared_ptr<Activation>> choose_activation = {
+    {STRING_IDENTITY,   IDENTITY},
+    {STRING_RELU,       RELU},
+    {STRING_SIGMOID,    SIGMOID},
+    {STRING_TANH,       TANH}
+};
+
 } // namespace LPP
 
 #endif
