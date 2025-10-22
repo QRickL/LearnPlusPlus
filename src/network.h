@@ -2,7 +2,8 @@
 #define LPP_NETWORK_H
 
 #include "matrix.h"
-#include <fstream>  // Used for saving models
+#include <fstream>
+#include <sstream>
 
 namespace LPP {
 

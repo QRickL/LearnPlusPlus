@@ -23,7 +23,7 @@ public:
     virtual ~Activation() = 0;
 };
 
-class Identity :  public Activation {
+class Identity : public Activation {
 public:
     double apply_itself(double x) const override;
     double apply_derivative(double x) const override;

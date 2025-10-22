@@ -1,9 +1,10 @@
 #ifndef LPP_MLP_H
 #define LPP_MLP_H
 
+#include <memory>
+#include <iostream>
 #include "layer.h"
 #include "network.h"
-#include "memory"
 #include "matrix.h"
 
 namespace LPP {
@@ -20,8 +21,8 @@ public:
     // Construct with in size, out size, and pointer to activation function
     MLP_Layer(const size_t input_size, const size_t output_size, std::shared_ptr<Activation> af = IDENTITY);
 
-    // TODO: add the constructor used when reading model from file
-    //MLP_Layer(std::unique_ptr<Matrix> given_weights, std::shared_ptr<Activation> af = IDENTITY);
+    // Construct when reading from model file
+    MLP_Layer(std::unique_ptr<Matrix>& given_weights, std::unique_ptr<std::vector<double>>& given_biases, std::shared_ptr<Activation> af = IDENTITY);
 
     // Display information
     void display() const;

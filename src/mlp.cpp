@@ -7,6 +7,13 @@ LPP::MLP_Layer::MLP_Layer(const size_t input_size, const size_t output_size, std
     act_func = af;
 }
 
+LPP::MLP_Layer::MLP_Layer(std::unique_ptr<Matrix>& given_weights, std::unique_ptr<std::vector<double>>& given_biases, std::shared_ptr<Activation> af)
+{
+    weights = std::move(given_weights);
+    biases = std::move(given_biases);
+    act_func = af;
+}
+
 // TODO: parallelize this
 // Marked void rather than vector<double> since pre-activation outputs are not needed
 void LPP::MLP_Layer::apply_activation(std::vector<double>& x) const
@@ -39,12 +46,11 @@ LPP::MLP::MLP(const size_t input_size, const std::vector<std::pair<size_t, std::
 LPP::MLP::MLP(const std::string& filepath)
 {
     std::ifstream model_file{filepath};
-
     if (!model_file.is_open()) {
         const auto msg = "Failed to read model from file: " + filepath;
         throw std::ios_base::failure(msg);
     }
-
+    std::cout << "\nLoading MultiLayerPerceptron from file: " + filepath << '\n';
     std::string cur_line;
 
     // Verify the model type
@@ -57,23 +63,23 @@ LPP::MLP::MLP(const std::string& filepath)
 
     while (true) {
         // Read in layer number (unused)
-        getline(model_file, cur_line);
+        model_file >> cur_line;
         if (cur_line == "END") break;
         
         size_t out, in;
         double val;
-        model_file >> out;
-        model_file >> in;
+        model_file >> out >> in;
+        std::cout << cur_line << ":\n";
+        std::cout << "Input size: " << in << "\nOutput size: " << out << '\n';
 
         // Read in weights
         auto cur_weights = std::make_unique<Matrix>(out, in);
         for (size_t i = 0; i < out; i++) {
-            for (size_t j = 0; j < out; j++) {
+            for (size_t j = 0; j < in; j++) {
                 model_file >> val;
                 cur_weights->set(i,j,val);
             }
         }
-
         // Read in biases
         auto cur_biases = std::make_unique<std::vector<double>>(out);
         for (size_t i = 0; i < out; i++) {
@@ -82,11 +88,22 @@ LPP::MLP::MLP(const std::string& filepath)
         }
 
         // Read in activation
-        getline(model_file, cur_line);
-        auto cur_act = LPP::choose_activation.at(cur_line);
+        model_file >> cur_line;
+
+        std::shared_ptr<Activation> cur_act;
+        try {
+            cur_act = LPP::choose_activation.at(cur_line);
+        } catch (std::out_of_range e) {
+            const auto msg = "Invalid activation function: " + cur_line;
+            throw std::invalid_argument(msg);
+        }
+
+        std::cout << "Activation: " + cur_line << "\n\n";
 
         // TODO: actually construct it now!!!!
+        layers.push_back(std::make_unique<MLP_Layer>(cur_weights, cur_biases, cur_act));
     }
+    std::cout << std::endl;
 }
 
 // TO DO: fill in
@@ -113,12 +130,10 @@ const std::string end_message = "END\nCheck out: https://github.com/QRickL/Learn
 void LPP::MLP::save_model(const std::string& filepath) const
 {
     std::ofstream model_file{filepath};
-
     if (!model_file.is_open()) {
         const auto msg = "Failed to save model to file: " + filepath;
         throw std::ios_base::failure(msg);
     }
-
     model_file << "Modeltype\nMLP\n";
 
     for (size_t l = 0; l < layers.size(); l++) {
@@ -149,6 +164,5 @@ void LPP::MLP::save_model(const std::string& filepath) const
         model_file << layers[l]->act_func->who() << '\n';
     }
     model_file << end_message;
-
     model_file.close();
 }
