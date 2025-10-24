@@ -159,3 +159,8 @@ std::vector<double> LPP::Matrix::operator*(const std::vector<double>& v) const
     }
     return res;
 }
+
+bool LPP::same_dims(const Matrix& m1, const Matrix& m2)
+{
+    return m1.rows() == m2.rows() && m1.cols() == m2.cols();
+}

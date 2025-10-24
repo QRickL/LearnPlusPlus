@@ -100,18 +100,17 @@ LPP::MLP::MLP(const std::string& filepath)
 
         std::cout << "Activation: " + cur_line << "\n\n";
 
-        // TODO: actually construct it now!!!!
         layers.push_back(std::make_unique<MLP_Layer>(cur_weights, cur_biases, cur_act));
     }
     std::cout << std::endl;
 }
 
 // TO DO: fill in
-std::vector<double> LPP::MLP::forward_propagation(const std::vector<double>&x, const bool saving) const
+std::vector<double> LPP::MLP::forward_propagation(const std::vector<double>& x, const bool saving) const
 {
     std::vector<double> current_fire = x;
     for (auto& layer : layers) {
-        current_fire = *layer->weights * current_fire;
+        current_fire = (*layer->weights) * current_fire + (*layer->biases);
         layer->apply_activation(current_fire);
 
         // Reduce overhead associated with saving if not needed

@@ -36,10 +36,8 @@ public:
 class MLP : public Network {
     std::vector<std::unique_ptr<MLP_Layer>> layers;
 
-    // Used to perform backpropagation
-    //std::vector<std::vector<double>> intermed_values;
     // Is this truly const, if I'm changing the values of the things pointing to?
-    std::vector<double> forward_propagation(const std::vector<double>&x, const bool saving) const;
+    std::vector<double> forward_propagation(const std::vector<double>& x, const bool saving) const;
 
     // calculate gradients
 
@@ -59,7 +57,7 @@ public:
 
     // Fire through network, will not save intermediate values
     // Not used for traninig
-    std::vector<double> inference(const std::vector<double>& layer_info) const;
+    std::vector<double> inference(const std::vector<double>& layer_info) const override;
 
     // Saving weights to a file
     void save_model(const std::string& filepath) const override;

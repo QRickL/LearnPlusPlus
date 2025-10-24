@@ -53,6 +53,8 @@ void print_object(const Matrix& m);
 // Display a vector
 void print_object(const std::vector<double>& v);
 
+bool same_dims(const Matrix& m1, const Matrix& m2);
+
 } // namespace LPP
 
 #endif
