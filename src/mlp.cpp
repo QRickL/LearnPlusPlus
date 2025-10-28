@@ -28,6 +28,8 @@ void LPP::MLP_Layer::apply_activation(std::vector<double>& x) const
 // Could I give some of this to network instead????
 LPP::MLP::MLP(const size_t input_size, const std::vector<std::pair<size_t, std::shared_ptr<Activation>>> layer_info)
 {
+    loss_func = nullptr;
+
     if (layer_info.empty()) {
         throw std::invalid_argument("Attempted to construct MLP with no layers");
     }
@@ -45,6 +47,8 @@ LPP::MLP::MLP(const size_t input_size, const std::vector<std::pair<size_t, std::
 
 LPP::MLP::MLP(const std::string& filepath)
 {
+    loss_func = nullptr;
+
     std::ifstream model_file{filepath};
     if (!model_file.is_open()) {
         const auto msg = "Failed to read model from file: " + filepath;
@@ -157,9 +161,36 @@ void LPP::MLP::save_model(const std::string& filepath) const
         model_file << '\n';
 
         // Activation function
-        // Use .at instead of [] because [] is not const
         model_file << layers[l]->act_func->who() << '\n';
     }
     model_file << LPP::model_save_end_msg;
     model_file.close();
+}
+
+double LPP::MLP::train(const size_t epochs, const double init_learning_rate)
+{
+    if (init_learning_rate <= 0) {
+        const auto msg = "Learning rate should be a small positive number";
+        throw std::invalid_argument(msg);
+    }
+    if (loss_func == nullptr) {
+        const auto msg = "Loss function not set for training";
+        throw std::runtime_error(msg);
+    }
+
+    // Have this because learning rate may change (later optimizations)
+    double learning_rate = init_learning_rate;
+    double loss;
+
+    for (size_t e = 0; e < epochs; e++) {
+        std::cout << "Epoch " << e << ":\n";
+
+        // Calculate gradients
+
+        // TODO: operator overloards for matrix += and vector +=
+        // Update weights
+    }
+
+    // Training will return the final loss
+    return loss;
 }

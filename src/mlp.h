@@ -36,6 +36,10 @@ public:
 class MLP : public Network {
     std::vector<std::unique_ptr<MLP_Layer>> layers;
 
+    // Loss function not required for inference, but required for training
+    // TODO: This can be passed to the superclass. Modify superclass constructor later
+    std::shared_ptr<Loss> loss_func;
+
     // Is this truly const, if I'm changing the values of the things pointing to?
     std::vector<double> forward_propagation(const std::vector<double>& x, const bool saving) const;
 
@@ -61,6 +65,9 @@ public:
 
     // Saving weights to a file
     void save_model(const std::string& filepath) const override;
+
+    // TODO: add args. See network.h
+    double train(const size_t epochs, const double init_learning_rate) override;
 
     ~MLP() {}
 };
