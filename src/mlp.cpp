@@ -124,8 +124,6 @@ std::vector<double> LPP::MLP::inference(const std::vector<double>& layer_info) c
     return forward_propagation(layer_info, false);
 }
 
-const std::string end_message = "END\nCheck out: https://github.com/QRickL/LearnPlusPlus\n";
-
 void LPP::MLP::save_model(const std::string& filepath) const
 {
     std::ofstream model_file{filepath};
@@ -162,6 +160,6 @@ void LPP::MLP::save_model(const std::string& filepath) const
         // Use .at instead of [] because [] is not const
         model_file << layers[l]->act_func->who() << '\n';
     }
-    model_file << end_message;
+    model_file << LPP::model_save_end_msg;
     model_file.close();
 }

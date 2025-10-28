@@ -1,7 +1,7 @@
 #ifndef LPP_LAYER_H
 #define LPP_LAYER_H
 
-#include "activations.h"
+#include "functions/activations.h"
 
 namespace LPP {
 

@@ -2,13 +2,15 @@
 #define LPP_NETWORK_H
 
 #include "matrix.h"
+#include "functions/losses.h"
 #include <fstream>
 #include <sstream>
 
 namespace LPP {
 
-class Network {
+const std::string model_save_end_msg = "END\nCheck out: https://github.com/QRickL/LearnPlusPlus\n";
 
+class Network {
 public:
     // TODO: compile
     // TODO: training
@@ -22,9 +24,9 @@ public:
     // Network is abstract
     virtual ~Network() = 0;
 
-    virtual void save_model(const std::string& filepath) const;
+    virtual void save_model(const std::string& filepath) const = 0;
     
-    virtual std::vector<double> inference(const std::vector<double>& x) const;
+    virtual std::vector<double> inference(const std::vector<double>& x) const = 0;
 };
 
 } // namespace LPP

@@ -18,9 +18,14 @@ double LPP::MeanSquaredError::apply_itself(const Matrix& y_hat, const Matrix& y)
     }
 
     const size_t n = y_hat.cols();
-    double ans = 0.0;
+    double sum = 0.0;
     for (size_t j = 0; j < n; j++) {
-        // TODO: fill in lol
+        sum += pow(y_hat.get(0,j) - y.get(0,j), 2);
     }
-    return ans / n;
+    return sum / n;
+}
+
+double LPP::MeanSquaredError::apply_derivative(const Matrix& y_hat, const Matrix& y)
+{
+    return 1.0;
 }
