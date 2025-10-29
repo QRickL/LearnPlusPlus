@@ -157,6 +157,17 @@ void LPP::Matrix::set(size_t i, size_t j, double s)
     entries[i][j] = s;
 }
 
+
+const std::vector<double>& LPP::Matrix::operator[](size_t i) const
+{
+    return entries[i];
+}
+
+std::vector<double>& LPP::Matrix::operator[](size_t i)
+{
+    return entries[i];
+}
+
 // TODO: Parallelize later
 std::vector<double> LPP::Matrix::operator*(const std::vector<double>& v) const
 {
@@ -187,6 +198,9 @@ LPP::Matrix& LPP::Matrix::operator-=(const Matrix& m)
     // make sure to check sizes
     // amke sure to actually implement this lol
 
+    for (size_t i = 0; i < rows(); i++) {
+        entries[i] -= m.entries[i];
+    }
     return *this;
 }
 

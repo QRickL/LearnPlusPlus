@@ -15,12 +15,11 @@ LPP::MLP_Layer::MLP_Layer(std::unique_ptr<Matrix>& given_weights, std::unique_pt
 }
 
 // TODO: parallelize this
-// Marked void rather than vector<double> since pre-activation outputs are not needed
-void LPP::MLP_Layer::apply_activation(std::vector<double>& x) const
+std::vector<double> LPP::MLP_Layer::apply_activation(const std::vector<double>& z) const
 {
-    if (act_func == LPP::IDENTITY) return;
+    std::vector<double> a(z.size());
 
-    for (size_t i = 0; i < x.size(); i++) {
-        x[i] = act_func->apply_itself(x[i]);
+    for (size_t i = 0; i < a.size(); i++) {
+        a[i] = act_func->apply_itself(z[i]);
     }
 }

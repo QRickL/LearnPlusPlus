@@ -11,8 +11,10 @@ namespace LPP {
 class MLP_Layer : public Layer {
     std::unique_ptr<Matrix> weights;
     std::unique_ptr<std::vector<double>> biases;
-    std::vector<double> intermed_val;  // Used for backpropagation
     std::shared_ptr<Activation> act_func;
+
+    std::vector<double> pre_activation;     // Needed for backpropagation
+    std::vector<double> post_activation;    // Needed for backpropagation
 
     friend class MLP;
 
@@ -27,7 +29,7 @@ public:
     void display() const;
 
     // Apply activation function to all entries
-    void apply_activation(std::vector<double>& x) const;
+    std::vector<double> apply_activation(const std::vector<double>& z) const;
 
     ~MLP_Layer() {}
 };

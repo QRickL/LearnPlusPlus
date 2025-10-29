@@ -16,8 +16,17 @@ class MLP : public Network {
     // TODO: This can be passed to the superclass. Modify superclass constructor later
     std::shared_ptr<Loss> loss_func;
 
-    // Is this truly const, if I'm changing the values of the things pointing to?
-    std::vector<double> forward_propagation(const std::vector<double>& x, const bool saving) const;
+    std::vector<double> forward_propagation(
+        std::vector<double> current_fire,
+        const bool training
+    ) const;
+
+    void back_propagation(
+        std::vector<std::unique_ptr<Matrix>>& del_W_partial_sum,
+        std::vector<std::unique_ptr<std::vector<double>>>& del_b_partial_sum
+    ) const;
+
+    //void back_propagation()
 
     // calculate gradients
 
@@ -37,7 +46,7 @@ public:
 
     // Fire through network, will not save intermediate values
     // Not used for traninig
-    std::vector<double> inference(const std::vector<double>& layer_info) const override;
+    std::vector<double> inference(const std::vector<double>& x) const override;
 
     // Saving weights to a file
     void save_model(const std::string& filepath) const override;

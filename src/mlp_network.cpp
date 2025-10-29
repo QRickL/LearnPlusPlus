@@ -1,4 +1,5 @@
 #include "mlp_network.h"
+#include "utility"
 
 // Could I give some of this to network instead????
 LPP::MLP::MLP(const size_t input_size, const std::vector<std::pair<size_t, std::shared_ptr<Activation>>> layer_info)
@@ -84,19 +85,30 @@ LPP::MLP::MLP(const std::string& filepath)
     std::cout << std::endl;
 }
 
-// TODO: fill in
-// TODO: DO IMMEDIATELY: make sure to store both activations in a and z
-std::vector<double> LPP::MLP::forward_propagation(const std::vector<double>& x, const bool saving) const
+std::vector<double> LPP::MLP::forward_propagation(std::vector<double> current_fire, const bool training) const
 {
-    std::vector<double> current_fire = x;
     for (auto& layer : layers) {
+        // z = Wx + b
         current_fire = (*layer->weights) * current_fire + (*layer->biases);
-        layer->apply_activation(current_fire);
+        if (training) {
+            layer->pre_activation = current_fire;
+        }
 
-        // Reduce overhead associated with saving if not needed
-        if (saving) layer->intermed_val = current_fire;
+        // a = σ(z)
+        current_fire = layer->apply_activation(current_fire);
+        if (training) {
+            layer->post_activation = current_fire;
+        }
     }
     return current_fire;
+}
+
+void LPP::MLP::back_propagation(std::vector<std::unique_ptr<Matrix>>& del_W_partial_sum, std::vector<std::unique_ptr<std::vector<double>>>& del_b_partial_sum) const
+{
+    // Looping backwards
+    for (size_t l = layers.size(); l >=0 ; l--) {
+
+    }
 }
 
 std::vector<double> LPP::MLP::inference(const std::vector<double>& x) const
@@ -167,45 +179,54 @@ double LPP::MLP::train(
         throw std::runtime_error(msg);
     }
 
-    // Have this because learning rate may change (later optimizations)
-    double learning_rate = init_learning_rate;
-    double loss;
-    const size_t T = explan_var.rows();
+    // Have this because learning rate may change, eg: adam
+    double          learning_rate = init_learning_rate;
+    double          loss;
+    const size_t    T = explan_var.rows();
+
+    LPP::Matrix                                         response_var_hat(explan_var.rows(), explan_var.cols());
+    std::vector<std::unique_ptr<Matrix>>                del_W_sums(layers.size());
+    std::vector<std::unique_ptr<std::vector<double>>>   del_b_sums(layers.size());
 
     for (size_t e = 0; e < epochs; e++) {
         std::cout << "Epoch " << e << ":\n";
 
-        // Initialize gradients
-        // These will be added to as each training example is processed
-        // TODO: make the scope of this go outside of the loop, then just replace it. so switch to pointers
-        // TODO: ask chatgpt if this will speed things up
-        std::vector<Matrix> del_W_sums;
-        std::vector<std::vector<double>> del_b_sums;
-        for (const auto& layer : layers) {
-            del_W_sums.emplace_back(layer->weights->rows(), layer->weights->cols());
-            del_b_sums.emplace_back(layer->biases->size(), 0.0);
+        // Initialize all gradient sums to 0
+        for (size_t l = 0; l < layers.size(); l++) {
+            const size_t in = layers[l]->weights->cols();
+            const size_t out = layers[l]->weights->rows();
+
+            del_W_sums[l] = std::make_unique<Matrix>(out, in);
+            del_b_sums[l] = std::make_unique<std::vector<double>>(out, 0.0);
         }
 
+        // Looping over each training example
         // Add partial sums to gradients
         for (size_t t = 0; t < T; t++) {
-            // TODO: write a helper function
+            std::vector<double> inference_result = forward_propagation(explan_var[t], true);
+            back_propagation(del_W_sums, del_b_sums);
+            
+            // Swap lowkey unsafe if inference_result.size() != resonpose_var_hat[t].size()
+            std::swap(inference_result, response_var_hat[t]);
         }
 
         // Calculate gradients
-
         // TODO: operator overloads for matrix += and vector +=
-        // TODO: operator overloads for matrix *= and /=
 
         // Update weights
         for (size_t l = 0; l < layers.size(); l++) {
-            del_W_sums[l]           *= learning_rate / T;
-            del_b_sums[l]           *= learning_rate / T;
+            *del_W_sums[l]      *= learning_rate / T;
+            *del_b_sums[l]      *= learning_rate / T;
 
-            *(layers[l]->weights)   -= del_W_sums[l];
-            *(layers[l]->biases)    -= del_b_sums[l];
+            // W <- W - α ∇_W L
+            *layers[l]->weights -= *del_W_sums[l];
+            // b <- b - α ∇_b L
+            *layers[l]->biases  -= *del_b_sums[l];
         }
+        // Compute loss
+        loss = loss_func->apply_derivative(response_var_hat, response_var);
+        std::cout << "Loss: " << loss << "\n\n";
     }
-
     // Training will return the final loss
     return loss;
 }
