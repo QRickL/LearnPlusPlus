@@ -17,7 +17,7 @@ class Activation {
 public:
     virtual double apply_itself(double x) const = 0;
     virtual double apply_derivative(double x) const = 0;
-    virtual std::string who() const = 0;
+    virtual const std::string& who() const = 0;
 
     // Activation is abstract
     virtual ~Activation() = 0;
@@ -27,7 +27,7 @@ class Identity : public Activation {
 public:
     double apply_itself(double x) const override;
     double apply_derivative(double x) const override;
-    std::string who() const override;
+    const std::string& who() const override;
 
     ~Identity() {}
 };
@@ -36,7 +36,7 @@ class ReLU : public Activation {
 public:
     double apply_itself(double x) const override;
     double apply_derivative(double x) const override;
-    std::string who() const override;
+    const std::string& who() const override;
 
     ~ReLU() {}
 };
@@ -45,7 +45,7 @@ class Sigmoid : public Activation {
 public:
     double apply_itself(double x) const override;
     double apply_derivative(double x) const override;
-    std::string who() const override;
+    const std::string& who() const override;
     
     ~Sigmoid() {}
 };
@@ -54,7 +54,7 @@ class Tanh : public Activation {
 public:
     double apply_itself(double x) const override;
     double apply_derivative(double x) const override;
-    std::string who() const override;
+    const std::string& who() const override;
     
     ~Tanh() {}
 };
