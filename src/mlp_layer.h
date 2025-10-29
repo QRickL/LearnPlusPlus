@@ -1,0 +1,36 @@
+#ifndef LPP_MLP_LAYER_H
+#define LPP_MLP_LAYER_H
+
+#include "layer.h"
+#include "matrix.h"
+#include <vector>
+#include <memory>
+
+namespace LPP {
+
+class MLP_Layer : public Layer {
+    std::unique_ptr<Matrix> weights;
+    std::unique_ptr<std::vector<double>> biases;
+    std::vector<double> intermed_val;  // Used for backpropagation
+    std::shared_ptr<Activation> act_func;
+
+    friend class MLP;
+
+public:
+    // Construct with in size, out size, and pointer to activation function
+    MLP_Layer(const size_t input_size, const size_t output_size, std::shared_ptr<Activation> af = IDENTITY);
+
+    // Construct when reading from model file
+    MLP_Layer(std::unique_ptr<Matrix>& given_weights, std::unique_ptr<std::vector<double>>& given_biases, std::shared_ptr<Activation> af = IDENTITY);
+
+    // Display information
+    void display() const;
+
+    // Apply activation function to all entries
+    void apply_activation(std::vector<double>& x) const;
+
+    ~MLP_Layer() {}
+};
+
+} // namespace LPP
+#endif

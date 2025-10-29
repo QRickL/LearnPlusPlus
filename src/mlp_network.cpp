@@ -1,29 +1,4 @@
-#include "mlp.h"
-
-LPP::MLP_Layer::MLP_Layer(const size_t input_size, const size_t output_size, std::shared_ptr<Activation> af)
-{
-    weights = std::make_unique<Matrix>(output_size, input_size);
-    biases = std::make_unique<std::vector<double>>(output_size, 0.0);
-    act_func = af;
-}
-
-LPP::MLP_Layer::MLP_Layer(std::unique_ptr<Matrix>& given_weights, std::unique_ptr<std::vector<double>>& given_biases, std::shared_ptr<Activation> af)
-{
-    weights = std::move(given_weights);
-    biases = std::move(given_biases);
-    act_func = af;
-}
-
-// TODO: parallelize this
-// Marked void rather than vector<double> since pre-activation outputs are not needed
-void LPP::MLP_Layer::apply_activation(std::vector<double>& x) const
-{
-    if (act_func == LPP::IDENTITY) return;
-
-    for (size_t i = 0; i < x.size(); i++) {
-        x[i] = act_func->apply_itself(x[i]);
-    }
-}
+#include "mlp_network.h"
 
 // Could I give some of this to network instead????
 LPP::MLP::MLP(const size_t input_size, const std::vector<std::pair<size_t, std::shared_ptr<Activation>>> layer_info)
@@ -167,8 +142,17 @@ void LPP::MLP::save_model(const std::string& filepath) const
     model_file.close();
 }
 
-double LPP::MLP::train(const size_t epochs, const double init_learning_rate)
+double LPP::MLP::train(
+    const Matrix& explan_var,
+    const Matrix& response_var,
+    const size_t epochs,
+    const double init_learning_rate
+)
 {
+    if (explan_var.rows() != response_var.rows()){
+        const auto msg = "Different number of explanatory and respose variates";
+        throw std::invalid_argument(msg);
+    }
     if (init_learning_rate <= 0) {
         const auto msg = "Learning rate should be a small positive number";
         throw std::invalid_argument(msg);
@@ -185,10 +169,30 @@ double LPP::MLP::train(const size_t epochs, const double init_learning_rate)
     for (size_t e = 0; e < epochs; e++) {
         std::cout << "Epoch " << e << ":\n";
 
+        // Initialize gradients
+        // These will be added to as each training example is processed
+        std::vector<Matrix> del_W;
+        std::vector<std::vector<double>> del_b;
+        for (const auto& layer : layers) {
+            del_W.emplace_back(layer->weights->rows(), layer->weights->cols());
+            del_b.emplace_back(layer->biases->size(), 0.0);
+        }
+
+        // Add partial sums to gradients
+        for (size_t t = 0; t < explan_var.rows(); t++) {
+
+        }
+
         // Calculate gradients
 
-        // TODO: operator overloards for matrix += and vector +=
+        // TODO: operator overloads for matrix += and vector +=
+        // TODO: operator overloads for matrix *= and /=
         // Update weights
+        for (size_t l = 0; l < layers.size(); l++) {
+
+            *(layers[l]->weights)   -= learning_rate * del_W[l];
+            *(layers[l]->biases)    -= learning_rate * del_b[l];
+        }
     }
 
     // Training will return the final loss

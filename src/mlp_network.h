@@ -1,37 +1,13 @@
-#ifndef LPP_MLP_H
-#define LPP_MLP_H
+#ifndef LPP_MLP_NETWORK_H
+#define LPP_MLP_NETWORK_H
 
 #include <memory>
 #include <iostream>
-#include "layer.h"
+#include "mlp_layer.h"
 #include "network.h"
 #include "matrix.h"
 
 namespace LPP {
-
-class MLP_Layer : public Layer {
-    std::unique_ptr<Matrix> weights;
-    std::unique_ptr<std::vector<double>> biases;
-    std::vector<double> intermed_val;  // Used for backpropagation
-    std::shared_ptr<Activation> act_func;
-
-    friend class MLP;
-
-public:
-    // Construct with in size, out size, and pointer to activation function
-    MLP_Layer(const size_t input_size, const size_t output_size, std::shared_ptr<Activation> af = IDENTITY);
-
-    // Construct when reading from model file
-    MLP_Layer(std::unique_ptr<Matrix>& given_weights, std::unique_ptr<std::vector<double>>& given_biases, std::shared_ptr<Activation> af = IDENTITY);
-
-    // Display information
-    void display() const;
-
-    // Apply activation function to all entries
-    void apply_activation(std::vector<double>& x) const;
-
-    ~MLP_Layer() {}
-};
 
 class MLP : public Network {
     std::vector<std::unique_ptr<MLP_Layer>> layers;
@@ -67,7 +43,7 @@ public:
     void save_model(const std::string& filepath) const override;
 
     // TODO: add args. See network.h
-    double train(const size_t epochs, const double init_learning_rate) override;
+    double train(const Matrix& explan_var, const Matrix& response_var, const size_t epochs, const double init_learning_rate) override;
 
     ~MLP() {}
 };
