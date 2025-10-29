@@ -84,7 +84,8 @@ LPP::MLP::MLP(const std::string& filepath)
     std::cout << std::endl;
 }
 
-// TO DO: fill in
+// TODO: fill in
+// TODO: DO IMMEDIATELY: make sure to store both activations in a and z
 std::vector<double> LPP::MLP::forward_propagation(const std::vector<double>& x, const bool saving) const
 {
     std::vector<double> current_fire = x;
@@ -98,9 +99,9 @@ std::vector<double> LPP::MLP::forward_propagation(const std::vector<double>& x, 
     return current_fire;
 }
 
-std::vector<double> LPP::MLP::inference(const std::vector<double>& layer_info) const
+std::vector<double> LPP::MLP::inference(const std::vector<double>& x) const
 {
-    return forward_propagation(layer_info, false);
+    return forward_propagation(x, false);
 }
 
 void LPP::MLP::save_model(const std::string& filepath) const
@@ -149,8 +150,12 @@ double LPP::MLP::train(
     const double init_learning_rate
 )
 {
-    if (explan_var.rows() != response_var.rows()){
+    if (explan_var.rows() != response_var.rows()) {
         const auto msg = "Different number of explanatory and respose variates";
+        throw std::invalid_argument(msg);
+    }
+    if (explan_var.rows() == 0) {
+        const auto msg = "Training data is empty!";
         throw std::invalid_argument(msg);
     }
     if (init_learning_rate <= 0) {
@@ -165,33 +170,39 @@ double LPP::MLP::train(
     // Have this because learning rate may change (later optimizations)
     double learning_rate = init_learning_rate;
     double loss;
+    const size_t T = explan_var.rows();
 
     for (size_t e = 0; e < epochs; e++) {
         std::cout << "Epoch " << e << ":\n";
 
         // Initialize gradients
         // These will be added to as each training example is processed
-        std::vector<Matrix> del_W;
-        std::vector<std::vector<double>> del_b;
+        // TODO: make the scope of this go outside of the loop, then just replace it. so switch to pointers
+        // TODO: ask chatgpt if this will speed things up
+        std::vector<Matrix> del_W_sums;
+        std::vector<std::vector<double>> del_b_sums;
         for (const auto& layer : layers) {
-            del_W.emplace_back(layer->weights->rows(), layer->weights->cols());
-            del_b.emplace_back(layer->biases->size(), 0.0);
+            del_W_sums.emplace_back(layer->weights->rows(), layer->weights->cols());
+            del_b_sums.emplace_back(layer->biases->size(), 0.0);
         }
 
         // Add partial sums to gradients
-        for (size_t t = 0; t < explan_var.rows(); t++) {
-
+        for (size_t t = 0; t < T; t++) {
+            // TODO: write a helper function
         }
 
         // Calculate gradients
 
         // TODO: operator overloads for matrix += and vector +=
         // TODO: operator overloads for matrix *= and /=
+
         // Update weights
         for (size_t l = 0; l < layers.size(); l++) {
+            del_W_sums[l]           *= learning_rate / T;
+            del_b_sums[l]           *= learning_rate / T;
 
-            *(layers[l]->weights)   -= learning_rate * del_W[l];
-            *(layers[l]->biases)    -= learning_rate * del_b[l];
+            *(layers[l]->weights)   -= del_W_sums[l];
+            *(layers[l]->biases)    -= del_b_sums[l];
         }
     }
 

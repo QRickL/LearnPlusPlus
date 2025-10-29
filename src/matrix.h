@@ -17,6 +17,10 @@ std::vector<double> operator+(double c, const std::vector<double>& v2);
 std::vector<double> operator*(const std::vector<double>& v1, double c);
 std::vector<double> operator*(double c, const std::vector<double>& v2);
 
+// others documentation later...
+std::vector<double>& operator-=(std::vector<double>& v1, const std::vector<double>& v2);
+std::vector<double>& operator*=(std::vector<double>& v1, const double c);
+
 namespace LPP
 {
 
@@ -43,7 +47,10 @@ public:
     // Matrix operations
     double get(size_t i, size_t j) const;
     void set(size_t i, size_t j, double s);
+
     std::vector<double> operator*(const std::vector<double>& v) const;
+    Matrix& operator-=(const Matrix& m);
+    Matrix& operator*=(const double c);
 
 };
 

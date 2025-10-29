@@ -1,6 +1,5 @@
 #include "matrix.h"
 #include <exception>
-//#include <format>
 #include <iostream>
 
 // Later: see if we stil need some of the vectors, that way we can rewrite the input and save copying
@@ -11,8 +10,6 @@ std::vector<double> operator+(const std::vector<double>& v1, const std::vector<d
     if (v1.size() != v2.size()) {
         const auto msg = "Adding vectors of sizes " + std::to_string(v1.size()) + " and "  + std::to_string(v2.size());
         throw std::invalid_argument(msg);
-
-        //throw std::invalid_argument(std::format("Adding vectors of sizes {} and {}", v1.size(), v2.size()));
     }
 
     std::vector<double> res(v1.size());
@@ -28,8 +25,6 @@ double operator*(const std::vector<double>& v1, const std::vector<double>& v2)
     if (v1.size() != v2.size()) {
         const auto msg = "Dotting vectors of sizes " + std::to_string(v1.size()) + " and "  + std::to_string(v2.size());
         throw std::invalid_argument(msg);
-
-        //throw std::invalid_argument(std::format("Dotting vectors of sizes {} and {}", v1.size(), v2.size()));
     }
 
     double res = 0.0;
@@ -40,7 +35,7 @@ double operator*(const std::vector<double>& v1, const std::vector<double>& v2)
 }
 
 // TODO: Parallelize later
-std::vector<double> operator+(const std::vector<double>& v1, double c)
+std::vector<double> operator+(const std::vector<double>& v1, const double c)
 {
     std::vector<double> res(v1.size());
     for (int i = 0; i < v1.size(); i++) {
@@ -49,12 +44,12 @@ std::vector<double> operator+(const std::vector<double>& v1, double c)
     return res;
 }
 
-std::vector<double> operator+(double c, const std::vector<double>& v2) {
+std::vector<double> operator+(const double c, const std::vector<double>& v2) {
     return v2 + c;
 }
 
 // TODO: Parallelize later
-std::vector<double> operator*(const std::vector<double>& v1, double c)
+std::vector<double> operator*(const std::vector<double>& v1, const double c)
 {
     std::vector<double> res(v1.size());
     for (int i = 0; i < v1.size(); i++) {
@@ -63,8 +58,29 @@ std::vector<double> operator*(const std::vector<double>& v1, double c)
     return res;
 }
 
-std::vector<double> operator*(double c, const std::vector<double>& v2) {
+std::vector<double> operator*(const double c, const std::vector<double>& v2) {
     return v2 * c;
+}
+
+// TODO: Parallelize later
+std::vector<double>& operator-=(std::vector<double>& v1, const std::vector<double>& v2)
+{
+    if (v1.size() != v2.size()) {
+        const auto msg = "Subtracting vectors of sizes " + std::to_string(v1.size()) + " and "  + std::to_string(v2.size());
+        throw std::invalid_argument(msg);
+    }
+
+    for (size_t i = 0; i < v1.size(); i++) {
+        v1[i] -= v2[i];
+    }
+    return v1;
+}
+
+// TODO: Parallelize later
+std::vector<double>& operator*=(std::vector<double>& v1, const double c)
+{
+    for (double& d : v1) d *= c;
+    return v1;
 }
 
 void LPP::print_object(const std::vector<double>& v)
@@ -163,4 +179,22 @@ std::vector<double> LPP::Matrix::operator*(const std::vector<double>& v) const
 bool LPP::same_dims(const Matrix& m1, const Matrix& m2)
 {
     return m1.rows() == m2.rows() && m1.cols() == m2.cols();
+}
+
+// TODO: implement
+LPP::Matrix& LPP::Matrix::operator-=(const Matrix& m)
+{
+    // make sure to check sizes
+    // amke sure to actually implement this lol
+
+    return *this;
+}
+
+// TODO: parallelize
+LPP::Matrix& LPP::Matrix::operator*=(const double c)
+{
+    for (size_t i = 0; i < entries.size(); i++) {
+        entries[i] *= c;
+    }
+    return *this;
 }
