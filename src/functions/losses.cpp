@@ -19,17 +19,21 @@ void LPP::Loss::enforce_size(const std::vector<double>& y, const std::vector<dou
     }
 }
 
-
+// TODO: parallelize this
 double LPP::MeanSquaredError::apply_itself(const Matrix& y_hat, const Matrix& y) const
 {
     enforce_size(y_hat, y, "MeanSquaredError");
 
+    const size_t m = y_hat.rows();
     const size_t n = y_hat.cols();
     double sum = 0.0;
-    for (size_t j = 0; j < n; j++) {
-        sum += pow(y_hat.get(0,j) - y.get(0,j), 2);
+
+    for (size_t i = 0; i < m; i ++) {
+        for (size_t j = 0; j < n; j++) {
+            sum += pow(y_hat.get(0,j) - y.get(0,j), 2);
+        }
     }
-    return sum / n;
+    return sum / m;
 }
 
 // TODO: fill all of this in:
@@ -49,7 +53,14 @@ double LPP::BinaryCrossEntropy::apply_itself(const Matrix& y_hat, const Matrix& 
         throw std::invalid_argument(msg);
     }
 
-    return 6.7;
+    const size_t m = y_hat.rows();
+    const size_t n = y_hat.cols();
+    double sum = 0.0;
+
+    for (size_t i = 0; i < n; i ++) {
+        sum += y.get(i, 0) * std::log(y_hat.get(i, 0)) + (1 - y.get(i, 0)) * std::log(1 - y_hat.get(i, 0));
+    }
+    return -sum / m;
 }
 
 std::vector<double> LPP::BinaryCrossEntropy::find_gradient(const std::vector<double>& y_hat, const std::vector<double>& y) const
@@ -60,19 +71,29 @@ std::vector<double> LPP::BinaryCrossEntropy::find_gradient(const std::vector<dou
         throw std::invalid_argument(msg);
     }
 
-    return {};
+    const double l = (1 - y[0]) / (1 - y_hat[0]) - y[0] / y_hat[0];
+    return {l};
 }
 
 double LPP::CrossEntropy::apply_itself(const Matrix& y_hat, const Matrix& y) const
 {
     enforce_size(y_hat, y, "CrossEntropy");
 
-    return 6.7;
+    const size_t m = y_hat.rows();
+    const size_t n = y_hat.cols();
+    double sum = 0.0;
+
+    for (size_t i = 0; i < m; i++) {
+        for (size_t j = 0; j < n; j++) {
+            sum += y.get(i,j) * std::log(y_hat.get(i,j));
+        }
+    }
+    return -sum / m;
 }
 
 std::vector<double> LPP::CrossEntropy::find_gradient(const std::vector<double>& y_hat, const std::vector<double>& y) const
 {
     enforce_size(y_hat, y, "CrossEntropy derivative");
 
-    return {};
+    return -1 * (y / y_hat);
 }

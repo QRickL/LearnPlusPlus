@@ -2,102 +2,6 @@
 #include <exception>
 #include <iostream>
 
-// Later: see if we stil need some of the vectors, that way we can rewrite the input and save copying
-
-// TODO: Parallelize later
-std::vector<double> operator+(const std::vector<double>& v1, const std::vector<double>& v2) 
-{
-    if (v1.size() != v2.size()) {
-        const auto msg = "Adding vectors of sizes " + std::to_string(v1.size()) + " and "  + std::to_string(v2.size());
-        throw std::invalid_argument(msg);
-    }
-
-    std::vector<double> res(v1.size());
-    for (size_t i = 0; i < v1.size(); i++) {
-        res[i] = v1[i] + v2[i];
-    }
-    return res;
-}
-
-// TODO: Parallelize later
-std::vector<double> operator-(const std::vector<double>& v1, const std::vector<double>& v2)
-{
-    if (v1.size() != v2.size()) {
-        const auto msg = "Subtracting vectors of sizes " + std::to_string(v1.size()) + " and "  + std::to_string(v2.size());
-        throw std::invalid_argument(msg);
-    }
-
-    std::vector<double> res(v1.size());
-    for (size_t i = 0; i < v1.size(); i++) {
-        res[i] = v1[i] - v2[i];
-    }
-    return res;
-}
-
-// TODO: Parallelize later
-double operator*(const std::vector<double>& v1, const std::vector<double>& v2)
-{
-    if (v1.size() != v2.size()) {
-        const auto msg = "Dotting vectors of sizes " + std::to_string(v1.size()) + " and "  + std::to_string(v2.size());
-        throw std::invalid_argument(msg);
-    }
-
-    double res = 0.0;
-    for (size_t i = 0; i < v1.size(); i++) {
-        res += v1[i]*v2[i];
-    }
-    return res;
-}
-
-// TODO: Parallelize later
-std::vector<double> operator+(const std::vector<double>& v1, const double c)
-{
-    std::vector<double> res(v1.size());
-    for (int i = 0; i < v1.size(); i++) {
-        res[i] = c + v1[i];
-    }
-    return res;
-}
-
-std::vector<double> operator+(const double c, const std::vector<double>& v2) {
-    return v2 + c;
-}
-
-// TODO: Parallelize later
-std::vector<double> operator*(const std::vector<double>& v1, const double c)
-{
-    std::vector<double> res(v1.size());
-    for (int i = 0; i < v1.size(); i++) {
-        res[i] = c * v1[i];
-    }
-    return res;
-}
-
-std::vector<double> operator*(const double c, const std::vector<double>& v2) {
-    return v2 * c;
-}
-
-// TODO: Parallelize later
-std::vector<double>& operator-=(std::vector<double>& v1, const std::vector<double>& v2)
-{
-    if (v1.size() != v2.size()) {
-        const auto msg = "Subtracting vectors of sizes " + std::to_string(v1.size()) + " and "  + std::to_string(v2.size());
-        throw std::invalid_argument(msg);
-    }
-
-    for (size_t i = 0; i < v1.size(); i++) {
-        v1[i] -= v2[i];
-    }
-    return v1;
-}
-
-// TODO: Parallelize later
-std::vector<double>& operator*=(std::vector<double>& v1, const double c)
-{
-    for (double& d : v1) d *= c;
-    return v1;
-}
-
 void LPP::print_object(const std::vector<double>& v)
 {
     std::cout << '{';
@@ -112,11 +16,14 @@ void LPP::print_object(const Matrix& m)
     m.print_entries();
 }
 
-// TODO: Parallelize later
-// See if we can steal m instead of copying it
-LPP::Matrix::Matrix(const std::vector<std::vector<double>>& m):
-    entries{m}
+LPP::Matrix::Matrix(const std::vector<std::vector<double>>& m)
 {
+    entries = m;
+}
+
+LPP::Matrix::Matrix(std::vector<std::vector<double>>& m)
+{
+    entries = std::move(m);
 }
 
 // TODO: Parallelize later
@@ -138,12 +45,14 @@ LPP::Matrix::Matrix(const size_t rows, const size_t cols, const double c):
     }
 }
 
-size_t LPP::Matrix::rows() const {return entries.size();}
+size_t LPP::Matrix::rows() const
+{
+    return entries.size();
+}
 
 size_t LPP::Matrix::cols() const
 {
     if (entries.empty()) return 0;
-
     return entries[0].size();
 }
 
@@ -171,7 +80,6 @@ void LPP::Matrix::set(size_t i, size_t j, double s)
     }
     entries[i][j] = s;
 }
-
 
 const std::vector<double>& LPP::Matrix::operator[](size_t i) const
 {
