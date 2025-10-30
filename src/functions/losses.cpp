@@ -10,13 +10,6 @@ double LPP::MeanSquaredError::apply_itself(const Matrix& y_hat, const Matrix& y)
         throw std::invalid_argument(msg);
     }
 
-    // Both inputs should be of dimension 1xn
-    // nx1 wastes space
-    if (y_hat.rows() != 1 || y.rows() != 1) {
-        const auto msg = "Matrices for application of MeanSquaredError have non-1 rows";
-        throw std::invalid_argument(msg);
-    }
-
     const size_t n = y_hat.cols();
     double sum = 0.0;
     for (size_t j = 0; j < n; j++) {
@@ -25,6 +18,7 @@ double LPP::MeanSquaredError::apply_itself(const Matrix& y_hat, const Matrix& y)
     return sum / n;
 }
 
+// why is this even needed...??? derivative wrt to what. figure out later
 double LPP::MeanSquaredError::apply_derivative(const Matrix& y_hat, const Matrix& y)
 {
     return 1.0;
