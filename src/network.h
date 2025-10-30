@@ -29,7 +29,7 @@ public:
     virtual std::vector<double> inference(const std::vector<double>& x) const = 0;
 
     // TODO: add args. See above
-    virtual double train(const Matrix& explan_var, const Matrix& response_var, const size_t epochs, const double init_learning_rate) = 0;
+    virtual double train(const Matrix& explan_var, const Matrix& response_var, const size_t epochs, const double init_learning_rate, const std::shared_ptr<Loss>& loss_ptr) = 0;
 };
 
 } // namespace LPP

@@ -23,7 +23,9 @@ class MLP : public Network {
 
     void back_propagation(
         std::vector<std::unique_ptr<Matrix>>& del_W_partial_sum,
-        std::vector<std::unique_ptr<std::vector<double>>>& del_b_partial_sum
+        std::vector<std::unique_ptr<std::vector<double>>>& del_b_partial_sum,
+        const std::vector<double>& response_var,
+        const std::vector<double>& explan_var
     ) const;
 
     //void back_propagation()
@@ -52,7 +54,7 @@ public:
     void save_model(const std::string& filepath) const override;
 
     // TODO: add args. See network.h
-    double train(const Matrix& explan_var, const Matrix& response_var, const size_t epochs, const double init_learning_rate) override;
+    double train(const Matrix& explan_var, const Matrix& response_var, const size_t epochs, const double init_learning_rate, const std::shared_ptr<Loss>& loss_ptr) override;
 
     ~MLP() {}
 };

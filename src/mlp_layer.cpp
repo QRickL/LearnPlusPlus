@@ -22,4 +22,5 @@ std::vector<double> LPP::MLP_Layer::apply_activation(const std::vector<double>& 
     for (size_t i = 0; i < a.size(); i++) {
         a[i] = act_func->apply_itself(z[i]);
     }
+    return a;
 }

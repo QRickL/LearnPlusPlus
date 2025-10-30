@@ -103,11 +103,65 @@ std::vector<double> LPP::MLP::forward_propagation(std::vector<double> current_fi
     return current_fire;
 }
 
-void LPP::MLP::back_propagation(std::vector<std::unique_ptr<Matrix>>& del_W_partial_sum, std::vector<std::unique_ptr<std::vector<double>>>& del_b_partial_sum) const
+void LPP::MLP::back_propagation(std::vector<std::unique_ptr<Matrix>>& del_W_partial_sum, std::vector<std::unique_ptr<std::vector<double>>>& del_b_partial_sum, const std::vector<double>& response_var, const std::vector<double>& explan_var) const
 {
-    // Looping backwards
-    for (size_t l = layers.size(); l >=0 ; l--) {
+    // Store previous gradients
+    std::vector<double> prev_gradient;
+    std::vector<double> current_gradient;
 
+    // Looping backwards
+    for (int l = layers.size() - 1; l >=0 ; l--) {
+
+std::cout << "Backpropagation for layer #" << l << std::endl;
+        
+        if (l == layers.size() - 1)     // Looking at last layer
+        {
+            std::swap(current_gradient, layers[l]->post_activation);
+            current_gradient -= response_var;
+            current_gradient *= 2;
+
+//std::cout << "hello" << std::endl;
+
+            //prev_gradient = 2 * (layers[l]->post_activation - explan_var);
+        }
+        else                        // Looking at non-last layer, recursive
+        {                           // Uses values from layers ahead
+            const size_t forward_layer_size = layers[l+1]->weights->rows();
+            const size_t current_layer_size = layers[l]->weights->rows();
+            current_gradient = std::vector<double>(current_layer_size, 0.0);
+
+            for (size_t c = 0; c < current_layer_size; c++) {
+                for (size_t k = 0; k < forward_layer_size; k++) {
+                    const double delL_dela1 = prev_gradient[k];
+                    const double dela1_delz = layers[l+1]->act_func->apply_derivative(layers[l+1]->pre_activation[k]);    // will returning this by refernce speed things up
+                    const double delz_dela0 = layers[l+1]->weights->get(k,c);
+
+                    current_gradient[c] += delL_dela1 * dela1_delz * delz_dela0;
+                }
+            }
+        }
+
+        // TODO: parallelize later
+        for (size_t i = 0; i < layers[l]->weights->rows(); i++) {
+
+            const double imed = current_gradient[i] * layers[l]->act_func->apply_derivative(layers[l]->pre_activation[i]);
+
+            (*del_b_partial_sum[l])[i] += imed;
+
+            for (size_t j = 0; j < layers[l]->weights->cols(); j++) {
+
+                if (l > 0) {
+                    (*del_W_partial_sum[l])[i][j] += imed * layers[l-1]->post_activation[j];
+                    //(*del_W_partial_sum[l]).set(i, j, imed * layers[l-1]->post_activation[j]);
+                } else {
+                    (*del_W_partial_sum[l])[i][j] += imed * explan_var[j];
+                    //(*del_W_partial_sum[l]).set(i, j, imed * explan_var[j]);
+                }
+
+            }
+        }
+        std::swap(current_gradient, prev_gradient);
+        // Current gradient will now be garbage, but that garbage will discarded later
     }
 }
 
@@ -159,7 +213,8 @@ double LPP::MLP::train(
     const Matrix& explan_var,
     const Matrix& response_var,
     const size_t epochs,
-    const double init_learning_rate
+    const double init_learning_rate,
+    const std::shared_ptr<Loss>& loss_ptr
 )
 {
     if (explan_var.rows() != response_var.rows()) {
@@ -174,6 +229,9 @@ double LPP::MLP::train(
         const auto msg = "Learning rate should be a small positive number";
         throw std::invalid_argument(msg);
     }
+
+    // TODO: clean up this logic
+    loss_func = loss_ptr;
     if (loss_func == nullptr) {
         const auto msg = "Loss function not set for training";
         throw std::runtime_error(msg);
@@ -200,11 +258,18 @@ double LPP::MLP::train(
             del_b_sums[l] = std::make_unique<std::vector<double>>(out, 0.0);
         }
 
+        //std::cout << "\n\nDEBUG\n\n" << std::endl;
+
         // Looping over each training example
         // Add partial sums to gradients
         for (size_t t = 0; t < T; t++) {
+std::cout << "Training data #" << t << std::endl;
+
             std::vector<double> inference_result = forward_propagation(explan_var[t], true);
-            back_propagation(del_W_sums, del_b_sums);
+//std::cout << "forward done" << std::endl;
+
+            back_propagation(del_W_sums, del_b_sums, response_var[t], explan_var[t]);
+//std::cout << "backward done" << std::endl;
             
             // Swap lowkey unsafe if inference_result.size() != resonpose_var_hat[t].size()
             std::swap(inference_result, response_var_hat[t]);
@@ -224,7 +289,8 @@ double LPP::MLP::train(
             *layers[l]->biases  -= *del_b_sums[l];
         }
         // Compute loss
-        loss = loss_func->apply_derivative(response_var_hat, response_var);
+        loss = 
+        loss = loss_func->apply_itself(response_var_hat, response_var);
         std::cout << "Loss: " << loss << "\n\n";
     }
     // Training will return the final loss
