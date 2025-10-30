@@ -5,6 +5,8 @@
 
 #include "network.h"
 #include "layer.h"
+
 #include "mlp_network.h"
+#include "mlp_layer.h"
 
 #endif

@@ -20,6 +20,21 @@ std::vector<double> operator+(const std::vector<double>& v1, const std::vector<d
 }
 
 // TODO: Parallelize later
+std::vector<double> operator-(const std::vector<double>& v1, const std::vector<double>& v2)
+{
+    if (v1.size() != v2.size()) {
+        const auto msg = "Subtracting vectors of sizes " + std::to_string(v1.size()) + " and "  + std::to_string(v2.size());
+        throw std::invalid_argument(msg);
+    }
+
+    std::vector<double> res(v1.size());
+    for (size_t i = 0; i < v1.size(); i++) {
+        res[i] = v1[i] - v2[i];
+    }
+    return res;
+}
+
+// TODO: Parallelize later
 double operator*(const std::vector<double>& v1, const std::vector<double>& v2)
 {
     if (v1.size() != v2.size()) {
