@@ -17,25 +17,23 @@ public:
     Matrix(const size_t rows, const size_t cols, const double c);       // Initialize to values
 
     // Display information
-    size_t rows() const;
-    size_t cols() const;
-    void print_entries() const;
+    size_t  rows() const;
+    size_t  cols() const;
+    void    print_entries() const;
 
     // Matrix operations
-    double get(size_t i, size_t j) const;
-    void set(size_t i, size_t j, double s);
-    const std::vector<double>& operator[](size_t i) const;              // Const version
-    std::vector<double>& operator[](size_t i);                          // Non-const versions
-    std::vector<double> operator*(const std::vector<double>& v) const;
-    Matrix& operator-=(const Matrix& m);
-    Matrix& operator*=(const double c);
+    const std::vector<double>&  operator[](size_t i) const;                     // Const version
+    std::vector<double>&        operator[](size_t i);                          // Non-const versions
+    std::vector<double>         operator*(const std::vector<double>& v) const;
+    Matrix&     operator-=(const Matrix& m);
+    Matrix&     operator*=(const double c);
+    double      get(size_t i, size_t j) const;
+    void        set(size_t i, size_t j, double s);
 
 };
 
-// Display matrix
+// Display matrix or vector
 void print_object(const Matrix& m);
-
-// Display vector
 void print_object(const std::vector<double>& v);
 
 // Compare two for same sizes

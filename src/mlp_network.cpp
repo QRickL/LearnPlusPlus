@@ -116,13 +116,12 @@ std::cout << "Backpropagation for layer #" << l << std::endl;
         
         if (l == layers.size() - 1)     // Looking at last layer
         {
+            /*
             std::swap(current_gradient, layers[l]->post_activation);
             current_gradient -= response_var;
             current_gradient *= 2;
-
-//std::cout << "hello" << std::endl;
-
-            //prev_gradient = 2 * (layers[l]->post_activation - explan_var);
+            */
+            current_gradient = loss_func->find_gradient(layers[l]->post_activation, response_var);
         }
         else                        // Looking at non-last layer, recursive
         {                           // Uses values from layers ahead
@@ -150,12 +149,13 @@ std::cout << "Backpropagation for layer #" << l << std::endl;
 
             for (size_t j = 0; j < layers[l]->weights->cols(); j++) {
 
-                if (l > 0) {
+                if (l > 0)
+                {
                     (*del_W_partial_sum[l])[i][j] += imed * layers[l-1]->post_activation[j];
-                    //(*del_W_partial_sum[l]).set(i, j, imed * layers[l-1]->post_activation[j]);
-                } else {
+                }
+                else
+                {
                     (*del_W_partial_sum[l])[i][j] += imed * explan_var[j];
-                    //(*del_W_partial_sum[l]).set(i, j, imed * explan_var[j]);
                 }
 
             }
@@ -247,52 +247,42 @@ double LPP::MLP::train(
     std::vector<std::unique_ptr<std::vector<double>>>   del_b_sums(layers.size());
 
     for (size_t e = 0; e < epochs; e++) {
-        std::cout << "Epoch " << e << ":\n";
+        std::cout << "Training epoch " << e << ":\n";
 
         // Initialize all gradient sums to 0
         for (size_t l = 0; l < layers.size(); l++) {
-            const size_t in = layers[l]->weights->cols();
-            const size_t out = layers[l]->weights->rows();
+            const size_t in     = layers[l]->weights->cols();
+            const size_t out    = layers[l]->weights->rows();
 
             del_W_sums[l] = std::make_unique<Matrix>(out, in);
             del_b_sums[l] = std::make_unique<std::vector<double>>(out, 0.0);
         }
 
-        //std::cout << "\n\nDEBUG\n\n" << std::endl;
-
         // Looping over each training example
-        // Add partial sums to gradients
+        // Back propagation will partial sums to gradients
         for (size_t t = 0; t < T; t++) {
-std::cout << "Training data #" << t << std::endl;
-
             std::vector<double> inference_result = forward_propagation(explan_var[t], true);
-//std::cout << "forward done" << std::endl;
-
             back_propagation(del_W_sums, del_b_sums, response_var[t], explan_var[t]);
-//std::cout << "backward done" << std::endl;
             
             // Swap lowkey unsafe if inference_result.size() != resonpose_var_hat[t].size()
             std::swap(inference_result, response_var_hat[t]);
         }
 
-        // Calculate gradients
-        // TODO: operator overloads for matrix += and vector +=
-
-        // Update weights
+        // Calculate final gradients
         for (size_t l = 0; l < layers.size(); l++) {
-            *del_W_sums[l]      *= learning_rate / T;
-            *del_b_sums[l]      *= learning_rate / T;
-
             // W <- W - α ∇_W L
+            *del_W_sums[l]      *= learning_rate / T;
             *layers[l]->weights -= *del_W_sums[l];
+
             // b <- b - α ∇_b L
+            *del_b_sums[l]      *= learning_rate / T;
             *layers[l]->biases  -= *del_b_sums[l];
         }
         // Compute loss
-        loss = 
         loss = loss_func->apply_itself(response_var_hat, response_var);
         std::cout << "Loss: " << loss << "\n\n";
     }
-    // Training will return the final loss
+
+    // Training returns the final loss
     return loss;
 }

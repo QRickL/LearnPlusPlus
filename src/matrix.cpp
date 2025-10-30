@@ -8,28 +8,18 @@ void LPP::print_object(const std::vector<double>& v)
     for (const double d : v) {
         std::cout << d << ", ";
     }
-    std::cout << "}\n";
+    std::cout << '}' << std::endl;
 }
 
-void LPP::print_object(const Matrix& m)
-{
-    m.print_entries();
-}
+void LPP::print_object(const Matrix& m) {m.print_entries();}
 
-LPP::Matrix::Matrix(const std::vector<std::vector<double>>& m)
-{
-    entries = m;
-}
+LPP::Matrix::Matrix(const std::vector<std::vector<double>>& m) {entries = m;}
 
-LPP::Matrix::Matrix(std::vector<std::vector<double>>& m)
-{
-    entries = std::move(m);
-}
+LPP::Matrix::Matrix(std::vector<std::vector<double>>& m) {entries = std::move(m);}
 
 // TODO: Parallelize later
-// See if we can also have a random init
-LPP::Matrix::Matrix(const size_t rows, const size_t cols):
-    entries{rows}
+// TODO: See if we can also have a random init
+LPP::Matrix::Matrix(const size_t rows, const size_t cols): entries{rows}
 {
     for (size_t r = 0; r < rows; r++) {
         entries[r] = std::vector<double>(cols, 0.0);
@@ -37,8 +27,7 @@ LPP::Matrix::Matrix(const size_t rows, const size_t cols):
 }
 
 // TODO: Parallelize later
-LPP::Matrix::Matrix(const size_t rows, const size_t cols, const double c):
-    entries{rows}
+LPP::Matrix::Matrix(const size_t rows, const size_t cols, const double c): entries{rows}
 {
     for (size_t r = 0; r < rows; r++) {
         entries[r] = std::vector<double>(cols, c);
@@ -62,7 +51,7 @@ void LPP::Matrix::print_entries() const
     for (size_t i = 0; i < entries.size(); i++) {
         print_object(entries[i]);
     }
-    std::cout << "}\n";
+    std::cout << '}' << std::endl;
 }
 
 double LPP::Matrix::get(size_t i, size_t j) const
@@ -81,15 +70,9 @@ void LPP::Matrix::set(size_t i, size_t j, double s)
     entries[i][j] = s;
 }
 
-const std::vector<double>& LPP::Matrix::operator[](size_t i) const
-{
-    return entries[i];
-}
+const std::vector<double>& LPP::Matrix::operator[](size_t i) const {return entries[i];}
 
-std::vector<double>& LPP::Matrix::operator[](size_t i)
-{
-    return entries[i];
-}
+std::vector<double>& LPP::Matrix::operator[](size_t i) {return entries[i];}
 
 // TODO: Parallelize later
 std::vector<double> LPP::Matrix::operator*(const std::vector<double>& v) const
@@ -118,8 +101,7 @@ bool LPP::same_dims(const Matrix& m1, const Matrix& m2)
 // TODO: implement
 LPP::Matrix& LPP::Matrix::operator-=(const Matrix& m)
 {
-    // make sure to check sizes
-    // amke sure to actually implement this lol
+    // TODO: make sure to check sizes
 
     for (size_t i = 0; i < rows(); i++) {
         entries[i] -= m.entries[i];

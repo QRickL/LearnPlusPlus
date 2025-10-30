@@ -3,7 +3,6 @@
 
 LPP::Activation::~Activation() {}
 
-// Identity
 double LPP::Identity::apply_itself(double x) const
 {
     return x;
@@ -18,7 +17,6 @@ const std::string& LPP::Identity::who() const {
     return STRING_IDENTITY;
 }
 
-// ReLU (rectified linear unit)
 double LPP::ReLU::apply_itself(double x) const
 {
     return (x >= 0) ? x : 0.0;
@@ -35,7 +33,6 @@ const std::string& LPP::ReLU::who() const {
     return STRING_RELU;
 }
 
-// Sigmoid
 double LPP::Sigmoid::apply_itself(double x) const
 {
     return 1 / (1 + std::exp(-x));
@@ -51,7 +48,6 @@ const std::string& LPP::Sigmoid::who() const {
     return STRING_SIGMOID;
 }
 
-// Tanh
 double LPP::Tanh::apply_itself(double x) const
 {
     return std::tanh(x);

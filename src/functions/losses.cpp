@@ -36,8 +36,6 @@ double LPP::MeanSquaredError::apply_itself(const Matrix& y_hat, const Matrix& y)
     return sum / m;
 }
 
-// TODO: fill all of this in:
-
 std::vector<double> LPP::MeanSquaredError::find_gradient(const std::vector<double>& y_hat, const std::vector<double>& y) const
 {
     enforce_size(y_hat, y, "MeanSquaredError derivative");

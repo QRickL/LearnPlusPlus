@@ -1,10 +1,11 @@
 #ifndef LPP_ACTIVATIONS_H
 #define LPP_ACTIVATIONS_H
 
-#include <memory>
 #include <unordered_map>
+#include <memory>
 #include <string>
 
+// Activation functions are used by the layer and network classes to perform inference and training
 // Available activation functions:
 // * Identity
 // * ReLU
