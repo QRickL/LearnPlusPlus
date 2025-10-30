@@ -3,12 +3,26 @@
 
 LPP::Loss::~Loss() {}
 
-double LPP::MeanSquaredError::apply_itself(const Matrix& y_hat, const Matrix& y)
+void LPP::Loss::enforce_size(const Matrix& y_hat, const Matrix& y, const std::string& loss_name) const
 {
     if (!same_dims(y_hat, y)) {
-        const auto msg = "Matrix dimensions for application of MeanSquaredError do not match";
+        const auto msg = "Matrix dimensions for application of " + loss_name + " do not match";
         throw std::invalid_argument(msg);
     }
+}
+
+void LPP::Loss::enforce_size(const std::vector<double>& y, const std::vector<double>& y_hat, const std::string& loss_name) const
+{
+    if (y_hat.size() != y.size()) {
+        const auto msg = "Vector dimensions for application of " + loss_name + " do not match";
+        throw std::invalid_argument(msg);
+    }
+}
+
+
+double LPP::MeanSquaredError::apply_itself(const Matrix& y_hat, const Matrix& y) const
+{
+    enforce_size(y_hat, y, "MeanSquaredError");
 
     const size_t n = y_hat.cols();
     double sum = 0.0;
@@ -18,8 +32,47 @@ double LPP::MeanSquaredError::apply_itself(const Matrix& y_hat, const Matrix& y)
     return sum / n;
 }
 
-// why is this even needed...??? derivative wrt to what. figure out later
-double LPP::MeanSquaredError::apply_derivative(const Matrix& y_hat, const Matrix& y)
+// TODO: fill all of this in:
+
+std::vector<double> LPP::MeanSquaredError::find_gradient(const std::vector<double>& y_hat, const std::vector<double>& y) const
 {
-    return 1.0;
+    enforce_size(y_hat, y, "MeanSquaredError derivative");
+
+    return 2 * (y_hat - y);
+}
+
+double LPP::BinaryCrossEntropy::apply_itself(const Matrix& y_hat, const Matrix& y) const
+{
+    enforce_size(y_hat, y, "BinaryCrossEntropy");
+    if (y_hat.cols() != 1) {
+        auto msg = "Application of BinaryCrossEntropy must take in one response variate (yes/no)";
+        throw std::invalid_argument(msg);
+    }
+
+    return 6.7;
+}
+
+std::vector<double> LPP::BinaryCrossEntropy::find_gradient(const std::vector<double>& y_hat, const std::vector<double>& y) const
+{
+    enforce_size(y_hat, y, "BinaryCrossEntropy derivative");
+    if (y_hat.size() != 1) {
+        auto msg = "Application of BinaryCrossEntropy derivative must take in one response variate (yes/no)";
+        throw std::invalid_argument(msg);
+    }
+
+    return {};
+}
+
+double LPP::CrossEntropy::apply_itself(const Matrix& y_hat, const Matrix& y) const
+{
+    enforce_size(y_hat, y, "CrossEntropy");
+
+    return 6.7;
+}
+
+std::vector<double> LPP::CrossEntropy::find_gradient(const std::vector<double>& y_hat, const std::vector<double>& y) const
+{
+    enforce_size(y_hat, y, "CrossEntropy derivative");
+
+    return {};
 }
