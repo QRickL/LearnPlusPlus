@@ -30,7 +30,7 @@ double LPP::MeanSquaredError::apply_itself(const Matrix& y_hat, const Matrix& y)
 
     for (size_t i = 0; i < m; i ++) {
         for (size_t j = 0; j < n; j++) {
-            sum += pow(y_hat.get(0,j) - y.get(0,j), 2);
+            sum += pow(y_hat.get(i,j) - y.get(i,j), 2);
         }
     }
     return sum / m;

@@ -233,7 +233,7 @@ double LPP::Network::train(
     std::vector<std::unique_ptr<std::vector<double>>>   del_b(layers.size());
 
     for (size_t cur_epoch = 0; cur_epoch < epochs; cur_epoch++) {
-        std::cout << "Training epoch " << cur_epoch << ":\n";
+        std::cout << "Training epoch " << cur_epoch + 1 << ":\n";
 
         // Initialize all gradient sums to 0
         for (size_t l = 0; l < layers.size(); l++) {

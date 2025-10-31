@@ -19,7 +19,6 @@ LPP::Matrix::Matrix(const std::vector<std::vector<double>>& m) {entries = m;}
 LPP::Matrix::Matrix(std::vector<std::vector<double>>& m) {entries = std::move(m);}
 
 // TODO: parallelize
-// TODO: See if we can also have a random init
 LPP::Matrix::Matrix(const size_t rows, const size_t cols): entries{rows}
 {
     for (size_t r = 0; r < rows; r++) {
