@@ -1,6 +1,7 @@
 #include "matrix.h"
 #include <exception>
 #include <iostream>
+#include <random>
 
 void LPP::print_object(const std::vector<double>& v)
 {
@@ -31,6 +32,17 @@ LPP::Matrix::Matrix(const size_t rows, const size_t cols, const double c): entri
 {
     for (size_t r = 0; r < rows; r++) {
         entries[r] = std::vector<double>(cols, c);
+    }
+}
+
+// TODO: parallelize
+LPP::Matrix::Matrix(const size_t rows, const size_t cols, const std::shared_ptr<LPP::ProbabilityDistribution>& pd)
+{
+    for (size_t r = 0; r < rows; r++) {
+        entries[r].resize(cols);
+        for (size_t c = 0; c < cols; c++) {
+            entries[r][c] = pd->sample();
+        }
     }
 }
 

@@ -1,14 +1,22 @@
 #include "layer.h"
 #include <iostream>
 
-LPP::Layer::Layer(const size_t input_size, const size_t output_size, std::shared_ptr<Activation> af)
+LPP::Layer::Layer(const size_t input_size, const size_t output_size, const std::shared_ptr<Activation>& af, const std::shared_ptr<ProbabilityDistribution>& pd)
 {
-    weights = std::make_unique<Matrix>(output_size, input_size);
-    biases = std::make_unique<std::vector<double>>(output_size, 0.0);
+    if (pd) {
+        weights = std::make_unique<Matrix>(output_size, input_size, pd);
+        biases = std::make_unique<std::vector<double>>(output_size);
+        for (size_t i = 0; i < output_size; i++) {
+            (*biases)[i] = pd->sample();
+        }
+    } else {
+        weights = std::make_unique<Matrix>(output_size, input_size);
+        biases = std::make_unique<std::vector<double>>(output_size, 0.0);
+    }
     act_func = af;
 }
 
-LPP::Layer::Layer(std::unique_ptr<Matrix>& given_weights, std::unique_ptr<std::vector<double>>& given_biases, std::shared_ptr<Activation> af)
+LPP::Layer::Layer(std::unique_ptr<Matrix>& given_weights, std::unique_ptr<std::vector<double>>& given_biases, std::shared_ptr<Activation>& af)
 {
     weights = std::move(given_weights);
     biases = std::move(given_biases);

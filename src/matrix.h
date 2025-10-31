@@ -2,6 +2,7 @@
 #define LPP_MATRIX_H
 
 #include "vector_overloads.h"
+#include "functions/random_gen.h"
 
 namespace LPP
 {
@@ -11,10 +12,11 @@ class Matrix {
 
 public:
     // Constructors
-    Matrix(const std::vector<std::vector<double>>& m);                  // Const version
-    Matrix(std::vector<std::vector<double>>& m);                        // Non-const version
-    Matrix(const size_t rows, const size_t cols);                       // Initialize to zeroes
-    Matrix(const size_t rows, const size_t cols, const double c);       // Initialize to values
+    Matrix(const std::vector<std::vector<double>>& m);                      // Const version
+    Matrix(std::vector<std::vector<double>>& m);                            // Non-const version
+    Matrix(const size_t rows, const size_t cols);                           // Initialize to zeroes
+    Matrix(const size_t rows, const size_t cols, const double c);           // Initialize to values
+    Matrix(const size_t rows, const size_t cols, const std::shared_ptr<ProbabilityDistribution>& pd); // Random init
 
     // Display information
     size_t  rows() const;

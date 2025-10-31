@@ -28,7 +28,8 @@ public:
     // Manually specify model architecture
     Network(
         const size_t input_size,
-        const std::vector<std::pair<size_t, std::shared_ptr<Activation>>> s
+        const std::vector<std::pair<size_t, std::shared_ptr<Activation>>> s,
+        const std::shared_ptr<ProbabilityDistribution>& pd = nullptr
     );
 
     // Load model + weights from file
@@ -54,10 +55,3 @@ public:
 } // namespace LPP
 
 #endif
-
-// TODO: add option to set optimizers etc...
-// TODO: activation will be given to layers to choose
-// TODO: initial learning rate
-// TODO: early stopping
-// TODO: configure optimizers
-// TODO: add batch sizes, stochastic grad descent

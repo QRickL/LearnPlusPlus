@@ -4,7 +4,7 @@
 #include <sstream>
 #include <iostream>
 
-LPP::Network::Network(const size_t input_size, const std::vector<std::pair<size_t, std::shared_ptr<Activation>>> layer_info)
+LPP::Network::Network(const size_t input_size, const std::vector<std::pair<size_t, std::shared_ptr<Activation>>> layer_info, const std::shared_ptr<ProbabilityDistribution>& pd)
 {
     if (layer_info.empty()) throw std::invalid_argument("Attempted to construct network with no layers");
 
@@ -15,7 +15,8 @@ LPP::Network::Network(const size_t input_size, const std::vector<std::pair<size_
     for (const auto& layer : layer_info) {
         in = out;
         out = layer.first;
-        layers.push_back(std::make_unique<Layer>(in, out, layer.second));
+
+        layers.push_back(std::make_unique<Layer>(in, out, layer.second, pd));
     }
 }
 

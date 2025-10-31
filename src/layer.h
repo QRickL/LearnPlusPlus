@@ -25,14 +25,15 @@ public:
     Layer(
         const size_t input_size,
         const size_t output_size,
-        std::shared_ptr<Activation> af
+        const std::shared_ptr<Activation>& af,
+        const std::shared_ptr<ProbabilityDistribution>& pd
     );
 
     // Constructor called when network created from file
     Layer(
         std::unique_ptr<Matrix>& given_weights,
         std::unique_ptr<std::vector<double>>& given_biases,
-        std::shared_ptr<Activation> af
+        std::shared_ptr<Activation>& af
     );
 
     // Display information
