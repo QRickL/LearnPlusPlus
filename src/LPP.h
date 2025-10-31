@@ -4,6 +4,5 @@
 // Include this rather than including all of the header files below
 
 #include "network.h"
-#include "layer.h"
 
 #endif

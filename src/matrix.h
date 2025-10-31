@@ -23,7 +23,7 @@ public:
 
     // Matrix operations
     const std::vector<double>&  operator[](size_t i) const;                     // Const version
-    std::vector<double>&        operator[](size_t i);                          // Non-const versions
+    std::vector<double>&        operator[](size_t i);                           // Non-const versions
     std::vector<double>         operator*(const std::vector<double>& v) const;
     Matrix&     operator-=(const Matrix& m);
     Matrix&     operator*=(const double c);

@@ -1,4 +1,5 @@
 #include "layer.h"
+#include <iostream>
 
 LPP::Layer::Layer(const size_t input_size, const size_t output_size, std::shared_ptr<Activation> af)
 {
@@ -14,13 +15,25 @@ LPP::Layer::Layer(std::unique_ptr<Matrix>& given_weights, std::unique_ptr<std::v
     act_func = af;
 }
 
-// TODO: parallelize this
-std::vector<double> LPP::Layer::apply_activation(const std::vector<double>& z) const
+// TODO: parallelize
+void LPP::Layer::apply_activation(std::vector<double>& z) const
 {
-    std::vector<double> a(z.size());
-
-    for (size_t i = 0; i < a.size(); i++) {
-        a[i] = act_func->apply_itself(z[i]);
+    for (size_t i = 0; i < z.size(); i++) {
+       z[i] = act_func->apply_itself(z[i]);
     }
-    return a;
+}
+
+void LPP::Layer::display() const {
+    std::cout << "Weights:\n";
+    print_object(*weights);
+
+    std::cout << "Biases:\n";
+    print_object(*biases);
+
+    std::cout << "Activation: " << act_func->who() << std::endl;
+}
+
+void LPP::print_object(const Layer& l)
+{
+    l.display();
 }

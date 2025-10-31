@@ -2,7 +2,7 @@
 
 // Later: see if we stil need some of the vectors, that way we can rewrite the input and save copying
 
-// TODO: Parallelize later
+// TODO: parallelize
 std::vector<double> operator+(const std::vector<double>& v1, const std::vector<double>& v2) 
 {
     if (v1.size() != v2.size()) {
@@ -17,7 +17,7 @@ std::vector<double> operator+(const std::vector<double>& v1, const std::vector<d
     return res;
 }
 
-// TODO: Parallelize later
+// TODO: parallelize
 std::vector<double> operator-(const std::vector<double>& v1, const std::vector<double>& v2)
 {
     if (v1.size() != v2.size()) {
@@ -32,7 +32,7 @@ std::vector<double> operator-(const std::vector<double>& v1, const std::vector<d
     return res;
 }
 
-// TODO: Parallelize later
+// TODO: parallelize
 double operator*(const std::vector<double>& v1, const std::vector<double>& v2)
 {
     if (v1.size() != v2.size()) {
@@ -47,7 +47,7 @@ double operator*(const std::vector<double>& v1, const std::vector<double>& v2)
     return res;
 }
 
-// TODO: Parallelize later
+// TODO: parallelize
 std::vector<double> operator+(const std::vector<double>& v1, const double c)
 {
     std::vector<double> res(v1.size());
@@ -61,7 +61,7 @@ std::vector<double> operator+(const double c, const std::vector<double>& v2) {
     return v2 + c;
 }
 
-// TODO: Parallelize later
+// TODO: parallelize
 std::vector<double> operator*(const std::vector<double>& v1, const double c)
 {
     std::vector<double> res(v1.size());
@@ -71,7 +71,11 @@ std::vector<double> operator*(const std::vector<double>& v1, const double c)
     return res;
 }
 
-// TODO: para
+std::vector<double> operator*(const double c, const std::vector<double>& v2) {
+    return v2 * c;
+}
+
+// TODO: parallelize
 std::vector<double> operator/(const std::vector<double>& v1, const std::vector<double>& v2)
 {
     if (v1.size() != v2.size()) {
@@ -86,11 +90,21 @@ std::vector<double> operator/(const std::vector<double>& v1, const std::vector<d
     return res;
 }
 
-std::vector<double> operator*(const double c, const std::vector<double>& v2) {
-    return v2 * c;
+// TODO: parallelize
+std::vector<double>& operator+=(std::vector<double>& v1, const std::vector<double>& v2)
+{
+    if (v1.size() != v2.size()) {
+        const auto msg = "Adding vectors of sizes " + std::to_string(v1.size()) + " and "  + std::to_string(v2.size());
+        throw std::invalid_argument(msg);
+    }
+
+    for (size_t i = 0; i < v1.size(); i++) {
+        v1[i] += v2[i];
+    }
+    return v1;
 }
 
-// TODO: Parallelize later
+// TODO: parallelize
 std::vector<double>& operator-=(std::vector<double>& v1, const std::vector<double>& v2)
 {
     if (v1.size() != v2.size()) {
@@ -104,23 +118,9 @@ std::vector<double>& operator-=(std::vector<double>& v1, const std::vector<doubl
     return v1;
 }
 
-// TODO: Parallelize later
+// TODO: parallelize
 std::vector<double>& operator*=(std::vector<double>& v1, const double c)
 {
     for (double& d : v1) d *= c;
-    return v1;
-}
-
-// TODO: Parallelize later
-std::vector<double>& operator+=(std::vector<double>& v1, const std::vector<double>& v2)
-{
-    if (v1.size() != v2.size()) {
-        const auto msg = "Adding vectors of sizes " + std::to_string(v1.size()) + " and "  + std::to_string(v2.size());
-        throw std::invalid_argument(msg);
-    }
-
-    for (size_t i = 0; i < v1.size(); i++) {
-        v1[i] += v2[i];
-    }
     return v1;
 }

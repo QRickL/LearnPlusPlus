@@ -17,7 +17,7 @@ LPP::Matrix::Matrix(const std::vector<std::vector<double>>& m) {entries = m;}
 
 LPP::Matrix::Matrix(std::vector<std::vector<double>>& m) {entries = std::move(m);}
 
-// TODO: Parallelize later
+// TODO: parallelize
 // TODO: See if we can also have a random init
 LPP::Matrix::Matrix(const size_t rows, const size_t cols): entries{rows}
 {
@@ -26,7 +26,7 @@ LPP::Matrix::Matrix(const size_t rows, const size_t cols): entries{rows}
     }
 }
 
-// TODO: Parallelize later
+// TODO: parallelize
 LPP::Matrix::Matrix(const size_t rows, const size_t cols, const double c): entries{rows}
 {
     for (size_t r = 0; r < rows; r++) {
@@ -74,7 +74,7 @@ const std::vector<double>& LPP::Matrix::operator[](size_t i) const {return entri
 
 std::vector<double>& LPP::Matrix::operator[](size_t i) {return entries[i];}
 
-// TODO: Parallelize later
+// TODO: parallelize
 std::vector<double> LPP::Matrix::operator*(const std::vector<double>& v) const
 {
     if (entries.empty()) {
@@ -93,15 +93,13 @@ std::vector<double> LPP::Matrix::operator*(const std::vector<double>& v) const
     return res;
 }
 
-bool LPP::same_dims(const Matrix& m1, const Matrix& m2)
-{
-    return m1.rows() == m2.rows() && m1.cols() == m2.cols();
-}
-
-// TODO: implement
+// TODO: parallelize
 LPP::Matrix& LPP::Matrix::operator-=(const Matrix& m)
 {
-    // TODO: make sure to check sizes
+    if (!same_dims((*this), m)) {
+        const auto msg = "Attempting to subtract matrices of different sizes";
+        throw std::invalid_argument(msg);
+    }
 
     for (size_t i = 0; i < rows(); i++) {
         entries[i] -= m.entries[i];
@@ -116,4 +114,9 @@ LPP::Matrix& LPP::Matrix::operator*=(const double c)
         entries[i] *= c;
     }
     return *this;
+}
+
+bool LPP::same_dims(const Matrix& m1, const Matrix& m2)
+{
+    return m1.rows() == m2.rows() && m1.cols() == m2.cols();
 }
