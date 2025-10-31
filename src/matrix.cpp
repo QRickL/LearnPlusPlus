@@ -36,7 +36,7 @@ LPP::Matrix::Matrix(const size_t rows, const size_t cols, const double c): entri
 }
 
 // TODO: parallelize
-LPP::Matrix::Matrix(const size_t rows, const size_t cols, const std::shared_ptr<LPP::ProbabilityDistribution>& pd)
+LPP::Matrix::Matrix(const size_t rows, const size_t cols, const std::shared_ptr<LPP::ProbabilityDistribution>& pd): entries{rows}
 {
     for (size_t r = 0; r < rows; r++) {
         entries[r].resize(cols);

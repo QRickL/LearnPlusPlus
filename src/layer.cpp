@@ -3,13 +3,15 @@
 
 LPP::Layer::Layer(const size_t input_size, const size_t output_size, const std::shared_ptr<Activation>& af, const std::shared_ptr<ProbabilityDistribution>& pd)
 {
-    if (pd) {
+    if (pd != nullptr) {
         weights = std::make_unique<Matrix>(output_size, input_size, pd);
+
         biases = std::make_unique<std::vector<double>>(output_size);
         for (size_t i = 0; i < output_size; i++) {
             (*biases)[i] = pd->sample();
         }
     } else {
+        //std
         weights = std::make_unique<Matrix>(output_size, input_size);
         biases = std::make_unique<std::vector<double>>(output_size, 0.0);
     }
