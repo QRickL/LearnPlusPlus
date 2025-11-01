@@ -17,7 +17,7 @@ void start_timer() {
 void end_timer() {
     timer_end = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(timer_end - timer_start);
-    std::cout << duration.count() << "ms" << std::endl;
+    std::cout << "Operation took: " << duration.count() << "ms" << std::endl;
 }
 
 } // namespace LPP

@@ -1,3 +1,6 @@
+#ifndef LPP_VECTOR_PARALLEL_H
+#define LPP_VECTOR_PARALLEL_H
+
 #include "thread_constants.h"
 #include <vector>
 
@@ -33,3 +36,5 @@ void parallel_comp(
 );
 
 } // namespace LPP
+
+#endif

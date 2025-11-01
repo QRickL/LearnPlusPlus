@@ -1,4 +1,5 @@
 #include "matrix.h"
+#include "parallel/matrix_parallel.h"
 #include <exception>
 #include <iostream>
 #include <random>

@@ -65,7 +65,7 @@ std::vector<double>& operator+=(std::vector<double>& v1, const std::vector<doubl
         throw std::invalid_argument(msg);
     }
 
-    if (v1.size() < LPP::PARALLEL_THRESHOLD) {
+    if (v1.size() < LPP::VECTOR_PARALLEL_THRESHOLD) {
         for (size_t i = 0; i < v1.size(); i++) v1[i] += v2[i];
     } else {
         LPP::parallel_comp(v1, v2, &LPP::add_helper);
@@ -75,7 +75,7 @@ std::vector<double>& operator+=(std::vector<double>& v1, const std::vector<doubl
 
 std::vector<double>& operator+=(std::vector<double>& v1, const double c)
 {
-    if (v1.size() < LPP::PARALLEL_THRESHOLD) {
+    if (v1.size() < LPP::VECTOR_PARALLEL_THRESHOLD) {
         for (int i = 0; i < v1.size(); i++) v1[i] += c;
     } else {
         LPP::parallel_comp(v1, c, &LPP::add_helper_scalar);
@@ -90,7 +90,7 @@ std::vector<double>& operator-=(std::vector<double>& v1, const std::vector<doubl
         throw std::invalid_argument(msg);
     }
 
-    if (v1.size() < LPP::PARALLEL_THRESHOLD) {
+    if (v1.size() < LPP::VECTOR_PARALLEL_THRESHOLD) {
         for (size_t i = 0; i < v1.size(); i++) v1[i] -= v2[i];
     } else {
         LPP::parallel_comp(v1, v2, &LPP::sub_helper);
@@ -100,7 +100,7 @@ std::vector<double>& operator-=(std::vector<double>& v1, const std::vector<doubl
 
 std::vector<double>& operator*=(std::vector<double>& v1, const double c)
 {
-    if (v1.size() < LPP::PARALLEL_THRESHOLD) {
+    if (v1.size() < LPP::VECTOR_PARALLEL_THRESHOLD) {
         for (double& d : v1) d *= c;
     } else {
         LPP::parallel_comp(v1, c, &LPP::mult_helper_scalar);
@@ -116,7 +116,7 @@ std::vector<double>& operator/=(std::vector<double>& v1, const std::vector<doubl
     }
 
     // Division by zero is the user's fault
-    if (v1.size() < LPP::PARALLEL_THRESHOLD) {
+    if (v1.size() < LPP::VECTOR_PARALLEL_THRESHOLD) {
         for (size_t i = 0; i < v1.size(); i++) v1[i] /= v2[i];
     } else {
         LPP::parallel_comp(v1, v2, &LPP::div_helper);
