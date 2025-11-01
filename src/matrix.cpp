@@ -3,17 +3,6 @@
 #include <iostream>
 #include <random>
 
-void LPP::print_object(const std::vector<double>& v)
-{
-    std::cout << '{';
-    for (const double d : v) {
-        std::cout << d << ", ";
-    }
-    std::cout << '}' << std::endl;
-}
-
-void LPP::print_object(const Matrix& m) {m.print_entries();}
-
 LPP::Matrix::Matrix(const std::vector<std::vector<double>>& m) {entries = m;}
 
 LPP::Matrix::Matrix(std::vector<std::vector<double>>& m) {entries = std::move(m);}
@@ -131,3 +120,14 @@ bool LPP::same_dims(const Matrix& m1, const Matrix& m2)
 {
     return m1.rows() == m2.rows() && m1.cols() == m2.cols();
 }
+
+void LPP::print_object(const std::vector<double>& v)
+{
+    std::cout << '{';
+    for (const double d : v) {
+        std::cout << d << ", ";
+    }
+    std::cout << '}' << std::endl;
+}
+
+void LPP::print_object(const Matrix& m) {m.print_entries();}
