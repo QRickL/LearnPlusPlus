@@ -11,20 +11,27 @@ LPP::Matrix::Matrix(std::vector<std::vector<double>>& m) {entries = std::move(m)
 // TODO: parallelize
 LPP::Matrix::Matrix(const size_t rows, const size_t cols): entries{rows}
 {
-    for (size_t r = 0; r < rows; r++) {
-        entries[r] = std::vector<double>(cols, 0.0);
+    if (rows < LPP::MATRIX_PARALLEL_THRESHOLD) {
+        for (size_t r = 0; r < rows; r++) {
+            entries[r] = std::vector<double>(cols, 0.0);
+        }
+    } else {
+        LPP::matrix_parallel_init(entries, rows, cols, 0.0);
     }
 }
 
 // TODO: parallelize
 LPP::Matrix::Matrix(const size_t rows, const size_t cols, const double c): entries{rows}
 {
-    for (size_t r = 0; r < rows; r++) {
-        entries[r] = std::vector<double>(cols, c);
+    if (rows < LPP::MATRIX_PARALLEL_THRESHOLD) {
+        for (size_t r = 0; r < rows; r++) {
+            entries[r] = std::vector<double>(cols, c);
+        }
+    } else {
+        LPP::matrix_parallel_init(entries, rows, cols, c);
     }
 }
 
-// TODO: parallelize
 LPP::Matrix::Matrix(const size_t rows, const size_t cols, const std::shared_ptr<LPP::ProbabilityDistribution>& pd): entries{rows}
 {
     for (size_t r = 0; r < rows; r++) {
@@ -75,7 +82,6 @@ const std::vector<double>& LPP::Matrix::operator[](size_t i) const {return entri
 
 std::vector<double>& LPP::Matrix::operator[](size_t i) {return entries[i];}
 
-// TODO: parallelize
 std::vector<double> LPP::Matrix::operator*(const std::vector<double>& v) const
 {
     if (entries.empty()) {

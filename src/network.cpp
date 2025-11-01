@@ -176,6 +176,7 @@ void LPP::Network::back_propagation(std::vector<std::unique_ptr<Matrix>>& del_W_
         }
 
         for (size_t i = 0; i < layers[l]->weights->rows(); i++) {
+
             const double imed = current_gradient[i] * layers[l]->act_func->apply_derivative(layers[l]->pre_activation[i]);
 
             // Update derivatives wrt bias
