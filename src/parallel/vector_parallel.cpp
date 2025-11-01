@@ -50,7 +50,7 @@ void LPP::parallel_comp(
     std::vector<std::thread> blocks;
     const size_t block_size = v1.size() / LPP::USE_THREADS;
 
-    for (size_t th = 0; th < LPP::USE_THREADS; th++) {
+    for (size_t th = 0; th <= LPP::USE_THREADS; th++) {
         const size_t start = th * block_size;
         const size_t end   = std::min( (th + 1) * block_size, v1.size() );
 
