@@ -11,7 +11,6 @@ LPP::Layer::Layer(const size_t input_size, const size_t output_size, const std::
             (*biases)[i] = pd->sample();
         }
     } else {
-        //std
         weights = std::make_unique<Matrix>(output_size, input_size);
         biases = std::make_unique<std::vector<double>>(output_size, 0.0);
     }
@@ -25,7 +24,6 @@ LPP::Layer::Layer(std::unique_ptr<Matrix>& given_weights, std::unique_ptr<std::v
     act_func = af;
 }
 
-// TODO: parallelize
 void LPP::Layer::apply_activation(std::vector<double>& z) const
 {
     for (size_t i = 0; i < z.size(); i++) {
@@ -43,7 +41,4 @@ void LPP::Layer::display() const {
     std::cout << "Activation: " << act_func->who() << std::endl;
 }
 
-void LPP::print_object(const Layer& l)
-{
-    l.display();
-}
+void LPP::print_object(const Layer& l) {l.display();}

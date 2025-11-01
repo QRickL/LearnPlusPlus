@@ -19,7 +19,6 @@ void LPP::Loss::enforce_size(const std::vector<double>& y, const std::vector<dou
     }
 }
 
-// TODO: parallelize this
 double LPP::MeanSquaredError::apply_itself(const Matrix& y_hat, const Matrix& y) const
 {
     enforce_size(y_hat, y, "MeanSquaredError");

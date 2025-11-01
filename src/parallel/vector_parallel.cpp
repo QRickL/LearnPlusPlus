@@ -47,10 +47,6 @@ void LPP::parallel_comp(
     )
 )
 {
-    // use_threads = 4
-    // size = 17
-    // 0 1 2 3 | 4 5 6 7 | 9 10 11 12 | 13 14 15 16 | 17
-
     std::vector<std::thread> blocks;
     const size_t block_size = v1.size() / LPP::USE_THREADS;
 

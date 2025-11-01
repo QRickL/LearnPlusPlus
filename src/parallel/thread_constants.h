@@ -3,15 +3,9 @@
 namespace LPP {
 
 const unsigned int MAX_THREADS = std::thread::hardware_concurrency();
-const unsigned int USE_THREADS = std::max(1u, std::min(4u, MAX_THREADS));
-const size_t PARALLEL_THRESHOLD = 1000000;
+const unsigned int USE_THREADS = std::min(6u, MAX_THREADS);
 
-} // namespace LPP
+//const size_t MATRIX_PARALLEL_THRESHOLD = 1000;
+const size_t VECOTR_PARALLEL_THRESHOLD = 50000;
 
-// threshold = 100
-// parallel         10166ms
-// no parallel      6557ms
-
-// threshold = 1000
-// parallel         54956ms
-// no parallel  
+}
