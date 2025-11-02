@@ -9,10 +9,10 @@ Initalize model with your own chosen architecture:
 LPP::Network my_model(
   10,                    // Input size of 10
   {
-    {32, LPP::RELU},     // Hidden layer with 32 nodes, ReLU activation
-    {16, LPP::RELU},     // Hidden layer with 16 nodes, ReLU activation
-    {8,  LPP::RELU},     // Hidden layer with 8 nodes,  ReLU activation
-    {2,  LPP::IDENTITY}  // Output layer wih 2 values
+    {32, LPP::RELU},          // Hidden layer with 32 nodes, ReLU activation
+    {16, LPP::RELU},          // Hidden layer with 16 nodes, ReLU activation
+    {8,  LPP::RELU},          // Hidden layer with 8 nodes,  ReLU activation
+    {4,  LPP::CROSS_ENTROPY}  // Output layer wih 4 values (classification use case)
   },
   LPP::STANDARD_NORMAL   // Distribution which initial weights are sampled from
 );
@@ -60,4 +60,3 @@ LPP::Network loaded_model("filename.txt");
 ```
 
 For a full example, see ```examples/basic.cpp```, where we train a regression network to learn a simple mathematical function.
-
