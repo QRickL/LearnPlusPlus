@@ -7,7 +7,7 @@ LPP::ProbabilityDistribution::~ProbabilityDistribution() {}
 LPP::Normal::Normal(const double mean, const double stddev)
 {
     if (stddev < 0) {
-        auto msg = "Normal: standard deviation cannot be negative";
+        const auto msg = "Normal: standard deviation cannot be negative";
         throw std::invalid_argument(msg);
     }
     norm = std::normal_distribution<>(mean, stddev);
@@ -21,7 +21,7 @@ double LPP::Normal::sample()
 LPP::Uniform::Uniform(const double lower, const double upper)
 {
     if (lower > upper) {
-        auto msg = "Uniform: lower cannot be greater than higher";
+        const auto msg = "Uniform: lower cannot be greater than higher";
         throw std::invalid_argument(msg);
     }
     unif = std::uniform_real_distribution<>(lower, upper);
