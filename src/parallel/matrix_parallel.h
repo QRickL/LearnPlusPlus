@@ -2,7 +2,6 @@
 #define LPP_MATRIX_PARALLEL_H
 
 #include <vector>
-#include "../functions/random_gen.h"
 #include "thread_constants.h"
 
 namespace LPP {
@@ -21,7 +20,6 @@ void matrix_parallel_init(
     const size_t cols,
     const double c
 );
-
 
 } // namespace LPP
 

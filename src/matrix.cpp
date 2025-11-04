@@ -8,10 +8,9 @@ LPP::Matrix::Matrix(const std::vector<std::vector<double>>& m) {entries = m;}
 
 LPP::Matrix::Matrix(std::vector<std::vector<double>>& m) {entries = std::move(m);}
 
-// TODO: parallelize
 LPP::Matrix::Matrix(const size_t rows, const size_t cols): entries{rows}
 {
-    if (rows < LPP::MATRIX_PARALLEL_THRESHOLD) {
+    if (rows < LPP::CONSTANTS::MATRIX_PARALLEL_THRESHOLD) {
         for (size_t r = 0; r < rows; r++) {
             entries[r] = std::vector<double>(cols, 0.0);
         }
@@ -20,10 +19,9 @@ LPP::Matrix::Matrix(const size_t rows, const size_t cols): entries{rows}
     }
 }
 
-// TODO: parallelize
 LPP::Matrix::Matrix(const size_t rows, const size_t cols, const double c): entries{rows}
 {
-    if (rows < LPP::MATRIX_PARALLEL_THRESHOLD) {
+    if (rows < LPP::CONSTANTS::MATRIX_PARALLEL_THRESHOLD) {
         for (size_t r = 0; r < rows; r++) {
             entries[r] = std::vector<double>(cols, c);
         }
@@ -100,7 +98,12 @@ std::vector<double> LPP::Matrix::operator*(const std::vector<double>& v) const
     return res;
 }
 
-// TODO: parallelize
+void LPP::matrix_sub_helper(Matrix& m1, const LPP::Matrix& m2, const size_t start, const size_t end) {
+    for (size_t r = start; r < end; r++) {
+        m1[r] -= m2[r];
+    }
+}
+
 LPP::Matrix& LPP::Matrix::operator-=(const Matrix& m)
 {
     if (!same_dims((*this), m)) {
@@ -108,17 +111,49 @@ LPP::Matrix& LPP::Matrix::operator-=(const Matrix& m)
         throw std::invalid_argument(msg);
     }
 
-    for (size_t i = 0; i < rows(); i++) {
-        entries[i] -= m.entries[i];
+    if (this->rows() < LPP::CONSTANTS::MATRIX_PARALLEL_THRESHOLD) {
+        for (size_t i = 0; i < rows(); i++) {
+            entries[i] -= m.entries[i];
+        }
+    } else {
+        std::vector<std::thread> blocks;
+        const size_t block_size = this->rows() / LPP::CONSTANTS::USE_THREADS;
+
+        for (size_t r = 0; r <= LPP::CONSTANTS::USE_THREADS; r++) {
+            const size_t start  = r * block_size;
+            const size_t end    = std::min( (r + 1) * block_size, this->rows() );
+
+            blocks.emplace_back(LPP::matrix_sub_helper, std::ref(*this), std::ref(m), start, end);
+        }
+        for (auto& block : blocks) block.join();
     }
     return *this;
 }
 
-// TODO: parallelize
+void LPP::matrix_mult_helper(Matrix& m1, const size_t start, const size_t end, const double c)
+{
+    for (size_t r = start; r < end; r++) {
+        m1[r] *= c;
+    }
+}
+
 LPP::Matrix& LPP::Matrix::operator*=(const double c)
 {
-    for (size_t i = 0; i < entries.size(); i++) {
-        entries[i] *= c;
+    if (this->rows() < LPP::CONSTANTS::MATRIX_PARALLEL_THRESHOLD) {
+        for (size_t i = 0; i < entries.size(); i++) {
+            entries[i] *= c;
+        }
+    } else {
+        std::vector<std::thread> blocks;
+        const size_t block_size = this->rows() / LPP::CONSTANTS::USE_THREADS;
+
+        for (size_t r = 0; r <= LPP::CONSTANTS::USE_THREADS; r++) {
+            const size_t start  = r * block_size;
+            const size_t end    = std::min( (r + 1) * block_size, this->rows() );
+
+            blocks.emplace_back(LPP::matrix_mult_helper, std::ref(*this), start, end, c);
+        }
+        for (auto& block : blocks) block.join();
     }
     return *this;
 }

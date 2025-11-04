@@ -13,9 +13,9 @@ void LPP::matrix_init_helper(std::vector<std::vector<double>>& entries, const si
 void LPP::matrix_parallel_init(std::vector<std::vector<double>>& entries, const size_t rows, const size_t cols, const double c)
 {
     std::vector<std::thread> blocks;
-    const size_t block_size = rows / LPP::USE_THREADS;
+    const size_t block_size = rows / LPP::CONSTANTS::USE_THREADS;
 
-    for (size_t r = 0; r <= LPP::USE_THREADS; r++) {
+    for (size_t r = 0; r <= LPP::CONSTANTS::USE_THREADS; r++) {
         const size_t start  = r * block_size;
         const size_t end    = std::min( (r + 1) * block_size, rows );
 

@@ -41,6 +41,10 @@ void print_object(const std::vector<double>& v);
 // Compare two for same sizes
 bool same_dims(const Matrix& m1, const Matrix& m2);
 
+// For help in parallel computations
+void matrix_sub_helper(Matrix& m1, const LPP::Matrix& m2, const size_t start, const size_t end);
+void matrix_mult_helper(Matrix& m1, const size_t start, const size_t end, const double c);
+
 } // namespace LPP
 
 #endif
