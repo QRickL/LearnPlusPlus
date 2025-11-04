@@ -12,7 +12,7 @@ LPP::Network my_model(
     {32, LPP::RELU},          // Hidden layer with 32 nodes, ReLU activation
     {16, LPP::RELU},          // Hidden layer with 16 nodes, ReLU activation
     {8,  LPP::RELU},          // Hidden layer with 8 nodes,  ReLU activation
-    {4,  LPP::CROSS_ENTROPY}  // Output layer with 4 values (classification use case)
+    {4,  LPP::SIGMOID}        // Output layer with 4 values (classification use case)
   },
   LPP::STANDARD_NORMAL   // Distribution which initial weights are sampled from
 );
