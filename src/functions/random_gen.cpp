@@ -31,13 +31,13 @@ double LPP::StudentT::sample() {
 
 std::shared_ptr<LPP::Normal> LPP::getNormalDistribution(double mean, double stddev)
 {
-    LPP::_check_(stddev > 0.0, "Normal: standard deviation must be positive");
+    _lpp_check_(stddev > 0.0, "Normal: standard deviation must be positive");
     return std::shared_ptr<LPP::Normal>(new LPP::Normal(mean, stddev));
 }
 
 std::shared_ptr<LPP::Uniform> LPP::getUniformDistribution(double lowerBound, double upperBound)
 {
-    LPP::_check_(upperBound > lowerBound, "Uniform: lower cannot be greater than higher");
+    _lpp_check_(upperBound > lowerBound, "Uniform: lower cannot be greater than higher");
     return std::shared_ptr<LPP::Uniform>(new LPP::Uniform(upperBound, upperBound));
 }
 

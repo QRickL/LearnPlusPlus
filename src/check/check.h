@@ -3,12 +3,9 @@
 
 #include "string"
 
-namespace LPP
+void _lpp_check_(bool condition, const std::string& msg)
 {
-    void _check_(bool condition, const std::string& msg)
-    {
-        if (!condition) [[unlikely]] {throw std::invalid_argument(msg);}
-    }
-} // namespace LPP
+    if (!condition) [[unlikely]] {throw std::invalid_argument(msg);}
+}
 
 #endif
