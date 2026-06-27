@@ -3,6 +3,28 @@
 
 #include <random>
 
+/*
+Create probability distributions:
+
+auto n = getNormalDistribution(4, 4.2);
+auto u = getUniformDistribution(2.6, 23);
+auto t = getStudentTDistribution(6);
+
+Sample from them:
+
+double n_val = n->sample();
+double u_val = u->sample();
+double t_val = t->sample();
+
+For convience, we already have:
+
+LPP::StandardNormalDistribution
+LPP::StandardUniformDistribution
+
+By default, the distributions from STL will give doubles.
+But these can be converted to floats if desired.
+*/
+
 namespace LPP
 {
 
@@ -11,33 +33,45 @@ protected:
     static std::mt19937 MT_ENGINE;
 
 public:
-    virtual ~ProbabilityDistribution() = 0;
-
-    virtual double sample() = 0;
+    virtual double sample() = 0; // Sample method will alter the state of the m
 };
 
 class Normal : public ProbabilityDistribution {
-    std::normal_distribution<> norm;
+    std::normal_distribution<> distnInstance;
+    Normal(double mean, double stddev); // Private constructor
+    friend std::shared_ptr<Normal> getNormalDistribution(double mean, double stddev);
 
 public:
-    Normal(const double mean, const double stddev);
     ~Normal() {}
-
     double sample() override;
 };
 
 class Uniform : public ProbabilityDistribution {
-    std::uniform_real_distribution<> unif;
+    std::uniform_real_distribution<> distnInstance;
+    Uniform(double lower, double upper); // Private constructor
+    friend std::shared_ptr<Uniform> getUniformDistribution(double lowerBound, double upperBound);
 
 public:
-    Uniform(const double lower, const double upper);
     ~Uniform() {}
-
     double sample() override;
 };
 
-const auto STANDARD_NORMAL = std::make_shared<Normal>(0, 1);
-const auto CENTRAL_UNIF = std::make_shared<Uniform>(-1, 1);
+class StudentT : public ProbabilityDistribution {
+    std::student_t_distribution<> distnInstance;
+    StudentT(unsigned int dof); // Private constructor
+    friend std::shared_ptr<StudentT> getStudentTDistribution(unsigned int dof);
+
+public:
+    ~StudentT() {}
+    double sample() override;
+};
+
+std::shared_ptr<Normal> getNormalDistribution(double mean, double stddev);
+std::shared_ptr<Uniform> getUniformDistribution(double lowerBound, double upperBound);
+std::shared_ptr<StudentT> getStudentTDistribution(unsigned int dof);
+
+auto StandardNormalDistribution  = getNormalDistribution(0.0, 1.0);
+auto StandardUniformDistribution = getUnif(0.0, 1.0);
 
 } // namespace LPP
 
