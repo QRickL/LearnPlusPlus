@@ -33,7 +33,7 @@ protected:
     static std::mt19937 MT_ENGINE;
 
 public:
-    virtual double sample() = 0; // Sample method will alter the state of the m
+    virtual double sample() = 0; // Sample method will alter the state of the Mersenne Twister
 };
 
 class Normal : public ProbabilityDistribution {
