@@ -70,8 +70,8 @@ std::shared_ptr<Normal> getNormalDistribution(double mean, double stddev);
 std::shared_ptr<Uniform> getUniformDistribution(double lowerBound, double upperBound);
 std::shared_ptr<StudentT> getStudentTDistribution(unsigned int dof);
 
-auto StandardNormalDistribution  = getNormalDistribution(0.0, 1.0);
-auto StandardUniformDistribution = getUnif(0.0, 1.0);
+auto StandardNormalDistribution  = LPP::getNormalDistribution(0.0, 1.0);
+auto StandardUniformDistribution = LPP::getUniformDistribution(0.0, 1.0);
 
 } // namespace LPP
 
