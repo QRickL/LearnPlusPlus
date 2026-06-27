@@ -1,29 +1,27 @@
-#ifndef LPP_VECTOR_OVERLOADS_S
-#define LPP_VECTOR_OVERLOADS_S
+#ifndef LPP_Vec_OVERLOADS_S
+#define LPP_Vec_OVERLOADS_S
 
+#include "data_types.h"
 #include <vector>
 
-// Vector addition
-std::vector<double> operator+(const std::vector<double>& v1, const std::vector<double>& v2);
-std::vector<double> operator-(const std::vector<double>& v1, const std::vector<double>& v2);
-std::vector<double> operator/(const std::vector<double>& v1, const std::vector<double>& v2);    // Division is defined by entry
+// Returns a new vector
 
-// Vector dot product
-double operator*(const std::vector<double>&v1, const std::vector<double>& v2);
+LPP_Vec operator+(const LPP_Vec& v1, const LPP_Vec& v2);    // Vector addition
+LPP_Vec operator+(const LPP_Vec& v1, LPP_Num c);            // Vector scalar addition
+LPP_Vec operator+(LPP_Num c, const LPP_Vec& v2);            // Vector scalar addition
+LPP_Vec operator-(const LPP_Vec& v1, const LPP_Vec& v2);    // Vector subtraction
+LPP_Num operator*(const LPP_Vec&v1, const LPP_Vec& v2);     // Vector dot product
+LPP_Vec operator*(const LPP_Vec& v1, LPP_Num c);            // Vector scalar multiplication
+LPP_Vec operator*(LPP_Num c, const LPP_Vec& v2);            // Vector scalar multiplication
+LPP_Vec operator/(const LPP_Vec& v1, const LPP_Vec& v2);    // Vector division element-wise; division by 0 is user's fault
 
-// For adding biases
-std::vector<double> operator+(const std::vector<double>& v1, double c);
-std::vector<double> operator+(double c, const std::vector<double>& v2);
 
-// Vector scalar multiplication
-std::vector<double> operator*(const std::vector<double>& v1, double c);
-std::vector<double> operator*(double c, const std::vector<double>& v2);
+// Modifies existing LHS vector
 
-// Assignment operators
-std::vector<double>& operator+=(std::vector<double>& v1, const std::vector<double>& v2);
-std::vector<double>& operator+=(std::vector<double>& v1, const double c);
-std::vector<double>& operator-=(std::vector<double>& v1, const std::vector<double>& v2);
-std::vector<double>& operator*=(std::vector<double>& v1, const double c);
-std::vector<double>& operator/=(std::vector<double>& v1, const std::vector<double>& v2);    // Division is defined by entry
+LPP_Vec& operator+=(LPP_Vec& v1, const LPP_Vec& v2);
+LPP_Vec& operator+=(LPP_Vec& v1, LPP_Num c);
+LPP_Vec& operator-=(LPP_Vec& v1, const LPP_Vec& v2);
+LPP_Vec& operator*=(LPP_Vec& v1, LPP_Num c);
+LPP_Vec& operator/=(LPP_Vec& v1, const LPP_Vec& v2);
 
 #endif
