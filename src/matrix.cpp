@@ -117,6 +117,19 @@ LPP::Vect<number> LPP::Matrix<number>::operator*(const LPP::Vect<number>& v) con
 {
     _lpp_check_(cols__ == v.size(), "Atempting to multiple a matrix with incompatible vector");
 
+    Vect<number> result(rows__);
+
+    for (size_t i = 0; i < rows__; i++)
+    {
+        number entry{0.0};
+        for (size_t j = 0; j < cols__; j++)
+        {
+            entry += entries__[i * rows__ + j] * v[j];
+        }
+        result[i] = std::move(entry); // TODO: investigate if this is necessary
+    } 
+    return result;
+
     // to stuff bruh
 
 
@@ -149,7 +162,7 @@ LPP::Matrix<number>& LPP::Matrix<number>::operator-=(const Matrix<number>& m)
 
     for (size_t i = 0; i < rows__; i++) {
         for (size_t j = 0; j < cols__; j++) {
-            entries__[i * rows__ + j] *= m[i * rows__ + j];
+            entries__[i * rows__ + j] -= m[i * rows__ + j];
         }
     }
     return *this;
