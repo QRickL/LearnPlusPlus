@@ -21,8 +21,8 @@ For convience, we already have:
 LPP::StandardNormalDistribution
 LPP::StandardUniformDistribution
 
-By default, the distributions from STL will give doubles.
-But these can be converted to floats if desired.
+The distributions from STL will give doubles by default, but these can be converted to floats if desired.
+If using custom numeric types, then you will have to write your own conversion from float/double.
 */
 
 namespace LPP
