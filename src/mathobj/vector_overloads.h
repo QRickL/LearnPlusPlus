@@ -2,9 +2,7 @@
 
 #include "lpp_vec.h"
 
-
 namespace LPP {
-
 
 // Following will construct a new vector:
 

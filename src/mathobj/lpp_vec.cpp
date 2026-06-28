@@ -3,14 +3,21 @@
 template <typename number>
 LPP::Vect<number>::Vect(size_t size) : size__{size}
 {
-    data__ = new number[size];
+    data__ = new number[size__];
 }
 
 template <typename number>
 LPP::Vect<number>::Vect(size_t size, number initVal) : size__{size}
 {
-    data__ = new number[size];
-    for (size_t i = 0; i < size__) data__[i] = initVal;
+    data__ = new number[size__];
+    for (size_t i = 0; i < size__; i++) data__[i] = initVal;
+}
+
+template <typename number>
+LPP::Vect<number>::Vect(const Vect& other) : size__{other.size()}
+{
+    data__ = new number[size__];
+    for (size_t i = 0; i < size__; i++) data__[i] = other[i];
 }
 
 template <typename number>
