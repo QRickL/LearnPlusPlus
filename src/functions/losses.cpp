@@ -8,7 +8,7 @@ LPP::Loss<number>::~Loss() {}
 template <typename number>
 number LPP::MeanSquaredError<number>::applyLoss(const Matrix<number>& y_hat, const Matrix<number>& y) const
 {
-    _lpp_check_(same_dims(y_hat, y), "MeanSquaredError application recieved incompatible y_hat and y dimensions");
+    _lpp_check_(sameDims(y_hat, y), "MeanSquaredError application recieved incompatible y_hat and y dimensions");
 
     const size_t m = y_hat.rows();
     const size_t n = y_hat.cols();
@@ -25,7 +25,7 @@ number LPP::MeanSquaredError<number>::applyLoss(const Matrix<number>& y_hat, con
 template <typename number>
 LPP::Vect<number> LPP::MeanSquaredError<number>::findGradient(const LPP::Vect<number>& y_hat, const LPP::Vect<number>& y) const
 {
-    _lpp_check_(same_dims(y_hat, y), "MeanSquaredError derivative recieved incompatible y_hat and y dimensions");
+    _lpp_check_(sameDims(y_hat, y), "MeanSquaredError derivative recieved incompatible y_hat and y dimensions");
 
     return 2 * (y_hat - y);
 }
@@ -33,12 +33,12 @@ LPP::Vect<number> LPP::MeanSquaredError<number>::findGradient(const LPP::Vect<nu
 template <typename number>
 number LPP::BinaryCrossEntropy<number>::applyLoss(const Matrix<number>& y_hat, const Matrix<number>& y) const
 {
-    _lpp_check_(same_dims(y_hat, y), "BinaryCrossEntropy application recieved incompatible y_hat and y dimensions");
+    _lpp_check_(sameDims(y_hat, y), "BinaryCrossEntropy application recieved incompatible y_hat and y dimensions");
 
 
     const size_t m = y_hat.rows();
     const size_t n = y_hat.cols();
-    number sum = 0.0;
+    number sum{0.0};
 
     for (size_t i = 0; i < n; i ++) {
         sum += y.get(i, 0) * std::log(y_hat.get(i, 0)) + (1 - y.get(i, 0)) * std::log(1 - y_hat.get(i, 0));
@@ -49,9 +49,9 @@ number LPP::BinaryCrossEntropy<number>::applyLoss(const Matrix<number>& y_hat, c
 template <typename number>
 LPP::Vect<number> LPP::BinaryCrossEntropy<number>::findGradient(const LPP::Vect<number>& y_hat, const LPP::Vect<number>& y) const
 {
-    _lpp_check_(same_dims(y_hat, y), "BinaryCrossEntropy derivative recieved incompatible y_hat and y dimensions");
+    _lpp_check_(sameDims(y_hat, y), "BinaryCrossEntropy derivative recieved incompatible y_hat and y dimensions");
 
-    const number l = (1 - y[0]) / (1 - y_hat[0]) - y[0] / y_hat[0];
+    const number l{(1 - y[0]) / (1 - y_hat[0]) - y[0] / y_hat[0]}
     return {l};
     // TODO: this could cause complications
 }
@@ -59,7 +59,7 @@ LPP::Vect<number> LPP::BinaryCrossEntropy<number>::findGradient(const LPP::Vect<
 template <typename number>
 number LPP::CrossEntropy<number>::applyLoss(const Matrix<number>& y_hat, const Matrix<number>& y) const
 {
-    _lpp_check_(same_dims(y_hat, y), "CrossEntropy application recieved incompatible y_hat and y dimensions");
+    _lpp_check_(sameDims(y_hat, y), "CrossEntropy application recieved incompatible y_hat and y dimensions");
 
     const size_t m = y_hat.rows();
     const size_t n = y_hat.cols();
@@ -76,7 +76,7 @@ number LPP::CrossEntropy<number>::applyLoss(const Matrix<number>& y_hat, const M
 template <typename number>
 LPP::Vect<number> LPP::CrossEntropy<number>::findGradient(const LPP::Vect<number>& y_hat, const LPP::Vect<number>& y) const
 {
-    _lpp_check_(same_dims(y_hat, y), "CrossEntropy derivative recieved incompatible y_hat and y dimensions");
+    _lpp_check_(sameDims(y_hat, y), "CrossEntropy derivative recieved incompatible y_hat and y dimensions");
 
     return -1 * (y / y_hat);
 }
