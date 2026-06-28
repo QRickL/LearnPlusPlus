@@ -5,19 +5,19 @@ std::mt19937 LPP::ProbabilityDistribution::MT_ENGINE = std::mt19937(std::random_
 
 //LPP::ProbabilityDistribution::~ProbabilityDistribution() {}
 
-LPP::Normal::Normal(double mean, double stddev) {
+LPP::Normal::Normal(float mean, float stddev) {
     distnInstance = std::normal_distribution<>(mean, stddev);
 }
 
-double LPP::Normal::sample() {
+float LPP::Normal::sample() {
     return distnInstance(ProbabilityDistribution::MT_ENGINE);
 }
 
-LPP::Uniform::Uniform(double lower, double upper) {
+LPP::Uniform::Uniform(float lower, float upper) {
     distnInstance = std::uniform_real_distribution<>(lower, upper);
 }
 
-double LPP::Uniform::sample() {
+float LPP::Uniform::sample() {
     return distnInstance(ProbabilityDistribution::MT_ENGINE);
 }
 
@@ -25,17 +25,17 @@ LPP::StudentT::StudentT(unsigned int dof) {
     distnInstance = std::student_t_distribution<>(dof);
 }
 
-double LPP::StudentT::sample() {
+float LPP::StudentT::sample() {
     return distnInstance(ProbabilityDistribution::MT_ENGINE);
 }
 
-std::shared_ptr<LPP::Normal> LPP::getNormalDistribution(double mean, double stddev)
+std::shared_ptr<LPP::Normal> LPP::getNormalDistribution(float mean, float stddev)
 {
     _lpp_check_(stddev > 0.0, "Normal: standard deviation must be positive");
     return std::shared_ptr<LPP::Normal>(new LPP::Normal(mean, stddev));
 }
 
-std::shared_ptr<LPP::Uniform> LPP::getUniformDistribution(double lowerBound, double upperBound)
+std::shared_ptr<LPP::Uniform> LPP::getUniformDistribution(float lowerBound, float upperBound)
 {
     _lpp_check_(upperBound > lowerBound, "Uniform: lower cannot be greater than higher");
     return std::shared_ptr<LPP::Uniform>(new LPP::Uniform(upperBound, upperBound));
