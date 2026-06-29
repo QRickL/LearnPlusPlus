@@ -7,10 +7,7 @@
 
 LPP::Network::Network(size_t input_size, const std::vector<std::pair<size_t, std::shared_ptr<Activation>>>& layer_info, const std::shared_ptr<ProbabilityDistribution>& pd)
 {
-    if (layer_info.empty()) {
-        const auto msg = "Attempted to construct network with no layers";
-        throw std::invalid_argument(msg);
-    }
+    enforce_condition(!layer_info.empty(), "Network::Network - layer_info vector cannot be empty");
 
     loss_func_ = nullptr; // Loss function will be assigned when training
     size_t in_layer_size;
@@ -33,24 +30,17 @@ LPP::Network::Network(size_t input_size, const std::vector<std::pair<size_t, std
 LPP::Network::Network(const std::string& filepath)
 {
     std::ifstream model_file{filepath};
-    if (!model_file.is_open()) {
-        const auto msg = "Failed to read model from file: " + filepath;
-        throw std::ios_base::failure(msg);
-    }
+    enforce_condition(model_file.is_open(), "Network::Network - file failed to open...");
+    
     std::cout << "\nLoading neural network from file: " + filepath << '\n';
     std::string cur_line;
 
     // Verify we are reading a correct file format
     getline(model_file, cur_line);
-    if (cur_line != "LearnPlusPlus") {
-        const auto msg = "Not given a LearnPlusPlus file";
-        throw std::ios_base::failure(msg);
-    }
+    enforce_condition(cur_line == "LearnPlusPlus", "Network::Network - not given a LearnPlusPlus file");
+
     getline(model_file, cur_line);
-    if (cur_line != "NeuralNetwork") {
-        const auto msg = "File type is not NeuralNetwork";
-        throw std::ios_base::failure(msg);
-    }
+    enforce_condition(cur_line == "NeuralNetwork", "Network::Network - file type is not neural network");
 
     loss_func_ = nullptr;
     while (true) {
@@ -82,12 +72,9 @@ LPP::Network::Network(const std::string& filepath)
         // Read in activation
         model_file >> cur_line;
         std::shared_ptr<Activation> cur_act;
-        try {
-            cur_act = LPP::choose_activation.at(cur_line);
-        } catch (std::out_of_range oor) {
-            const auto msg = "Invalid activation function: " + cur_line;
-            throw std::ios_base::failure(msg);
-        }
+        enforce_condition(LPP::choose_activation.count(cur_line), "Network::Network - invalid activation function: " + cur_line);
+
+        cur_act = LPP::choose_activation.at(cur_line);
         std::cout << "Activation: " + cur_line << "\n\n";
 
         // Construct layer and push back
@@ -100,10 +87,8 @@ LPP::Network::Network(const std::string& filepath)
 void LPP::Network::save_model(const std::string& filepath) const
 {
     std::ofstream model_file{filepath};
-    if (!model_file.is_open()) {
-        const auto msg = "Failed to save model to file: " + filepath;
-        throw std::ios_base::failure(msg);
-    }
+    enforce_condition(model_file.is_open(), "Network::save_model - file failed to open...");
+
     model_file << "LearnPlusPlus\nNeuralNetwork\n";
 
     for (size_t cur_layer = 0; cur_layer < layers_.size(); cur_layer++) {
@@ -223,22 +208,13 @@ float LPP::Network::train(
     const std::shared_ptr<Loss>& loss_ptr
 )
 {
-    if (explanatory_variates.rows() != response_variates.rows()) {
-        const auto msg = "Different number of explanatory and respose variates";
-        throw std::invalid_argument(msg);
-    }
-    if (explanatory_variates.rows() == 0) {
-        const auto msg = "Training data is empty!";
-        throw std::invalid_argument(msg);
-    }
-    if (init_learning_rate <= 0) {
-        const auto msg = "Learning rate should be positive";
-        throw std::invalid_argument(msg);
-    }
+    enforce_condition(explanatory_variates.rows() == response_variates.rows(), "Network::train - different number of explanatory and respose variates");
+    enforce_condition(explanatory_variates.rows() != 0, "Network::train - training data is empty");
+    enforce_condition(init_learning_rate > 0.f, "Network::train - initial learning rate must be positive");
 
     size_t num_training_examples = explanatory_variates.rows();
-    float learning_rate = init_learning_rate;
-    loss_func_ = loss_ptr;
+    float learning_rate          = init_learning_rate;
+    loss_func_                   = loss_ptr;
     float current_loss;
 
     // response_variates_hat: holds predicted values for epoch
@@ -268,7 +244,7 @@ float LPP::Network::train(
                 explanatory_variates[t],
                 true /* indicates we're training the model */
             );
-            
+
             back_propagation_(
                 del_W,
                 del_b,
