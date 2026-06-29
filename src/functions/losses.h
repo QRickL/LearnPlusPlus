@@ -17,9 +17,6 @@ class Loss {
 public:
     virtual float apply_loss(const Matrix& y_hat, const Matrix& y) const = 0;
     virtual std::vector<float> find_gradient(const std::vector<float>& y_hat, const std::vector<float>& y) const = 0;
-    void enforce_size(const Matrix& y_hat, const Matrix& y, const std::string& loss_name) const;
-    void enforce_size(const std::vector<float>& y, const std::vector<float>& y_hat, const std::string& loss_name) const;
-
     virtual ~Loss() = 0;
 };
 
@@ -27,7 +24,6 @@ class MeanSquaredError : public Loss {
 public:
     float apply_loss(const Matrix& y_hat, const Matrix& y) const override;
     std::vector<float> find_gradient(const std::vector<float>& y_hat, const std::vector<float>& y) const override;
-
     ~MeanSquaredError() {}
 };
 
@@ -36,7 +32,6 @@ class BinaryCrossEntropy : public Loss {
 public:
     float apply_loss(const Matrix& y_hat, const Matrix& y) const override;
     std::vector<float> find_gradient(const std::vector<float>& y_hat, const std::vector<float>& y) const override;
-
     ~BinaryCrossEntropy() {}
 };
 
@@ -44,7 +39,6 @@ class CrossEntropy : public Loss {
 public:
     float apply_loss(const Matrix& y_hat, const Matrix& y) const override;
     std::vector<float> find_gradient(const std::vector<float>& y_hat, const std::vector<float>& y) const override;
-
     ~CrossEntropy() {}
 };
 

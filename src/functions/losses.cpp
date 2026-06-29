@@ -1,30 +1,15 @@
 #include "losses.h"
+#include "../checking/check.h"
 #include <cmath>
 
 LPP::Loss::~Loss() {}
 
-void LPP::Loss::enforce_size(const Matrix& y_hat, const Matrix& y, const std::string& loss_name) const
-{
-    if (!same_dims(y_hat, y)) {
-        const auto msg = "Matrix dimensions for application of " + loss_name + " do not match";
-        throw std::invalid_argument(msg);
-    }
-}
-
-void LPP::Loss::enforce_size(const std::vector<float>& y, const std::vector<float>& y_hat, const std::string& loss_name) const
-{
-    if (y_hat.size() != y.size()) {
-        const auto msg = "Vector dimensions for application of " + loss_name + " do not match";
-        throw std::invalid_argument(msg);
-    }
-}
-
 float LPP::MeanSquaredError::apply_loss(const Matrix& y_hat, const Matrix& y) const
 {
-    enforce_size(y_hat, y, "MeanSquaredError");
+    __lpp_check__(same_dims(y_hat, y), "MeanSquaredError::apply_loss - y_hat and y different size");
 
-    const size_t m = y_hat.rows();
-    const size_t n = y_hat.cols();
+    size_t m = y_hat.rows();
+    size_t n = y_hat.cols();
     float sum = 0.0;
 
     for (size_t i = 0; i < m; i ++) {
@@ -37,21 +22,18 @@ float LPP::MeanSquaredError::apply_loss(const Matrix& y_hat, const Matrix& y) co
 
 std::vector<float> LPP::MeanSquaredError::find_gradient(const std::vector<float>& y_hat, const std::vector<float>& y) const
 {
-    enforce_size(y_hat, y, "MeanSquaredError derivative");
+    __lpp_check__(y_hat.size() == y.size(), "MeanSquaredError::find_gradient - y_hat and y different size");
 
     return 2 * (y_hat - y);
 }
 
 float LPP::BinaryCrossEntropy::apply_loss(const Matrix& y_hat, const Matrix& y) const
 {
-    enforce_size(y_hat, y, "BinaryCrossEntropy");
-    if (y_hat.cols() != 1) {
-        auto msg = "Application of BinaryCrossEntropy must take in one response variate (yes/no)";
-        throw std::invalid_argument(msg);
-    }
-
-    const size_t m = y_hat.rows();
-    const size_t n = y_hat.cols();
+    __lpp_check__(same_dims(y_hat, y), "BinaryCrossEntropy::apply_loss - y_hat and y different size");
+    __lpp_check__(y_hat.cols() == 1, "BinaryCrossEntropy::apply_loss - BCE can only have one response variate");
+    
+    size_t m = y_hat.rows();
+    size_t n = y_hat.cols();
     float sum = 0.0;
 
     for (size_t i = 0; i < n; i ++) {
@@ -62,11 +44,8 @@ float LPP::BinaryCrossEntropy::apply_loss(const Matrix& y_hat, const Matrix& y) 
 
 std::vector<float> LPP::BinaryCrossEntropy::find_gradient(const std::vector<float>& y_hat, const std::vector<float>& y) const
 {
-    enforce_size(y_hat, y, "BinaryCrossEntropy derivative");
-    if (y_hat.size() != 1) {
-        auto msg = "Application of BinaryCrossEntropy derivative must take in one response variate (yes/no)";
-        throw std::invalid_argument(msg);
-    }
+    __lpp_check__(y_hat.size() == y.size(), "BinaryCrossEntropy::find_gradient - y_hat and y different size");
+    __lpp_check__(y_hat.size() == 1, "BinaryCrossEntropy::apply_loss - BCE can only have one response variate");
 
     const float l = (1 - y[0]) / (1 - y_hat[0]) - y[0] / y_hat[0];
     return {l};
@@ -74,10 +53,10 @@ std::vector<float> LPP::BinaryCrossEntropy::find_gradient(const std::vector<floa
 
 float LPP::CrossEntropy::apply_loss(const Matrix& y_hat, const Matrix& y) const
 {
-    enforce_size(y_hat, y, "CrossEntropy");
+    __lpp_check__(same_dims(y_hat, y), "CrossEntropy::apply_loss - y_hat and y different size");
 
-    const size_t m = y_hat.rows();
-    const size_t n = y_hat.cols();
+    size_t m = y_hat.rows();
+    size_t n = y_hat.cols();
     float sum = 0.0;
 
     for (size_t i = 0; i < m; i++) {
@@ -90,7 +69,7 @@ float LPP::CrossEntropy::apply_loss(const Matrix& y_hat, const Matrix& y) const
 
 std::vector<float> LPP::CrossEntropy::find_gradient(const std::vector<float>& y_hat, const std::vector<float>& y) const
 {
-    enforce_size(y_hat, y, "CrossEntropy derivative");
+    __lpp_check__(y_hat.size() == y.size(), "CrossEntropy::find_gradient - y_hat and y different size");
 
     return -1 * (y / y_hat);
 }
