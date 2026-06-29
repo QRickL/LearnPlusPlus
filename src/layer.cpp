@@ -6,28 +6,28 @@ LPP::Layer::Layer(const size_t input_size, const size_t output_size, const std::
     if (pd != nullptr) {
         weights = std::make_unique<Matrix>(output_size, input_size, pd);
 
-        biases = std::make_unique<std::vector<double>>(output_size);
+        biases = std::make_unique<std::vector<float>>(output_size);
         for (size_t i = 0; i < output_size; i++) {
             (*biases)[i] = pd->sample();
         }
     } else {
         weights = std::make_unique<Matrix>(output_size, input_size);
-        biases = std::make_unique<std::vector<double>>(output_size, 0.0);
+        biases = std::make_unique<std::vector<float>>(output_size, 0.0);
     }
     act_func = af;
 }
 
-LPP::Layer::Layer(std::unique_ptr<Matrix>& given_weights, std::unique_ptr<std::vector<double>>& given_biases, std::shared_ptr<Activation>& af)
+LPP::Layer::Layer(std::unique_ptr<Matrix>& given_weights, std::unique_ptr<std::vector<float>>& given_biases, std::shared_ptr<Activation>& af)
 {
     weights = std::move(given_weights);
     biases = std::move(given_biases);
     act_func = af;
 }
 
-void LPP::Layer::apply_activation(std::vector<double>& z) const
+void LPP::Layer::apply_activation(std::vector<float>& z) const
 {
     for (size_t i = 0; i < z.size(); i++) {
-       z[i] = act_func->apply_itself(z[i]);
+       z[i] = act_func->apply_activation(z[i]);
     }
 }
 

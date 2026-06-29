@@ -16,8 +16,8 @@ namespace LPP {
 
 class Activation {
 public:
-    virtual double apply_activation(double x) const = 0;
-    virtual double apply_derivative(double x) const = 0;
+    virtual float apply_activation(float x) const = 0;
+    virtual float apply_derivative(float x) const = 0;
     virtual const std::string& who() const = 0;
 
     // Activation is abstract
@@ -26,8 +26,8 @@ public:
 
 class Identity : public Activation {
 public:
-    double apply_activation(double x) const override;
-    double apply_derivative(double x) const override;
+    float apply_activation(float x) const override;
+    float apply_derivative(float x) const override;
     const std::string& who() const override;
 
     ~Identity() {}
@@ -35,8 +35,8 @@ public:
 
 class ReLU : public Activation {
 public:
-    double apply_activation(double x) const override;
-    double apply_derivative(double x) const override;
+    float apply_activation(float x) const override;
+    float apply_derivative(float x) const override;
     const std::string& who() const override;
 
     ~ReLU() {}
@@ -44,8 +44,8 @@ public:
 
 class Sigmoid : public Activation {
 public:
-    double apply_activation(double x) const override;
-    double apply_derivative(double x) const override;
+    float apply_activation(float x) const override;
+    float apply_derivative(float x) const override;
     const std::string& who() const override;
     
     ~Sigmoid() {}
@@ -53,8 +53,8 @@ public:
 
 class Tanh : public Activation {
 public:
-    double apply_activation(double x) const override;
-    double apply_derivative(double x) const override;
+    float apply_activation(float x) const override;
+    float apply_derivative(float x) const override;
     const std::string& who() const override;
     
     ~Tanh() {}

@@ -4,7 +4,7 @@ std::mt19937 LPP::ProbabilityDistribution::MT_ENGINE = std::mt19937(std::random_
 
 LPP::ProbabilityDistribution::~ProbabilityDistribution() {}
 
-LPP::Normal::Normal(const double mean, const double stddev)
+LPP::Normal::Normal(const float mean, const float stddev)
 {
     if (stddev < 0) {
         const auto msg = "Normal: standard deviation cannot be negative";
@@ -13,12 +13,12 @@ LPP::Normal::Normal(const double mean, const double stddev)
     norm = std::normal_distribution<>(mean, stddev);
 }
 
-double LPP::Normal::sample()
+float LPP::Normal::sample()
 {
     return norm(ProbabilityDistribution::MT_ENGINE);
 }
 
-LPP::Uniform::Uniform(const double lower, const double upper)
+LPP::Uniform::Uniform(const float lower, const float upper)
 {
     if (lower > upper) {
         const auto msg = "Uniform: lower cannot be greater than higher";
@@ -27,7 +27,7 @@ LPP::Uniform::Uniform(const double lower, const double upper)
     unif = std::uniform_real_distribution<>(lower, upper);
 }
 
-double LPP::Uniform::sample()
+float LPP::Uniform::sample()
 {
     return unif(ProbabilityDistribution::MT_ENGINE);
 }

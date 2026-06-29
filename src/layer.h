@@ -10,13 +10,13 @@ namespace LPP {
 
 class Layer {
     std::unique_ptr<Matrix> weights;
-    std::unique_ptr<std::vector<double>> biases;
+    std::unique_ptr<std::vector<float>> biases;
     std::shared_ptr<Activation> act_func;
-    std::vector<double> pre_activation;     // Needed for backpropagation, holds z = Wx + b
-    std::vector<double> post_activation;    // Needed for backpropagation, holds a = σ(z)
+    std::vector<float> pre_activation;     // Needed for backpropagation, holds z = Wx + b
+    std::vector<float> post_activation;    // Needed for backpropagation, holds a = σ(z)
 
     // Apply activation function to all entries, performed in place in z
-    void apply_activation(std::vector<double>& z) const;
+    void apply_activation(std::vector<float>& z) const;
 
     friend class Network;
 
@@ -32,7 +32,7 @@ public:
     // Constructor called when network created from file
     Layer(
         std::unique_ptr<Matrix>& given_weights,
-        std::unique_ptr<std::vector<double>>& given_biases,
+        std::unique_ptr<std::vector<float>>& given_biases,
         std::shared_ptr<Activation>& af
     );
 

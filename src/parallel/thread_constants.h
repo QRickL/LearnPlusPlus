@@ -1,18 +1,18 @@
-#ifndef LPP_THREAD_CONSTANTS_H
-#define LPP_THREAD_CONSTANTS_H
+// #ifndef LPP_THREAD_CONSTANTS_H
+// #define LPP_THREAD_CONSTANTS_H
 
-#include <thread>
+// #include <thread>
 
-namespace LPP {
-namespace CONSTANTS {
+// namespace LPP {
+// namespace CONSTANTS {
 
-const unsigned int MAX_THREADS = std::thread::hardware_concurrency();
-const unsigned int USE_THREADS = std::min(6u, MAX_THREADS);
+// const unsigned int MAX_THREADS = std::thread::hardware_concurrency();
+// const unsigned int USE_THREADS = std::min(6u, MAX_THREADS);
 
-const size_t MATRIX_PARALLEL_THRESHOLD = 200;
-const size_t VECTOR_PARALLEL_THRESHOLD = 1000000;
+// const size_t MATRIX_PARALLEL_THRESHOLD = 200;
+// const size_t VECTOR_PARALLEL_THRESHOLD = 1000000;
 
-}
-}
+// }
+// }
 
-#endif
+// #endif

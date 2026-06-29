@@ -13,27 +13,27 @@ protected:
 public:
     virtual ~ProbabilityDistribution() = 0;
 
-    virtual double sample() = 0;
+    virtual float sample() = 0;
 };
 
 class Normal : public ProbabilityDistribution {
     std::normal_distribution<> norm;
 
 public:
-    Normal(const double mean, const double stddev);
+    Normal(const float mean, const float stddev);
     ~Normal() {}
 
-    double sample() override;
+    float sample() override;
 };
 
 class Uniform : public ProbabilityDistribution {
     std::uniform_real_distribution<> unif;
 
 public:
-    Uniform(const double lower, const double upper);
+    Uniform(const float lower, const float upper);
     ~Uniform() {}
 
-    double sample() override;
+    float sample() override;
 };
 
 const auto STANDARD_NORMAL = std::make_shared<Normal>(0, 1);

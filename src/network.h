@@ -12,16 +12,16 @@ class Network {
     std::vector<std::unique_ptr<Layer>> layers;
     std::shared_ptr<Loss> loss_func;
 
-    std::vector<double> forward_propagation(
-        std::vector<double> current_fire,
+    std::vector<float> forward_propagation(
+        std::vector<float> current_fire,
         const bool training
     ) const;
 
     void back_propagation(
         std::vector<std::unique_ptr<Matrix>>& del_W_partial_sum,
-        std::vector<std::unique_ptr<std::vector<double>>>& del_b_partial_sum,
-        const std::vector<double>& response_var,
-        const std::vector<double>& explan_var
+        std::vector<std::unique_ptr<std::vector<float>>>& del_b_partial_sum,
+        const std::vector<float>& response_var,
+        const std::vector<float>& explan_var
     ) const;
 
 public:
@@ -39,14 +39,14 @@ public:
     void save_model(const std::string& filepath) const;
 
     // Single fire through network
-    std::vector<double> inference(const std::vector<double>& x) const;
+    std::vector<float> inference(const std::vector<float>& x) const;
 
     // Train model using training set and response variates
-    double train(
+    float train(
         const Matrix& explan_var,
         const Matrix& response_var,
         const size_t epochs,
-        const double init_learning_rate,
+        const float init_learning_rate,
         const std::shared_ptr<Loss>& loss_ptr
     );
 

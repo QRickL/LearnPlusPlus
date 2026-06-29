@@ -51,7 +51,7 @@ LPP::Network::Network(const std::string& filepath)
         model_file >> cur_line;
         if (cur_line == "END") break;
         
-        double val;
+        float val;
         size_t out, in;
         model_file >> out >> in;
         std::cout << cur_line << ":\n";
@@ -66,7 +66,7 @@ LPP::Network::Network(const std::string& filepath)
             }
         }
         // Read in biases
-        auto cur_biases = std::make_unique<std::vector<double>>(out);
+        auto cur_biases = std::make_unique<std::vector<float>>(out);
         for (size_t i = 0; i < out; i++) {
             model_file >> val;
             (*cur_biases)[i] = val;
@@ -129,7 +129,7 @@ void LPP::Network::save_model(const std::string& filepath) const
     model_file.close();
 }
 
-std::vector<double> LPP::Network::forward_propagation(std::vector<double> current_fire, const bool training) const
+std::vector<float> LPP::Network::forward_propagation(std::vector<float> current_fire, const bool training) const
 {
     for (auto& layer : layers) {
         // z = Wx + b
@@ -147,11 +147,11 @@ std::vector<double> LPP::Network::forward_propagation(std::vector<double> curren
     return current_fire;
 }
 
-void LPP::Network::back_propagation(std::vector<std::unique_ptr<Matrix>>& del_W_partial_sum, std::vector<std::unique_ptr<std::vector<double>>>& del_b_partial_sum, const std::vector<double>& response_var, const std::vector<double>& explan_var) const
+void LPP::Network::back_propagation(std::vector<std::unique_ptr<Matrix>>& del_W_partial_sum, std::vector<std::unique_ptr<std::vector<float>>>& del_b_partial_sum, const std::vector<float>& response_var, const std::vector<float>& explan_var) const
 {
     // Used to calculate derivatives recursively
-    std::vector<double> prev_gradient;
-    std::vector<double> current_gradient;
+    std::vector<float> prev_gradient;
+    std::vector<float> current_gradient;
 
     // Don't use size_t to avoid underflow
     for (int l = layers.size() - 1; l >=0 ; l--) {
@@ -164,13 +164,13 @@ void LPP::Network::back_propagation(std::vector<std::unique_ptr<Matrix>>& del_W_
             // Looking at non-last layer, calculate gradient recursively
             const size_t forward_layer_size = layers[l+1]->weights->rows();
             const size_t current_layer_size = layers[l]->weights->rows();
-            current_gradient = std::vector<double>(current_layer_size, 0.0);
+            current_gradient = std::vector<float>(current_layer_size, 0.0);
 
             for (size_t c = 0; c < current_layer_size; c++) {
                 for (size_t k = 0; k < forward_layer_size; k++) {
-                    const double delL_dela1 = prev_gradient[k];
-                    const double dela1_delz = layers[l+1]->act_func->apply_derivative(layers[l+1]->pre_activation[k]);
-                    const double delz_dela0 = layers[l+1]->weights->get(k,c);
+                    const float delL_dela1 = prev_gradient[k];
+                    const float dela1_delz = layers[l+1]->act_func->apply_derivative(layers[l+1]->pre_activation[k]);
+                    const float delz_dela0 = layers[l+1]->weights->get(k,c);
 
                     // Chain rule: delL_dela0 = delL_dela1 * dela1_delz * delz_dela0
                     current_gradient[c] += delL_dela1 * dela1_delz * delz_dela0;
@@ -180,7 +180,7 @@ void LPP::Network::back_propagation(std::vector<std::unique_ptr<Matrix>>& del_W_
 
         for (size_t i = 0; i < layers[l]->weights->rows(); i++) {
 
-            const double imed = current_gradient[i] * layers[l]->act_func->apply_derivative(layers[l]->pre_activation[i]);
+            const float imed = current_gradient[i] * layers[l]->act_func->apply_derivative(layers[l]->pre_activation[i]);
 
             // Update derivatives wrt bias
             (*del_b_partial_sum[l])[i] += imed;
@@ -197,16 +197,16 @@ void LPP::Network::back_propagation(std::vector<std::unique_ptr<Matrix>>& del_W_
     }
 }
 
-std::vector<double> LPP::Network::inference(const std::vector<double>& x) const
+std::vector<float> LPP::Network::inference(const std::vector<float>& x) const
 {
     return forward_propagation(x, false);
 }
 
-double LPP::Network::train(
+float LPP::Network::train(
     const Matrix& explan_var,
     const Matrix& response_var,
     const size_t epochs,
-    const double init_learning_rate,
+    const float init_learning_rate,
     const std::shared_ptr<Loss>& loss_ptr
 )
 {
@@ -224,16 +224,16 @@ double LPP::Network::train(
     }
 
     const size_t num_training_examples = explan_var.rows();
-    double learning_rate = init_learning_rate;
+    float learning_rate = init_learning_rate;
     loss_func = loss_ptr;
-    double loss;
+    float loss;
 
     // response_var_hat: holds predicted values for epoch
     // del_W: stores derivatives wrt to weights
     // del_b: stores derivaiives wrt to biases
     LPP::Matrix                                         response_var_hat(explan_var.rows(), explan_var.cols());
     std::vector<std::unique_ptr<Matrix>>                del_W(layers.size());
-    std::vector<std::unique_ptr<std::vector<double>>>   del_b(layers.size());
+    std::vector<std::unique_ptr<std::vector<float>>>   del_b(layers.size());
 
     for (size_t cur_epoch = 0; cur_epoch < epochs; cur_epoch++) {
         std::cout << "Training epoch " << cur_epoch + 1 << ":\n";
@@ -244,7 +244,7 @@ double LPP::Network::train(
             const size_t out    = layers[l]->weights->rows();
 
             del_W[l] = std::make_unique<Matrix>(out, in);
-            del_b[l] = std::make_unique<std::vector<double>>(out, 0.0);
+            del_b[l] = std::make_unique<std::vector<float>>(out, 0.0);
         }
         // Looping over each training example
         // Backpropagation will add partial sums to gradients
@@ -265,7 +265,7 @@ double LPP::Network::train(
             *layers[l]->biases  -= *del_b[l];
         }
         // Compute loss
-        loss = loss_func->apply_itself(response_var_hat, response_var);
+        loss = loss_func->apply_loss(response_var_hat, response_var);
         std::cout << "Loss: " << loss << "\n\n";
     }
     return loss;

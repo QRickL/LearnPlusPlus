@@ -4,26 +4,26 @@
 #include <vector>
 
 // Vector addition
-std::vector<double> operator+(const std::vector<double>& v1, const std::vector<double>& v2);
-std::vector<double> operator-(const std::vector<double>& v1, const std::vector<double>& v2);
-std::vector<double> operator/(const std::vector<double>& v1, const std::vector<double>& v2);    // Division is defined by entry
+std::vector<float> operator+(const std::vector<float>& v1, const std::vector<float>& v2);
+std::vector<float> operator-(const std::vector<float>& v1, const std::vector<float>& v2);
+std::vector<float> operator/(const std::vector<float>& v1, const std::vector<float>& v2);    // Division is defined by entry
 
 // Vector dot product
-double operator*(const std::vector<double>&v1, const std::vector<double>& v2);
+float operator*(const std::vector<float>&v1, const std::vector<float>& v2);
 
 // For adding biases
-std::vector<double> operator+(const std::vector<double>& v1, double c);
-std::vector<double> operator+(double c, const std::vector<double>& v2);
+std::vector<float> operator+(const std::vector<float>& v1, float c);
+std::vector<float> operator+(float c, const std::vector<float>& v2);
 
 // Vector scalar multiplication
-std::vector<double> operator*(const std::vector<double>& v1, double c);
-std::vector<double> operator*(double c, const std::vector<double>& v2);
+std::vector<float> operator*(const std::vector<float>& v1, float c);
+std::vector<float> operator*(float c, const std::vector<float>& v2);
 
 // Assignment operators
-std::vector<double>& operator+=(std::vector<double>& v1, const std::vector<double>& v2);
-std::vector<double>& operator+=(std::vector<double>& v1, const double c);
-std::vector<double>& operator-=(std::vector<double>& v1, const std::vector<double>& v2);
-std::vector<double>& operator*=(std::vector<double>& v1, const double c);
-std::vector<double>& operator/=(std::vector<double>& v1, const std::vector<double>& v2);    // Division is defined by entry
+std::vector<float>& operator+=(std::vector<float>& v1, const std::vector<float>& v2);
+std::vector<float>& operator+=(std::vector<float>& v1, const float c);
+std::vector<float>& operator-=(std::vector<float>& v1, const std::vector<float>& v2);
+std::vector<float>& operator*=(std::vector<float>& v1, const float c);
+std::vector<float>& operator/=(std::vector<float>& v1, const std::vector<float>& v2);    // Division is defined by entry
 
 #endif

@@ -15,18 +15,18 @@ namespace LPP
 
 class Loss {
 public:
-    virtual double apply_loss(const Matrix& y_hat, const Matrix& y) const = 0;
-    virtual std::vector<double> find_gradient(const std::vector<double>& y_hat, const std::vector<double>& y) const = 0;
+    virtual float apply_loss(const Matrix& y_hat, const Matrix& y) const = 0;
+    virtual std::vector<float> find_gradient(const std::vector<float>& y_hat, const std::vector<float>& y) const = 0;
     void enforce_size(const Matrix& y_hat, const Matrix& y, const std::string& loss_name) const;
-    void enforce_size(const std::vector<double>& y, const std::vector<double>& y_hat, const std::string& loss_name) const;
+    void enforce_size(const std::vector<float>& y, const std::vector<float>& y_hat, const std::string& loss_name) const;
 
     virtual ~Loss() = 0;
 };
 
 class MeanSquaredError : public Loss {
 public:
-    double apply_loss(const Matrix& y_hat, const Matrix& y) const override;
-    std::vector<double> find_gradient(const std::vector<double>& y_hat, const std::vector<double>& y) const override;
+    float apply_loss(const Matrix& y_hat, const Matrix& y) const override;
+    std::vector<float> find_gradient(const std::vector<float>& y_hat, const std::vector<float>& y) const override;
 
     ~MeanSquaredError() {}
 };
@@ -34,16 +34,16 @@ public:
 // need to enforce that there are only two classes (yes / no)
 class BinaryCrossEntropy : public Loss {
 public:
-    double apply_loss(const Matrix& y_hat, const Matrix& y) const override;
-    std::vector<double> find_gradient(const std::vector<double>& y_hat, const std::vector<double>& y) const override;
+    float apply_loss(const Matrix& y_hat, const Matrix& y) const override;
+    std::vector<float> find_gradient(const std::vector<float>& y_hat, const std::vector<float>& y) const override;
 
     ~BinaryCrossEntropy() {}
 };
 
 class CrossEntropy : public Loss {
 public:
-    double apply_loss(const Matrix& y_hat, const Matrix& y) const override;
-    std::vector<double> find_gradient(const std::vector<double>& y_hat, const std::vector<double>& y) const override;
+    float apply_loss(const Matrix& y_hat, const Matrix& y) const override;
+    std::vector<float> find_gradient(const std::vector<float>& y_hat, const std::vector<float>& y) const override;
 
     ~CrossEntropy() {}
 };
