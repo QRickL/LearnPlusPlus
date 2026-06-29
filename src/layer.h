@@ -1,47 +1,47 @@
-#ifndef LPP_LAYER_H
-#define LPP_LAYER_H
+#pragma once
 
 #include "functions/activations.h"
 #include "matrix.h"
+#include <iostream>
 #include <vector>
 #include <memory>
 
 namespace LPP {
 
+template <typename number>
 class Layer {
-    std::unique_ptr<Matrix> weights;
-    std::unique_ptr<std::vector<double>> biases;
-    std::shared_ptr<Activation> act_func;
-    std::vector<double> pre_activation;     // Needed for backpropagation, holds z = Wx + b
-    std::vector<double> post_activation;    // Needed for backpropagation, holds a = σ(z)
+    using Weights       = std::unique_ptr<Matrix<number>>;
+    using Biases        = std::unique_ptr<Vect<number>>;
+    using ActivationPtr = std::shared_ptr<Activation<number>>;
+    using ProbDistnPtr  = std::shared_ptr<ProbabilityDistribution>;
 
-    // Apply activation function to all entries, performed in place in z
-    void apply_activation(std::vector<double>& z) const;
+    Weights         weights__;
+    Biases          biases__;
+    Vect<number>    pre_activation__;     // Needed for backpropagation, holds z = Wx + b
+    Vect<number>    post_activation__;    // Needed for backpropagation, holds a = σ(z)
+    ActivationPtr   activation_func__;    // Will be applied after matrix vector multiplication
 
+    void apply_activation_layer__(Vect<number>& z) const; // Apply activation function to all entries, performed in place in z
     friend class Network;
 
 public:
-    // Constructor called when network created manually
+    // Layer constructor called when network created manually
     Layer(
-        const size_t input_size,
-        const size_t output_size,
-        const std::shared_ptr<Activation>& af,
-        const std::shared_ptr<ProbabilityDistribution>& pd
+        size_t inputSize,
+        size_t outputSize,
+        ActivationPtr& initActivationFunction, // TODO: can pass in a string instead
+        const ProbDistnPtr&  initProbDistn
     );
 
-    // Constructor called when network created from file
+    // Layer constructor called when network created from file
     Layer(
-        std::unique_ptr<Matrix>& given_weights,
-        std::unique_ptr<std::vector<double>>& given_biases,
-        std::shared_ptr<Activation>& af
+        Weights&        initWeights,
+        Biases&         initBiases,
+        ActivationPtr&  initActivationFunction
     );
 
-    // Display information
-    void display() const;
+    // Prints contents of the layer: weights, biases, and activation
+    void printLayer(std::ostream& os = std::cout) const;
 };
 
-// Display information
-void print_object(const Layer& l);
-
 } // namespace LPP
-#endif

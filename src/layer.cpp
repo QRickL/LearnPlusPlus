@@ -1,44 +1,57 @@
 #include "layer.h"
 #include <iostream>
 
-LPP::Layer::Layer(const size_t input_size, const size_t output_size, const std::shared_ptr<Activation>& af, const std::shared_ptr<ProbabilityDistribution>& pd)
-{
-    if (pd != nullptr) {
-        weights = std::make_unique<Matrix>(output_size, input_size, pd);
-
-        biases = std::make_unique<std::vector<double>>(output_size);
+template <typename number>
+LPP::Layer<number>::Layer(
+    size_t input_size,
+    size_t output_size,
+    std::shared_ptr<Activation<number>>& initActivationFunction,
+    const std::shared_ptr<ProbabilityDistribution>& initProbDistn
+) {
+    if (initProbDistn) {
+        weights__ = std::make_unique<Matrix<number>>(output_size, input_size, initProbDistn);
+        biases__ = std::make_unique<Vect<number>>(output_size);
         for (size_t i = 0; i < output_size; i++) {
-            (*biases)[i] = pd->sample();
+            (*biases__)[i] = initProbDistn->sample();
         }
+
     } else {
-        weights = std::make_unique<Matrix>(output_size, input_size);
-        biases = std::make_unique<std::vector<double>>(output_size, 0.0);
+        // Start with all weights equal to 0 if no distribution specified. This is not recommended in practice
+        weights__ = std::make_unique<Matrix<number>>(output_size, input_size);
+        biases__ = std::make_unique<Vect<number>>(output_size, 0.0);
     }
-    act_func = af;
+    activation_func__ = initActivationFunction;
 }
 
-LPP::Layer::Layer(std::unique_ptr<Matrix>& given_weights, std::unique_ptr<std::vector<double>>& given_biases, std::shared_ptr<Activation>& af)
-{
-    weights = std::move(given_weights);
-    biases = std::move(given_biases);
-    act_func = af;
-}
+template <typename number>
+LPP::Layer<number>::Layer(
+    Weights& initWeights,
+    Biases&  initBiases,
+    std::shared_ptr<Activation<number>>& initActivationFunction
+) :
+    weights__{std::move(initWeights)},
+    biases__{std::move(initBiases)},
+    activation_func__{initActivationFunction}
+{}
+    // weights__ = std::move(given_weights);
+    // biases__ = std::move(given_biases);
+    // activation_func__ = af;
 
-void LPP::Layer::apply_activation(std::vector<double>& z) const
+template <typename number>
+void LPP::Layer<number>::apply_activation_layer__(Vect<number>& z) const
 {
     for (size_t i = 0; i < z.size(); i++) {
-       z[i] = act_func->apply_itself(z[i]);
+       z[i] = activation_func__->applyActivation(z[i]);
     }
 }
 
-void LPP::Layer::display() const {
-    std::cout << "Weights:\n";
-    print_object(*weights);
-
-    std::cout << "Biases:\n";
-    print_object(*biases);
-
-    std::cout << "Activation: " << act_func->who() << std::endl;
+template <typename number>
+void LPP::Layer<number>::printLayer(std::ostream& os) const {
+    os << "Layer weights:\n";
+    weights__->displayEntries(os);
+    os << "Bias weights:\n";
+    weights__->displayElements(os);
+    os << "Activation: " << activation_func__->who() << std::endl;
 }
 
-void LPP::print_object(const Layer& l) {l.display();}
+// void LPP::print_object(const Layer& l) {l.display();}
