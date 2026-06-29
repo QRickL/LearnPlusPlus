@@ -9,14 +9,12 @@
 namespace LPP {
 
 class Layer {
-    std::unique_ptr<Matrix> weights;
-    std::unique_ptr<std::vector<float>> biases;
-    std::shared_ptr<Activation> act_func;
-    std::vector<float> pre_activation;     // Needed for backpropagation, holds z = Wx + b
-    std::vector<float> post_activation;    // Needed for backpropagation, holds a = σ(z)
-
-    // Apply activation function to all entries, performed in place in z
-    void apply_activation(std::vector<float>& z) const;
+    std::unique_ptr<Matrix>             weights_;
+    std::unique_ptr<std::vector<float>> biases_;
+    std::vector<float>                  pre_activation_vals_;     // Needed for backpropagation, holds z = Wx + b
+    std::vector<float>                  post_activation_vals_;    // Needed for backpropagation, holds a = σ(z)
+    std::shared_ptr<Activation>         activation_func_;         // Pointer to activation function used by layer
+    void apply_activation_layer_(std::vector<float>& z) const;    // Apply activation function to all entries, performed in place in z
 
     friend class Network;
 

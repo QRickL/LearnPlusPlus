@@ -103,26 +103,26 @@ void LPP::Network::save_model(const std::string& filepath) const
         model_file << "Layer" << l << '\n';
 
         // Matrix dimensions
-        size_t out = layers[l]->weights->rows();
-        size_t in = layers[l]->weights->cols();
+        size_t out = layers[l]->weights_->rows();
+        size_t in = layers[l]->weights_->cols();
         model_file << out << ' ' << in << '\n';
 
         // Weight contents
         for (size_t i = 0; i < out; i++) {
             for (size_t j = 0; j < in; j++) {
-                model_file << (*layers[l]->weights)[i][j] << ' ';
+                model_file << (*layers[l]->weights_)[i][j] << ' ';
             }
             model_file << '\n';
         }
 
         // Bias contents
-        for (size_t i = 0; i < layers[l]->biases->size(); i++) {
-            model_file << (*layers[l]->biases)[i] << ' ';
+        for (size_t i = 0; i < layers[l]->biases_->size(); i++) {
+            model_file << (*layers[l]->biases_)[i] << ' ';
         }
         model_file << '\n';
 
         // Activation function
-        model_file << layers[l]->act_func->who() << '\n';
+        model_file << layers[l]->activation_func_->who() << '\n';
     }
     model_file << "END\n";
     model_file << LPP::MODEL_SAVE_END_MSG << '\n';
@@ -133,15 +133,15 @@ std::vector<float> LPP::Network::forward_propagation(std::vector<float> current_
 {
     for (auto& layer : layers) {
         // z = Wx + b
-        current_fire = (*layer->weights) * current_fire + (*layer->biases);
+        current_fire = (*layer->weights_) * current_fire + (*layer->biases_);
         if (training) {
-            layer->pre_activation = current_fire;
+            layer->pre_activation_vals_ = current_fire;
         }
 
         // a = σ(z)
-        layer->apply_activation(current_fire);
+        layer->apply_activation_layer_(current_fire);
         if (training) {
-            layer->post_activation = current_fire;
+            layer->post_activation_vals_ = current_fire;
         }
     }
     return current_fire;
@@ -158,19 +158,19 @@ void LPP::Network::back_propagation(std::vector<std::unique_ptr<Matrix>>& del_W_
         
         if (l == layers.size() - 1) {
             // Looking at last layer, calculate gradient using loss
-            current_gradient = loss_func->find_gradient(layers[l]->post_activation, response_var);
+            current_gradient = loss_func->find_gradient(layers[l]->post_activation_vals_, response_var);
         }
         else {
             // Looking at non-last layer, calculate gradient recursively
-            size_t forward_layer_size = layers[l+1]->weights->rows();
-            size_t current_layer_size = layers[l]->weights->rows();
+            size_t forward_layer_size = layers[l+1]->weights_->rows();
+            size_t current_layer_size = layers[l]->weights_->rows();
             current_gradient = std::vector<float>(current_layer_size, 0.0);
 
             for (size_t c = 0; c < current_layer_size; c++) {
                 for (size_t k = 0; k < forward_layer_size; k++) {
                     float delL_dela1 = prev_gradient[k];
-                    float dela1_delz = layers[l+1]->act_func->apply_derivative(layers[l+1]->pre_activation[k]);
-                    float delz_dela0 = layers[l+1]->weights->get(k,c);
+                    float dela1_delz = layers[l+1]->activation_func_->apply_derivative(layers[l+1]->pre_activation_vals_[k]);
+                    float delz_dela0 = layers[l+1]->weights_->get(k,c);
 
                     // Chain rule: delL_dela0 = delL_dela1 * dela1_delz * delz_dela0
                     current_gradient[c] += delL_dela1 * dela1_delz * delz_dela0;
@@ -178,16 +178,16 @@ void LPP::Network::back_propagation(std::vector<std::unique_ptr<Matrix>>& del_W_
             }
         }
 
-        for (size_t i = 0; i < layers[l]->weights->rows(); i++) {
+        for (size_t i = 0; i < layers[l]->weights_->rows(); i++) {
 
-            float imed = current_gradient[i] * layers[l]->act_func->apply_derivative(layers[l]->pre_activation[i]);
+            float imed = current_gradient[i] * layers[l]->activation_func_->apply_derivative(layers[l]->pre_activation_vals_[i]);
 
             // Update derivatives wrt bias
             (*del_b_partial_sum[l])[i] += imed;
             // Update derivatives wrt weights
-            for (size_t j = 0; j < layers[l]->weights->cols(); j++) {
+            for (size_t j = 0; j < layers[l]->weights_->cols(); j++) {
                 if (l > 0) {
-                    (*del_W_partial_sum[l])[i][j] += imed * layers[l-1]->post_activation[j];
+                    (*del_W_partial_sum[l])[i][j] += imed * layers[l-1]->post_activation_vals_[j];
                 } else {
                     (*del_W_partial_sum[l])[i][j] += imed * explan_var[j];
                 }
@@ -240,8 +240,8 @@ float LPP::Network::train(
 
         // Initialize all gradient sums to 0
         for (size_t l = 0; l < layers.size(); l++) {
-            size_t in     = layers[l]->weights->cols();
-            size_t out    = layers[l]->weights->rows();
+            size_t in     = layers[l]->weights_->cols();
+            size_t out    = layers[l]->weights_->rows();
 
             del_W[l] = std::make_unique<Matrix>(out, in);
             del_b[l] = std::make_unique<std::vector<float>>(out, 0.0);
@@ -258,11 +258,11 @@ float LPP::Network::train(
         for (size_t l = 0; l < layers.size(); l++) {
             // W <- W - α ∇_W L
             *del_W[l]           *= learning_rate / num_training_examples;
-            *layers[l]->weights -= *del_W[l];
+            *layers[l]->weights_ -= *del_W[l];
 
             // b <- b - α ∇_b L
             *del_b[l]           *= learning_rate / num_training_examples;
-            *layers[l]->biases  -= *del_b[l];
+            *layers[l]->biases_  -= *del_b[l];
         }
         // Compute loss
         loss = loss_func->apply_loss(response_var_hat, response_var);
