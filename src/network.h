@@ -9,19 +9,19 @@ namespace LPP {
 const std::string MODEL_SAVE_END_MSG = "Check out: https://github.com/QRickL/LearnPlusPlus";
 
 class Network {
-    std::vector<std::unique_ptr<Layer>> layers;
-    std::shared_ptr<Loss> loss_func;
+    std::vector<std::unique_ptr<Layer>> layers_;
+    std::shared_ptr<Loss> loss_func_;
 
-    std::vector<float> forward_propagation(
+    std::vector<float> forward_propagation_(
         std::vector<float> current_fire,
         bool training
     ) const;
 
-    void back_propagation(
+    void back_propagation_(
         std::vector<std::unique_ptr<Matrix>>& del_W_partial_sum,
         std::vector<std::unique_ptr<std::vector<float>>>& del_b_partial_sum,
-        const std::vector<float>& response_var,
-        const std::vector<float>& explan_var
+        const std::vector<float>& response_variates,
+        const std::vector<float>& explanatory_variates
     ) const;
 
 public:
@@ -43,8 +43,8 @@ public:
 
     // Train model using training set and response variates
     float train(
-        const Matrix& explan_var,
-        const Matrix& response_var,
+        const Matrix& explanatory_variates,
+        const Matrix& response_variates,
         size_t epochs,
         float init_learning_rate,
         const std::shared_ptr<Loss>& loss_ptr
