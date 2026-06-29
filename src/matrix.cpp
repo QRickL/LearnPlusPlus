@@ -76,7 +76,7 @@ template <typename number>
 size_t LPP::Matrix<number>::cols() const { return cols__; }
 
 template <typename number>
-void LPP::Matrix<number>::print_entries(std::ostream& os) const
+void LPP::Matrix<number>::printEntries(std::ostream& os) const
 {
     os << "{\n";
     for (size_t i = 0; i < rows__; i++) {
@@ -85,7 +85,7 @@ void LPP::Matrix<number>::print_entries(std::ostream& os) const
         }
         os << '\n';
     }
-    os << "}\n" << std::flush;
+    os << '}' << std::endl;
 }
 
 template <typename number>

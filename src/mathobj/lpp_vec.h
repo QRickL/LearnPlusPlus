@@ -1,6 +1,7 @@
 # pragma once
 
 #include <cstddef> 
+#include <iostream>
 
 namespace LPP {
 
@@ -23,6 +24,9 @@ public:
 
     // Size of vector
     size_t size() const {return size__;}
+
+    // Prints all elements of the vector
+    void printElements(std::ostream& os = std::cout) const;
 };
 
 

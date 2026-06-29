@@ -1,6 +1,6 @@
 #pragma once
 
-#include "vector_overloads.h"
+#include "lpp_vec_overloads.h"
 #include "functions/random_gen.h"
 
 namespace LPP
@@ -25,7 +25,7 @@ public:
 
     size_t rows() const;
     size_t cols() const;
-    void   print_entries(std::ostream& os = std::cout) const;
+    void   printEntries(std::ostream& os = std::cout) const; // Prints all entries of the matrix
 
     // Matrix operations
 

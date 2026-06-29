@@ -1,12 +1,10 @@
 #include "lpp_print.h"
 
 template <typename number>
-void LPP::print_object(const Vect<number>& v, std::ostream& os)
-{
-    std::cout << '{';
-    for (size_t i = 0; i < v.size(); i++)
-    std::cout << '}' << std::endl;
-}
+void LPP::printObject(const Vect<number>& v, std::ostream& os) {v.printElements(os);}
 
 template <typename number>
-void LPP::print_object(const Matrix<number>& m, std::ostream& os) {m.print_entries(os);}
+void LPP::printObject(const Matrix<number>& m, std::ostream& os) {m.printEntries(os);}
+
+template <typename number>
+void LPP::printObject(const Layer<number>& l, std::ostream& os) {l.printLayer(os);}

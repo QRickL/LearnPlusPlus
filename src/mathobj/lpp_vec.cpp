@@ -22,3 +22,11 @@ LPP::Vect<number>::Vect(const Vect& other) : size__{other.size()}
 
 template <typename number>
 LPP::Vect<number>::~Vect() {delete data__;}
+
+template <typename number>
+void LPP::Vect<number>::printElements(std::ostream& os) const
+{
+    os << "{ ";
+    for (size_t i = 0; i < v.size(); i++) os << data__[i] << ' '
+    os << '}' << std::endl;
+}
