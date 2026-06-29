@@ -19,7 +19,7 @@ void LPP::Loss::enforce_size(const std::vector<double>& y, const std::vector<dou
     }
 }
 
-double LPP::MeanSquaredError::apply_itself(const Matrix& y_hat, const Matrix& y) const
+double LPP::MeanSquaredError::apply_loss(const Matrix& y_hat, const Matrix& y) const
 {
     enforce_size(y_hat, y, "MeanSquaredError");
 
@@ -42,7 +42,7 @@ std::vector<double> LPP::MeanSquaredError::find_gradient(const std::vector<doubl
     return 2 * (y_hat - y);
 }
 
-double LPP::BinaryCrossEntropy::apply_itself(const Matrix& y_hat, const Matrix& y) const
+double LPP::BinaryCrossEntropy::apply_loss(const Matrix& y_hat, const Matrix& y) const
 {
     enforce_size(y_hat, y, "BinaryCrossEntropy");
     if (y_hat.cols() != 1) {
@@ -72,7 +72,7 @@ std::vector<double> LPP::BinaryCrossEntropy::find_gradient(const std::vector<dou
     return {l};
 }
 
-double LPP::CrossEntropy::apply_itself(const Matrix& y_hat, const Matrix& y) const
+double LPP::CrossEntropy::apply_loss(const Matrix& y_hat, const Matrix& y) const
 {
     enforce_size(y_hat, y, "CrossEntropy");
 

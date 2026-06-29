@@ -15,7 +15,7 @@ namespace LPP
 
 class Loss {
 public:
-    virtual double apply_itself(const Matrix& y_hat, const Matrix& y) const = 0;
+    virtual double apply_loss(const Matrix& y_hat, const Matrix& y) const = 0;
     virtual std::vector<double> find_gradient(const std::vector<double>& y_hat, const std::vector<double>& y) const = 0;
     void enforce_size(const Matrix& y_hat, const Matrix& y, const std::string& loss_name) const;
     void enforce_size(const std::vector<double>& y, const std::vector<double>& y_hat, const std::string& loss_name) const;
@@ -25,7 +25,7 @@ public:
 
 class MeanSquaredError : public Loss {
 public:
-    double apply_itself(const Matrix& y_hat, const Matrix& y) const override;
+    double apply_loss(const Matrix& y_hat, const Matrix& y) const override;
     std::vector<double> find_gradient(const std::vector<double>& y_hat, const std::vector<double>& y) const override;
 
     ~MeanSquaredError() {}
@@ -34,7 +34,7 @@ public:
 // need to enforce that there are only two classes (yes / no)
 class BinaryCrossEntropy : public Loss {
 public:
-    double apply_itself(const Matrix& y_hat, const Matrix& y) const override;
+    double apply_loss(const Matrix& y_hat, const Matrix& y) const override;
     std::vector<double> find_gradient(const std::vector<double>& y_hat, const std::vector<double>& y) const override;
 
     ~BinaryCrossEntropy() {}
@@ -42,7 +42,7 @@ public:
 
 class CrossEntropy : public Loss {
 public:
-    double apply_itself(const Matrix& y_hat, const Matrix& y) const override;
+    double apply_loss(const Matrix& y_hat, const Matrix& y) const override;
     std::vector<double> find_gradient(const std::vector<double>& y_hat, const std::vector<double>& y) const override;
 
     ~CrossEntropy() {}

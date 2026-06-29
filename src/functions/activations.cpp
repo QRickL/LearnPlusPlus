@@ -3,7 +3,7 @@
 
 LPP::Activation::~Activation() {}
 
-double LPP::Identity::apply_itself(double x) const
+double LPP::Identity::apply_activation(double x) const
 {
     return x;
 }
@@ -17,7 +17,7 @@ const std::string& LPP::Identity::who() const {
     return STRING_IDENTITY;
 }
 
-double LPP::ReLU::apply_itself(double x) const
+double LPP::ReLU::apply_activation(double x) const
 {
     return (x >= 0) ? x : 0.0;
 }
@@ -33,14 +33,14 @@ const std::string& LPP::ReLU::who() const {
     return STRING_RELU;
 }
 
-double LPP::Sigmoid::apply_itself(double x) const
+double LPP::Sigmoid::apply_activation(double x) const
 {
     return 1 / (1 + std::exp(-x));
 }
 
 double LPP::Sigmoid::apply_derivative(double x) const
 {
-    const double s = LPP::Sigmoid::apply_itself(x);
+    const double s = LPP::Sigmoid::apply_activation(x);
     return s * (1-s);
 }
 
@@ -48,7 +48,7 @@ const std::string& LPP::Sigmoid::who() const {
     return STRING_SIGMOID;
 }
 
-double LPP::Tanh::apply_itself(double x) const
+double LPP::Tanh::apply_activation(double x) const
 {
     return std::tanh(x);
 }
