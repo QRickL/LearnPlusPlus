@@ -36,8 +36,8 @@ public:
     float sample() override;
 };
 
-const auto STANDARD_NORMAL = std::make_shared<Normal>(0, 1);
-const auto CENTRAL_UNIF = std::make_shared<Uniform>(-1, 1);
+const auto standard_normal_distn = std::make_shared<Normal>(0, 1);
+const auto standard_uniform_distn = std::make_shared<Uniform>(0, 1);
 
 } // namespace LPP
 
