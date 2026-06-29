@@ -20,8 +20,8 @@ LPP::Network my_model(
 
 Load your data:
 ```cpp
-std::vector<std::vector<double>> data1 = ...;
-std::vector<std::vector<double>> data2 = ...;
+std::vector<std::vector<float>> data1 = ...;
+std::vector<std::vector<float>> data2 = ...;
 
 const LPP::Matrix explanatory_variates(data1);    // Construction can also be done in place
 const LPP::Matrix response_variates(data2);
@@ -29,9 +29,9 @@ const LPP::Matrix response_variates(data2);
 
 Set number of epochs, learning rate, and loss function for training:
 ```cpp
-const size_t epochs        = 10;
-const double learning_rate = 0.0001;
-const auto loss_func       = LPP::MEAN_SQUARED_ERROR;
+size_t epochs        = 10;
+float learning_rate  = 0.0001;
+auto loss_function   = LPP::MEAN_SQUARED_ERROR;
 ```
 
 Call train!
@@ -41,8 +41,8 @@ my_model.train(explanatory_variates, response_variates, epochs, learning_rate, l
 
 Perform inference and see its results:
 ```cpp
-const std::vector<double> x      = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
-const std::vector<double> result = my_model.inference(x);
+std::vector<float> x      = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+std::vector<float> result = my_model.inference(x);
 
 LPP::print_object(result);
 ```
