@@ -23,8 +23,8 @@ class Layer {
 public:
     // Constructor called when network created manually
     Layer(
-        const size_t input_size,
-        const size_t output_size,
+        size_t input_size,
+        size_t output_size,
         const std::shared_ptr<Activation>& af,
         const std::shared_ptr<ProbabilityDistribution>& pd
     );

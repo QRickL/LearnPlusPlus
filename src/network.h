@@ -14,7 +14,7 @@ class Network {
 
     std::vector<float> forward_propagation(
         std::vector<float> current_fire,
-        const bool training
+        bool training
     ) const;
 
     void back_propagation(
@@ -27,7 +27,7 @@ class Network {
 public:
     // Manually specify model architecture
     Network(
-        const size_t input_size,
+        size_t input_size,
         const std::vector<std::pair<size_t, std::shared_ptr<Activation>>>& layer_info,
         const std::shared_ptr<ProbabilityDistribution>& pd = nullptr
     );
@@ -45,8 +45,8 @@ public:
     float train(
         const Matrix& explan_var,
         const Matrix& response_var,
-        const size_t epochs,
-        const float init_learning_rate,
+        size_t epochs,
+        float init_learning_rate,
         const std::shared_ptr<Loss>& loss_ptr
     );
 

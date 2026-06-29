@@ -8,7 +8,7 @@ LPP::Matrix::Matrix(const std::vector<std::vector<float>>& m) {entries = m;}
 
 LPP::Matrix::Matrix(std::vector<std::vector<float>>& m) {entries = std::move(m);}
 
-LPP::Matrix::Matrix(const size_t rows, const size_t cols): entries{rows}
+LPP::Matrix::Matrix(size_t rows, size_t cols): entries{rows}
 {
     if (rows < LPP::CONSTANTS::MATRIX_PARALLEL_THRESHOLD) {
         for (size_t r = 0; r < rows; r++) {
@@ -19,7 +19,7 @@ LPP::Matrix::Matrix(const size_t rows, const size_t cols): entries{rows}
     }
 }
 
-LPP::Matrix::Matrix(const size_t rows, const size_t cols, const float c): entries{rows}
+LPP::Matrix::Matrix(size_t rows, size_t cols, float c): entries{rows}
 {
     if (rows < LPP::CONSTANTS::MATRIX_PARALLEL_THRESHOLD) {
         for (size_t r = 0; r < rows; r++) {
@@ -30,7 +30,7 @@ LPP::Matrix::Matrix(const size_t rows, const size_t cols, const float c): entrie
     }
 }
 
-LPP::Matrix::Matrix(const size_t rows, const size_t cols, const std::shared_ptr<LPP::ProbabilityDistribution>& pd): entries{rows}
+LPP::Matrix::Matrix(size_t rows, size_t cols, const std::shared_ptr<LPP::ProbabilityDistribution>& pd): entries{rows}
 {
     for (size_t r = 0; r < rows; r++) {
         entries[r].resize(cols);
@@ -98,7 +98,7 @@ std::vector<float> LPP::Matrix::operator*(const std::vector<float>& v) const
     return res;
 }
 
-void LPP::matrix_sub_helper(Matrix& m1, const LPP::Matrix& m2, const size_t start, const size_t end) {
+void LPP::matrix_sub_helper(Matrix& m1, const LPP::Matrix& m2, size_t start, size_t end) {
     for (size_t r = start; r < end; r++) {
         m1[r] -= m2[r];
     }
@@ -117,11 +117,11 @@ LPP::Matrix& LPP::Matrix::operator-=(const Matrix& m)
         }
     } else {
         std::vector<std::thread> blocks;
-        const size_t block_size = this->rows() / LPP::CONSTANTS::USE_THREADS;
+        size_t block_size = this->rows() / LPP::CONSTANTS::USE_THREADS;
 
         for (size_t r = 0; r <= LPP::CONSTANTS::USE_THREADS; r++) {
-            const size_t start  = r * block_size;
-            const size_t end    = std::min( (r + 1) * block_size, this->rows() );
+            size_t start  = r * block_size;
+            size_t end    = std::min( (r + 1) * block_size, this->rows() );
 
             blocks.emplace_back(LPP::matrix_sub_helper, std::ref(*this), std::ref(m), start, end);
         }
@@ -130,14 +130,14 @@ LPP::Matrix& LPP::Matrix::operator-=(const Matrix& m)
     return *this;
 }
 
-void LPP::matrix_mult_helper(Matrix& m1, const size_t start, const size_t end, const float c)
+void LPP::matrix_mult_helper(Matrix& m1, size_t start, size_t end, float c)
 {
     for (size_t r = start; r < end; r++) {
         m1[r] *= c;
     }
 }
 
-LPP::Matrix& LPP::Matrix::operator*=(const float c)
+LPP::Matrix& LPP::Matrix::operator*=(float c)
 {
     if (this->rows() < LPP::CONSTANTS::MATRIX_PARALLEL_THRESHOLD) {
         for (size_t i = 0; i < entries.size(); i++) {
@@ -145,11 +145,11 @@ LPP::Matrix& LPP::Matrix::operator*=(const float c)
         }
     } else {
         std::vector<std::thread> blocks;
-        const size_t block_size = this->rows() / LPP::CONSTANTS::USE_THREADS;
+        size_t block_size = this->rows() / LPP::CONSTANTS::USE_THREADS;
 
         for (size_t r = 0; r <= LPP::CONSTANTS::USE_THREADS; r++) {
-            const size_t start  = r * block_size;
-            const size_t end    = std::min( (r + 1) * block_size, this->rows() );
+            size_t start  = r * block_size;
+            size_t end    = std::min( (r + 1) * block_size, this->rows() );
 
             blocks.emplace_back(LPP::matrix_mult_helper, std::ref(*this), start, end, c);
         }
@@ -166,7 +166,7 @@ bool LPP::same_dims(const Matrix& m1, const Matrix& m2)
 void LPP::print_object(const std::vector<float>& v)
 {
     std::cout << '{';
-    for (const float d : v) {
+    for (float d : v) {
         std::cout << d << ", ";
     }
     std::cout << '}' << std::endl;

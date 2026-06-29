@@ -1,8 +1,12 @@
 #include "layer.h"
 #include <iostream>
 
-LPP::Layer::Layer(const size_t input_size, const size_t output_size, const std::shared_ptr<Activation>& af, const std::shared_ptr<ProbabilityDistribution>& pd)
-{
+LPP::Layer::Layer(
+    size_t input_size,
+    size_t output_size,
+    const std::shared_ptr<Activation>& af,
+    const std::shared_ptr<ProbabilityDistribution>& pd
+) {
     if (pd != nullptr) {
         weights = std::make_unique<Matrix>(output_size, input_size, pd);
 

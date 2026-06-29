@@ -4,7 +4,7 @@
 #include <sstream>
 #include <iostream>
 
-LPP::Network::Network(const size_t input_size, const std::vector<std::pair<size_t, std::shared_ptr<Activation>>>& layer_info, const std::shared_ptr<ProbabilityDistribution>& pd)
+LPP::Network::Network(size_t input_size, const std::vector<std::pair<size_t, std::shared_ptr<Activation>>>& layer_info, const std::shared_ptr<ProbabilityDistribution>& pd)
 {
     if (layer_info.empty()) {
         const auto msg = "Attempted to construct network with no layers";
@@ -103,8 +103,8 @@ void LPP::Network::save_model(const std::string& filepath) const
         model_file << "Layer" << l << '\n';
 
         // Matrix dimensions
-        const size_t out = layers[l]->weights->rows();
-        const size_t in = layers[l]->weights->cols();
+        size_t out = layers[l]->weights->rows();
+        size_t in = layers[l]->weights->cols();
         model_file << out << ' ' << in << '\n';
 
         // Weight contents
@@ -129,7 +129,7 @@ void LPP::Network::save_model(const std::string& filepath) const
     model_file.close();
 }
 
-std::vector<float> LPP::Network::forward_propagation(std::vector<float> current_fire, const bool training) const
+std::vector<float> LPP::Network::forward_propagation(std::vector<float> current_fire, bool training) const
 {
     for (auto& layer : layers) {
         // z = Wx + b
@@ -162,15 +162,15 @@ void LPP::Network::back_propagation(std::vector<std::unique_ptr<Matrix>>& del_W_
         }
         else {
             // Looking at non-last layer, calculate gradient recursively
-            const size_t forward_layer_size = layers[l+1]->weights->rows();
-            const size_t current_layer_size = layers[l]->weights->rows();
+            size_t forward_layer_size = layers[l+1]->weights->rows();
+            size_t current_layer_size = layers[l]->weights->rows();
             current_gradient = std::vector<float>(current_layer_size, 0.0);
 
             for (size_t c = 0; c < current_layer_size; c++) {
                 for (size_t k = 0; k < forward_layer_size; k++) {
-                    const float delL_dela1 = prev_gradient[k];
-                    const float dela1_delz = layers[l+1]->act_func->apply_derivative(layers[l+1]->pre_activation[k]);
-                    const float delz_dela0 = layers[l+1]->weights->get(k,c);
+                    float delL_dela1 = prev_gradient[k];
+                    float dela1_delz = layers[l+1]->act_func->apply_derivative(layers[l+1]->pre_activation[k]);
+                    float delz_dela0 = layers[l+1]->weights->get(k,c);
 
                     // Chain rule: delL_dela0 = delL_dela1 * dela1_delz * delz_dela0
                     current_gradient[c] += delL_dela1 * dela1_delz * delz_dela0;
@@ -180,7 +180,7 @@ void LPP::Network::back_propagation(std::vector<std::unique_ptr<Matrix>>& del_W_
 
         for (size_t i = 0; i < layers[l]->weights->rows(); i++) {
 
-            const float imed = current_gradient[i] * layers[l]->act_func->apply_derivative(layers[l]->pre_activation[i]);
+            float imed = current_gradient[i] * layers[l]->act_func->apply_derivative(layers[l]->pre_activation[i]);
 
             // Update derivatives wrt bias
             (*del_b_partial_sum[l])[i] += imed;
@@ -205,8 +205,8 @@ std::vector<float> LPP::Network::inference(const std::vector<float>& x) const
 float LPP::Network::train(
     const Matrix& explan_var,
     const Matrix& response_var,
-    const size_t epochs,
-    const float init_learning_rate,
+    size_t epochs,
+    float init_learning_rate,
     const std::shared_ptr<Loss>& loss_ptr
 )
 {
@@ -223,7 +223,7 @@ float LPP::Network::train(
         throw std::invalid_argument(msg);
     }
 
-    const size_t num_training_examples = explan_var.rows();
+    size_t num_training_examples = explan_var.rows();
     float learning_rate = init_learning_rate;
     loss_func = loss_ptr;
     float loss;
@@ -240,8 +240,8 @@ float LPP::Network::train(
 
         // Initialize all gradient sums to 0
         for (size_t l = 0; l < layers.size(); l++) {
-            const size_t in     = layers[l]->weights->cols();
-            const size_t out    = layers[l]->weights->rows();
+            size_t in     = layers[l]->weights->cols();
+            size_t out    = layers[l]->weights->rows();
 
             del_W[l] = std::make_unique<Matrix>(out, in);
             del_b[l] = std::make_unique<std::vector<float>>(out, 0.0);

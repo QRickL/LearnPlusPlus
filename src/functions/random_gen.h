@@ -20,7 +20,7 @@ class Normal : public ProbabilityDistribution {
     std::normal_distribution<> norm;
 
 public:
-    Normal(const float mean, const float stddev);
+    Normal(float mean, float stddev);
     ~Normal() {}
 
     float sample() override;
@@ -30,7 +30,7 @@ class Uniform : public ProbabilityDistribution {
     std::uniform_real_distribution<> unif;
 
 public:
-    Uniform(const float lower, const float upper);
+    Uniform(float lower, float upper);
     ~Uniform() {}
 
     float sample() override;
