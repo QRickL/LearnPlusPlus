@@ -13,7 +13,7 @@ class Vect {
 public:
     Vect(size_t size);
     Vect(size_t size, number initVal);
-    Vect(const Vect& other);
+    Vect(const Vect<number>& other);
     ~Vect();
 
     // Random access operator. For writing. User's fault for calling out of bounds.
