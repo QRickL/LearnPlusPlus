@@ -1,57 +1,75 @@
-#ifndef LPP_NETWORK_H
-#define LPP_NETWORK_H
+# pragma once
 
 #include "layer.h"
 #include "functions/losses.h"
+#include <iostream>
 
 namespace LPP {
 
-const std::string MODEL_SAVE_END_MSG = "Check out: https://github.com/QRickL/LearnPlusPlus";
+/*
+Main class of LPP which gives you the neural network!
 
+Training data should be of type std::vector<std::vector<float>>
+Inference input should be of type std::vector<float>
+Inferece output will be std::vector<float>
+
+Even though internally LPP uses a templated custom vector to save space, we still interact with LPP using std::vector
+The purpose of using the custom 'number' type is to support quantization and autograd (...in a future update)
+*/
+template <typename number>
 class Network {
-    std::vector<std::unique_ptr<Layer>> layers;
-    std::shared_ptr<Loss> loss_func;
 
-    std::vector<double> forward_propagation(
-        std::vector<double> current_fire,
-        const bool training
+    using Weights       = std::unique_ptr<Matrix<number>>;
+    using Biases        = std::unique_ptr<Vect<number>>;
+    using ActivationPtr = std::shared_ptr<Activation<number>>;
+    using LossPtr       = std::shared_ptr<Loss<number>>;
+    using ProbDistnPtr  = std::shared_ptr<ProbabilityDistribution>;
+    using Layers        = std::vector<std::unique_ptr<Layer<number>>>;
+    using LayerInfo     = std::pair<unsigned int, ActivationPtr>;
+
+    Layers layers__;
+    LossPtr loss_func__;
+
+    Vect<number> forward_propagation__(
+        Vect<number> current_fire__,
+        bool training__
     ) const;
 
-    void back_propagation(
-        std::vector<std::unique_ptr<Matrix>>& del_W_partial_sum,
-        std::vector<std::unique_ptr<std::vector<double>>>& del_b_partial_sum,
-        const std::vector<double>& response_var,
-        const std::vector<double>& explan_var
+    void back_propagation__(
+        std::vector<Weights>&       del_W_partial_sum__,
+        std::vector<Biases>&        del_b_partial_sum__,
+        const std::vector<double>&  response_var__, // what to do with this one...
+        const std::vector<double>&  explan_var__
     ) const;
+
+    const std::string model_save_end_msg__ = "Check out: https://github.com/QRickL/LearnPlusPlus";
 
 public:
     // Manually specify model architecture
     Network(
-        const size_t input_size,
-        const std::vector<std::pair<size_t, std::shared_ptr<Activation>>>& layer_info,
-        const std::shared_ptr<ProbabilityDistribution>& pd = nullptr
+        size_t inputSize,
+        const std::vector<LayerInfo>& layerInfos,
+        ProbDistnPtr probDistn = nullptr
     );
 
     // Load model + weights from file
     Network(const std::string& filepath);
 
     // Saving model architecture and weights to a file
-    void save_model(const std::string& filepath) const;
+    void saveModel(const std::string& filepath) const;
 
-    // Single fire through network
-    std::vector<double> inference(const std::vector<double>& x) const;
-
-    // Train model using training set and response variates
+    // Train model using training set and response variates.
+    // sdf
     double train(
-        const Matrix& explan_var,
-        const Matrix& response_var,
-        const size_t epochs,
-        const double init_learning_rate,
-        const std::shared_ptr<Loss>& loss_ptr
+        const std::vector<std::vector<float>>& explan_var,
+        const std::vector<std::vector<float>>& response_var,
+        float init_learning_rate,
+        size_t epochs,
+        LossPtr& loss_ptr
     );
 
+    std::vector<float> inference(const std::vector<float>& x) const; // Single fire through network. Float version
+    std::vector<float> inference(const Vect<number>& x) const;       // Single fire through network. LPP Vect version
 };
 
 } // namespace LPP
-
-#endif

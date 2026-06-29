@@ -2,6 +2,7 @@
 
 #include <cstddef> 
 #include <iostream>
+#include <vector>
 
 namespace LPP {
 
