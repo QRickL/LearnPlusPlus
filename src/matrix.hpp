@@ -8,7 +8,7 @@ namespace LPP
 {
 
 class Matrix {
-    std::vector<std::vector<float>> entries;
+    std::vector<std::vector<float>> entries; // TODO: replace this with single vector and update methods to make class more cache friendly
 
 public:
     // Constructors
