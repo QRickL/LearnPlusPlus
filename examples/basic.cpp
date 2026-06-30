@@ -19,7 +19,7 @@ int main() {
         {   
             {20, LPP::RELU},
             {15, LPP::RELU},
-            {10,  LPP::RELU},
+            {10, LPP::RELU},
             {1,  LPP::IDENTITY}
         },
         my_distribution
