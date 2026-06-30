@@ -9,12 +9,12 @@ Initalize model with your own chosen architecture:
 LPP::Network my_model(
   10,                    // Input size of 10
   {
-    {32, LPP::RELU},          // Hidden layer with 32 nodes, ReLU activation
-    {16, LPP::RELU},          // Hidden layer with 16 nodes, ReLU activation
-    {8,  LPP::RELU},          // Hidden layer with 8 nodes,  ReLU activation
-    {4,  LPP::SIGMOID}        // Output layer with 4 values (classification use case)
+    {32, LPP::activations::RELU},          // Hidden layer with 32 nodes, ReLU activation
+    {16, LPP::activations::RELU},          // Hidden layer with 16 nodes, ReLU activation
+    {8,  LPP::activations::RELU},          // Hidden layer with 8 nodes,  ReLU activation
+    {4,  LPP::activations::SIGMOID}        // Output layer with 4 values (classification use case)
   },
-  LPP::STANDARD_NORMAL   // Distribution which initial weights are sampled from
+  LPP::standard_normal_distribution        // Distribution which initial weights are sampled from
 );
 ```
 
@@ -31,7 +31,7 @@ Set number of epochs, learning rate, and loss function for training:
 ```cpp
 size_t epochs        = 10;
 float learning_rate  = 0.0001;
-auto loss_function   = LPP::MEAN_SQUARED_ERROR;
+auto loss_function   = LPP::losses::MEAN_SQUARED_ERROR;
 ```
 
 Call train!
