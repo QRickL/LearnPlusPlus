@@ -8,26 +8,26 @@ float function(float x, float y, float z) {
     return std::pow(x,3) + 3 * y - y * z;
 }
 
+
 int main() {
 
     // Distribution to generate model weights
-    const auto my_distribution = std::make_shared<LPP::Normal>(0, 0.5); // mean, stddev
+    auto my_distribution = std::make_shared<LPP::Normal>(0, 0.7); // mean, stddev
 
     // Create model
     LPP::Network example_model(
-        3,
+        3,                          // Input size
         {   
-            {20, LPP::RELU},
-            {15, LPP::RELU},
-            {10, LPP::RELU},
-            {1,  LPP::IDENTITY}
+            {16, LPP::activations::TANH},
+            {16, LPP::activations::TANH},
+            {1,  LPP::activations::IDENTITY}
         },
-        my_distribution
+        my_distribution             // Weights sampled when network is created
     );
 
     // Train the model!
     LPP::start_timer();
-    example_model.train(explanatory_variates, response_variates, 100, 0.005, LPP::MEAN_SQUARED_ERROR);
+    example_model.train(explanatory_variates, response_variates, 1000, 0.01, LPP::losses::MEAN_SQUARED_ERROR);  // Dont worry about overfitting because of simple dataset
     LPP::end_timer();
 
     // See how it did on training data

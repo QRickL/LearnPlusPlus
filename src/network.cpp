@@ -225,7 +225,7 @@ float LPP::Network::train(
     std::vector<std::unique_ptr<std::vector<float>>>    del_b(layers_.size());
 
     for (size_t cur_epoch = 0; cur_epoch < epochs; cur_epoch++) {
-        os << "Training epoch " << cur_epoch + 1 << ':' << std::endl; // Flush in case of crash during training
+        os << "Epoch " << cur_epoch + 1 << ": " << std::flush; // Flush in case of crash during training
 
         // Initialize all gradient sums to 0
         // Gradient sums filled in during back propagation
