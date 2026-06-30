@@ -3,7 +3,6 @@
 #include <utility>
 #include <fstream>
 #include <sstream>
-#include <iostream>
 
 LPP::Network::Network(size_t input_size, const std::vector<std::pair<size_t, std::shared_ptr<Activation>>>& layer_info, const std::shared_ptr<ProbabilityDistribution>& pd)
 {
@@ -27,12 +26,12 @@ LPP::Network::Network(size_t input_size, const std::vector<std::pair<size_t, std
 }
 
 // TODO: add comments for constructor using filepath
-LPP::Network::Network(const std::string& filepath)
+LPP::Network::Network(const std::string& filepath, std::ostream& os)
 {
     std::ifstream model_file{filepath};
     enforce_condition(model_file.is_open(), "Network::Network - file failed to open...");
     
-    std::cout << "\nLoading neural network from file: " + filepath << '\n';
+    os << "\nLoading neural network from file: " + filepath << '\n';
     std::string cur_line;
 
     // Verify we are reading a correct file format
@@ -51,8 +50,8 @@ LPP::Network::Network(const std::string& filepath)
         float val;
         size_t out, in;
         model_file >> out >> in;
-        std::cout << cur_line << ":\n";
-        std::cout << "Input size: " << in << "\nOutput size: " << out << '\n';
+        os << cur_line << ":\n";
+        os << "Input size: " << in << "\nOutput size: " << out << '\n';
 
         // Read in weights
         auto cur_weights = std::make_unique<Matrix>(out, in);
@@ -75,12 +74,12 @@ LPP::Network::Network(const std::string& filepath)
         enforce_condition(LPP::choose_activation.count(cur_line), "Network::Network - invalid activation function: " + cur_line);
 
         cur_act = LPP::choose_activation.at(cur_line);
-        std::cout << "Activation: " + cur_line << "\n\n";
+        os << "Activation: " + cur_line << "\n\n";
 
         // Construct layer and push back
         layers_.push_back(std::make_unique<Layer>(cur_weights, cur_biases, cur_act));
     }
-    std::cout << std::endl;
+    os << std::endl;
 }
 
 // TODO: add commends for saving model
@@ -205,7 +204,8 @@ float LPP::Network::train(
     const Matrix& response_variates,
     size_t epochs,
     float init_learning_rate,
-    const std::shared_ptr<Loss>& loss_ptr
+    const std::shared_ptr<Loss>& loss_ptr,
+    std::ostream& os
 )
 {
     enforce_condition(explanatory_variates.rows() == response_variates.rows(), "Network::train - different number of explanatory and respose variates");
@@ -225,7 +225,7 @@ float LPP::Network::train(
     std::vector<std::unique_ptr<std::vector<float>>>    del_b(layers_.size());
 
     for (size_t cur_epoch = 0; cur_epoch < epochs; cur_epoch++) {
-        std::cout << "Training epoch " << cur_epoch + 1 << ':' << std::endl; // Flush in case of crash during training
+        os << "Training epoch " << cur_epoch + 1 << ':' << std::endl; // Flush in case of crash during training
 
         // Initialize all gradient sums to 0
         // Gradient sums filled in during back propagation
@@ -266,7 +266,7 @@ float LPP::Network::train(
         
         // Compute loss
         current_loss = loss_func_->apply_loss(response_variates_hat, response_variates);
-        std::cout << "Loss: " << current_loss << "\n\n";
+        os << "Loss: " << current_loss << "\n\n";
     }
     return current_loss;
 }

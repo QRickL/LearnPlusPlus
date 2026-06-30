@@ -1,6 +1,7 @@
 #ifndef LPP_NETWORK_H
 #define LPP_NETWORK_H
 
+#include <iostream>
 #include "layer.h"
 #include "functions/losses.h"
 
@@ -33,7 +34,7 @@ public:
     );
 
     // Load model + weights from file
-    Network(const std::string& filepath);
+    Network(const std::string& filepath, std::ostream& os = std::cout);
 
     // Saving model architecture and weights to a file
     void save_model(const std::string& filepath) const;
@@ -47,7 +48,8 @@ public:
         const Matrix& response_variates,
         size_t epochs,
         float init_learning_rate,
-        const std::shared_ptr<Loss>& loss_ptr
+        const std::shared_ptr<Loss>& loss_ptr,
+        std::ostream& os = std::cout
     );
 
 };
