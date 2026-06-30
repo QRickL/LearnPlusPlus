@@ -9,8 +9,8 @@ int main() {
 
     for (int i = 0; i <= 14; i++) {
         const int s = 1 << i;
-        LPP::Matrix m1(std::vector<std::vector<double>>(s, std::vector<double>(s)));
-        LPP::Matrix m2(std::vector<std::vector<double>>(s, std::vector<double>(s)));
+        LPP::Matrix m1(std::vector<std::vector<float>>(s, std::vector<float>(s)));
+        LPP::Matrix m2(std::vector<std::vector<float>>(s, std::vector<float>(s)));
 
         std::cout << s << ": addition" << std::endl;;
         LPP::start_timer();

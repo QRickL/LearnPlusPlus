@@ -5,12 +5,12 @@ int main() {
     LPP::Network my_model(
         10,         // Input size of 10
         {
-            {8, LPP::RELU},
-            {6, LPP::RELU},
-            {3, LPP::RELU},
-            {1, LPP::SIGMOID}
+            {8, LPP::activations::RELU},
+            {6, LPP::activations::RELU},
+            {3, LPP::activations::RELU},
+            {1, LPP::activations::SIGMOID}
         },
-        LPP::STANDARD_NORMAL
+        LPP::standard_normal_distn
     );
 
     my_model.save_model("saving_test.txt");
