@@ -1,5 +1,5 @@
-#include "losses.h"
-#include "../checking/check.h"
+#include "losses.hpp"
+#include "../checking/check.hpp"
 #include <cmath>
 
 LPP::Loss::~Loss() {}

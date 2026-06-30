@@ -1,4 +1,4 @@
-#include "activations.h"
+#include "activations.hpp"
 #include <cmath>
 
 // No need to inline. Compiler will do it for you

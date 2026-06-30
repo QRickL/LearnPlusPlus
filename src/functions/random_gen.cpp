@@ -1,5 +1,5 @@
-#include "random_gen.h"
-#include "../checking/check.h"
+#include "random_gen.hpp"
+#include "../checking/check.hpp"
 
 std::mt19937 LPP::ProbabilityDistribution::MT_ENGINE = std::mt19937(std::random_device{}());
 

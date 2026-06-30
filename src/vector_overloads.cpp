@@ -1,6 +1,6 @@
-#include "vector_overloads.h"
+#include "vector_overloads.hpp"
 //#include "parallel/vector_parallel.h"
-#include "checking/check.h"
+#include "checking/check.hpp"
 
 std::vector<float> operator+(const std::vector<float>& v1, const std::vector<float>& v2) 
 {

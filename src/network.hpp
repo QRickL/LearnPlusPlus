@@ -2,8 +2,8 @@
 #define LPP_NETWORK_H
 
 #include <iostream>
-#include "layer.h"
-#include "functions/losses.h"
+#include "layer.hpp"
+#include "functions/losses.hpp"
 
 namespace LPP {
 

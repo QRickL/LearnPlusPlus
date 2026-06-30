@@ -1,6 +1,6 @@
 #ifndef LPP_INCLUDE_HPP
 #define LPP_INCLUDE_HPP
 
-#include "network.h"
+#include "network.hpp"
 
 #endif

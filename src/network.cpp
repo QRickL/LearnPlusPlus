@@ -1,5 +1,5 @@
-#include "network.h"
-#include "checking/check.h"
+#include "network.hpp"
+#include "checking/check.hpp"
 #include <utility>
 #include <fstream>
 #include <sstream>

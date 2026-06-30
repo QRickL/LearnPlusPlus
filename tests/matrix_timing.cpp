@@ -1,5 +1,5 @@
-#include "../src/LPP.h"
-#include "lpp_timer.h"
+#include "../src/LPP.hpp"
+#include "lpp_timer.hpp"
 
 using namespace LPP;
 

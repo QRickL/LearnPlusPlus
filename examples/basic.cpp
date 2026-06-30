@@ -1,6 +1,6 @@
-#include "../tests/lpp_timer.h"
-#include "../src/LPP.h"
-#include "example_data.h"
+#include "../tests/lpp_timer.hpp"
+#include "../src/LPP.hpp"
+#include "example_data.hpp"
 #include <cmath>
 
 // The neural network will learn this function on 2000 training examples

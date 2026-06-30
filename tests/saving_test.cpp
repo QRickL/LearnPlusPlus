@@ -1,4 +1,4 @@
-#include "../src/LPP.h"
+#include "../src/LPP.hpp"
 
 int main() {
 

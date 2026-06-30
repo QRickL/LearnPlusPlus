@@ -1,4 +1,4 @@
-#include "check.h"
+#include "check.hpp"
 
 void __lpp_check__(bool condition, const std::string& error_message)
 {

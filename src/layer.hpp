@@ -1,8 +1,8 @@
 #ifndef LPP_LAYER_H
 #define LPP_LAYER_H
 
-#include "functions/activations.h"
-#include "matrix.h"
+#include "functions/activations.hpp"
+#include "matrix.hpp"
 #include <vector>
 #include <memory>
 

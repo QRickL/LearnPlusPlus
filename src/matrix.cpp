@@ -1,4 +1,4 @@
-#include "matrix.h"
+#include "matrix.hpp"
 //#include "parallel/matrix_parallel.h"
 #include <exception>
 #include <iostream>
