@@ -146,6 +146,7 @@ void LPP::Network::back_propagation_(std::vector<std::unique_ptr<Matrix>>& del_W
     std::vector<float> current_gradient;
 
     // Don't use size_t to avoid underflow
+    // Loop through layers from last layer back to first layer
     for (int cur_layer = layers_.size() - 1; cur_layer >=0 ; cur_layer--) {
         
         if (cur_layer == layers_.size() - 1) {
@@ -227,8 +228,10 @@ float LPP::Network::train(
     for (size_t cur_epoch = 0; cur_epoch < epochs; cur_epoch++) {
         os << "Epoch " << cur_epoch + 1 << ": " << std::flush; // Flush in case of crash during training
 
-        // Initialize all gradient sums to 0
-        // Gradient sums filled in during back propagation
+    /*
+    Initialize all gradient sums to 0
+    Gradient sums filled in during back propagation
+    */
         for (size_t cur_layer = 0; cur_layer < layers_.size(); cur_layer++) {
             size_t in     = layers_[cur_layer]->weights_->cols();
             size_t out    = layers_[cur_layer]->weights_->rows();
@@ -237,8 +240,10 @@ float LPP::Network::train(
             del_b[cur_layer] = std::make_unique<std::vector<float>>(out, 0.0);
         }
 
-        // Looping over each training example
-        // Backpropagation will add partial sums to gradients
+    /*
+    Looping over each training example
+    Backpropagation will add partial sums to gradients
+    */
         for (size_t t = 0; t < num_training_examples; t++) {
             response_variates_hat[t] = forward_propagation_(
                 explanatory_variates[t],
@@ -253,7 +258,9 @@ float LPP::Network::train(
             );
         }
 
-        // Update parameters!
+    /*
+    Update parameters!
+    */
         for (size_t cur_layer = 0; cur_layer < layers_.size(); cur_layer++) {
             // W <- W - α ∇_W L
             *del_W[cur_layer]           *= learning_rate / num_training_examples;
