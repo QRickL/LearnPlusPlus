@@ -201,22 +201,43 @@ std::vector<float> LPP::Network::inference(const std::vector<float>& x) const
 }
 
 float LPP::Network::train(
-    const Matrix& explanatory_variates,
-    const Matrix& response_variates,
-    size_t epochs,
-    float init_learning_rate,
-    const std::shared_ptr<Loss>& loss_ptr,
-    std::ostream& os
+    const Matrix&                   explanatory_variates,
+    const Matrix&                   response_variates,
+    size_t                          epochs,
+    float                           init_learning_rate,
+    const std::shared_ptr<Loss>&    loss_ptr,
+    int                             sgd_mini_batch_size,
+    std::ostream&                   os
 )
 {
     enforce_condition(explanatory_variates.rows() == response_variates.rows(), "Network::train - different number of explanatory and respose variates");
     enforce_condition(explanatory_variates.rows() != 0, "Network::train - training data is empty");
     enforce_condition(init_learning_rate > 0.f, "Network::train - initial learning rate must be positive");
+    enforce_condition(sgd_mini_batch_size <= (int)explanatory_variates.rows(), "Network::train -- mini batch size is larger than number of training points");
 
-    size_t num_training_examples = explanatory_variates.rows();
-    float learning_rate          = init_learning_rate;
-    loss_func_                   = loss_ptr;
-    float current_loss;
+    // Training info
+    size_t  num_training_examples = explanatory_variates.rows();
+    float   learning_rate         = init_learning_rate;
+    float   current_loss;
+            loss_func_            = loss_ptr;
+    
+    // SGD info
+    bool                          perform_sgd   = (sgd_mini_batch_size > 0);
+    std::unique_ptr<std::mt19937> shuffler      = nullptr;                                  // Use to shuffle the permutation every epoch
+    std::vector<size_t>           permutation = std::vector<size_t>(num_training_examples); // Used to track explanatory variate and response pairs
+
+    // permutation = {0, 1, ..., n-1}
+    std::iota(permutation.begin(), permutation.end(), 0);
+
+    if (perform_sgd) {
+        shuffler = std::make_unique<std::mt19937>(std::random_device{}());
+    } else {
+        sgd_mini_batch_size = num_training_examples;
+    }
+
+    // How many batches we need to loop through per epoch
+    size_t num_batches = num_training_examples / sgd_mini_batch_size;
+    if (num_training_examples % sgd_mini_batch_size != 0) num_batches++;
 
     // response_variates_hat: holds predicted values for epoch
     // del_W: stores derivatives wrt to weights
@@ -228,47 +249,35 @@ float LPP::Network::train(
     for (size_t cur_epoch = 0; cur_epoch < epochs; cur_epoch++) {
         os << "Epoch " << cur_epoch + 1 << ": " << std::flush; // Flush in case of crash during training
 
-    /*
-    Initialize all gradient sums to 0
-    Gradient sums filled in during back propagation
-    */
-        for (size_t cur_layer = 0; cur_layer < layers_.size(); cur_layer++) {
-            size_t in     = layers_[cur_layer]->weights_->cols();
-            size_t out    = layers_[cur_layer]->weights_->rows();
+        // Shuffle training data if using stochastic gradient descent
+        if (perform_sgd) std::shuffle(permutation.begin(), permutation.end(), *shuffler);
 
-            del_W[cur_layer] = std::make_unique<Matrix>(out, in);
-            del_b[cur_layer] = std::make_unique<std::vector<float>>(out, 0.0);
-        }
+        for (size_t cur_mini_batch = 0; cur_mini_batch < num_batches; cur_mini_batch++)
+        {
+            // Initialize derivatives to be filled in by backpropagation
+            initialize_gradients_to_zero_(del_W, del_b);
 
-    /*
-    Looping over each training example
-    Backpropagation will add partial sums to gradients
-    */
-        for (size_t t = 0; t < num_training_examples; t++) {
-            response_variates_hat[t] = forward_propagation_(
-                explanatory_variates[t],
-                true /* indicates we're training the model */
-            );
+            size_t batch_start_idx   = cur_mini_batch * sgd_mini_batch_size;
+            size_t batch_end_idx     = std::min(batch_start_idx + sgd_mini_batch_size, num_training_examples);
+            size_t actual_batch_size = batch_end_idx - batch_start_idx;   // If there is remainder
 
-            back_propagation_(
+            // std::cout << batch_start_idx << std::endl << batch_end_idx << std::endl << actual_batch_size << std::endl;
+
+            // Begin to populate derivatives
+            // Each item processed corresponds to a (x,y) pair within the loss' sum
+            process_training_examples_(
                 del_W,
                 del_b,
-                response_variates[t],
-                explanatory_variates[t]
+                batch_start_idx,
+                batch_end_idx,
+                explanatory_variates,
+                response_variates,
+                response_variates_hat,
+                permutation
             );
-        }
 
-    /*
-    Update parameters!
-    */
-        for (size_t cur_layer = 0; cur_layer < layers_.size(); cur_layer++) {
-            // W <- W - α ∇_W L
-            *del_W[cur_layer]           *= learning_rate / num_training_examples;
-            *layers_[cur_layer]->weights_ -= *del_W[cur_layer];
-
-            // b <- b - α ∇_b L
-            *del_b[cur_layer]           *= learning_rate / num_training_examples;
-            *layers_[cur_layer]->biases_  -= *del_b[cur_layer];
+            // This step changes layer weights and biases!
+            update_parameters_(del_W, del_b, actual_batch_size, learning_rate);
         }
         
         // Compute loss
@@ -276,4 +285,74 @@ float LPP::Network::train(
         os << "Loss: " << current_loss << "\n\n";
     }
     return current_loss;
+}
+
+/*
+Looping over each training example
+Backpropagation will add partial sums to gradients
+*/
+void LPP::Network::initialize_gradients_to_zero_(
+        std::vector<std::unique_ptr<LPP::Matrix>>& delL_delW,
+        std::vector<std::unique_ptr<std::vector<float>>>& delL_delb
+) {
+    for (size_t cur_layer = 0; cur_layer < layers_.size(); cur_layer++) {
+        size_t in     = layers_[cur_layer]->weights_->cols();
+        size_t out    = layers_[cur_layer]->weights_->rows();
+
+        delL_delW[cur_layer] = std::make_unique<Matrix>(out, in);
+        delL_delb[cur_layer] = std::make_unique<std::vector<float>>(out, 0.0);
+    }
+}
+
+/*
+For all (x_i, y_i) where i in [start, end-1]
+- perform forward_propagation by firing the pair through the network
+- perform backprogagation by moving back through the layers in reverse order
+*/
+void LPP::Network::process_training_examples_(
+    std::vector<std::unique_ptr<LPP::Matrix>>& delL_delW,
+    std::vector<std::unique_ptr<std::vector<float>>>& delL_delb,
+    size_t start,
+    size_t end,
+    const LPP::Matrix& explanatory_variates,
+    const LPP::Matrix&  response_variates,
+    LPP::Matrix& response_variates_hat,
+    const std::vector<size_t>& permutation
+) {
+    for (size_t t = start; t < end; t++) {
+        size_t idx = permutation[t];
+
+        response_variates_hat[idx] = forward_propagation_(
+            explanatory_variates[idx],
+            true /* indicates we're training the model */
+        );
+
+        back_propagation_(
+            delL_delW,
+            delL_delb,
+            response_variates[idx],
+            explanatory_variates[idx]
+        );
+    }
+}
+
+/*
+Multiply the derivatives by the learning rate
+Divide the derivatives by the batch size because the loss is an average
+*/
+void LPP::Network::update_parameters_(
+    std::vector<std::unique_ptr<Matrix>>& delL_delW,
+    std::vector<std::unique_ptr<std::vector<float>>>& delL_delb,
+    size_t batch_size,
+    float cur_learning_rate
+) {
+    for (size_t cur_layer = 0; cur_layer < layers_.size(); cur_layer++) {
+        // W <- W - α ∇_W L
+        *delL_delW[cur_layer]           *= cur_learning_rate / batch_size;
+        *layers_[cur_layer]->weights_ -= *delL_delW[cur_layer];
+
+        // b <- b - α ∇_b L
+        *delL_delb[cur_layer]           *= cur_learning_rate / batch_size;
+        *layers_[cur_layer]->biases_  -= *delL_delb[cur_layer];
+    }
 }

@@ -27,7 +27,13 @@ int main() {
 
     // Train the model!
     LPP::start_timer();
-    example_model.train(explanatory_variates, response_variates, 1000, 0.01, LPP::losses::MEAN_SQUARED_ERROR);  // Dont worry about overfitting because of simple dataset
+    example_model.train(
+        explanatory_variates,
+        response_variates,
+        1000,
+        0.01,
+        LPP::losses::MEAN_SQUARED_ERROR
+    );  // Dont worry about overfitting because of simple dataset
     LPP::end_timer();
 
     // See how it did on training data

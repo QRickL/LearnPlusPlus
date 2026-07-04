@@ -28,6 +28,29 @@ class Network {
         const std::vector<float>& explanatory_variates
     ) const;
 
+    void initialize_gradients_to_zero_(
+        std::vector<std::unique_ptr<Matrix>>& delL_delW,
+        std::vector<std::unique_ptr<std::vector<float>>>& delL_delb
+    );
+
+    void process_training_examples_(
+        std::vector<std::unique_ptr<Matrix>>& delL_delW,
+        std::vector<std::unique_ptr<std::vector<float>>>& delL_delb,
+        size_t start,
+        size_t end,
+        const Matrix& explanatory_variates,
+        const Matrix& response_variates,
+        LPP::Matrix& response_variates_hat,
+        const std::vector<size_t>& permutation
+    );
+
+    void update_parameters_(
+        std::vector<std::unique_ptr<Matrix>>& delL_delW,
+        std::vector<std::unique_ptr<std::vector<float>>>& delL_delb,
+        size_t batch_size,
+        float cur_learning_rate
+    );
+
 public:
     // Manually specify model architecture
     Network(
@@ -47,12 +70,13 @@ public:
 
     // Train model using training set and response variates
     float train(
-        const Matrix& explanatory_variates,
-        const Matrix& response_variates,
-        size_t epochs,
-        float init_learning_rate,
-        const std::shared_ptr<Loss>& loss_ptr,
-        std::ostream& os = std::cout
+        const Matrix&                   explanatory_variates,
+        const Matrix&                   response_variates,
+        size_t                          epochs,
+        float                           init_learning_rate,
+        const std::shared_ptr<Loss>&    loss_ptr,
+        int                             sgd_mini_batch_size = -1, // can change this better later
+        std::ostream&                   os = std::cout
     );
 
 };
