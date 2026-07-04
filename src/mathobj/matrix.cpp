@@ -1,5 +1,5 @@
 #include "matrix.hpp"
-#include "checking/check.hpp"
+#include "../checking/check.hpp"
 //#include "parallel/matrix_parallel.h"
 #include <exception>
 #include <iostream>

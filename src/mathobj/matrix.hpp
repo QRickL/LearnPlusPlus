@@ -2,7 +2,7 @@
 #define LPP_MATRIX_H
 
 #include "vector_overloads.hpp"
-#include "functions/random_gen.hpp"
+#include "../functions/random_gen.hpp"
 
 namespace LPP
 {

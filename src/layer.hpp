@@ -2,7 +2,7 @@
 #define LPP_LAYER_H
 
 #include "functions/activations.hpp"
-#include "matrix.hpp"
+#include "mathobj/matrix.hpp"
 #include <vector>
 #include <memory>
 

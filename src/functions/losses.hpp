@@ -1,7 +1,7 @@
 #ifndef LPP_LOSSES_H
 #define LPP_LOSSES_H
 
-#include "../matrix.hpp"
+#include "../mathobj/matrix.hpp"
 #include <memory>
 
 // Loss functions are used by the network class to perform training
