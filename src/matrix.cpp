@@ -1,4 +1,5 @@
 #include "matrix.hpp"
+#include "checking/check.hpp"
 //#include "parallel/matrix_parallel.h"
 #include <exception>
 #include <iostream>
@@ -68,17 +69,15 @@ void LPP::Matrix::print_entries() const
 
 float LPP::Matrix::get(size_t i, size_t j) const
 {
-    if (i >= entries.size() || j >= entries[0].size()) {
-        throw std::invalid_argument("Vector entry extraction out of range");
-    }
+    __lpp_check__(i < entries.size() && j < entries[0].size(), "Matrix::get - Vector entry extraction out of range");
+    
     return entries[i][j];
 }
 
 void LPP::Matrix::set(size_t i, size_t j, float s)
 {
-    if (i >= entries.size() || j >= entries[0].size()) {
-        throw std::invalid_argument("Vector entry setting out of range");
-    }
+    __lpp_check__(i < entries.size() && j < entries[0].size(), "Matrix::set - Vector entry setting out of range");
+ 
     entries[i][j] = s;
 }
 
@@ -88,15 +87,15 @@ std::vector<float>& LPP::Matrix::operator[](size_t i) {return entries[i];}
 
 std::vector<float> LPP::Matrix::operator*(const std::vector<float>& v) const
 {
-    if (entries.empty()) {
-        const auto msg = "Attempting to multiply by empty matrix";
-        throw std::invalid_argument(msg);
-    }
-    if (entries[0].size() != v.size()) {
-        const auto msg = "Attempting to multiply " + std::to_string(entries.size()) + 'x' + std::to_string(entries[0].size()) + " by a 1x" + std::to_string(v.size()) + " vector";
-        throw std::invalid_argument(msg);
-    }
-
+    __lpp_check__(
+        !entries.empty(),
+        "Matrix::operator* - Attempting to multiply by empty matrix"
+    );
+    __lpp_check__(
+        entries[0].size() == v.size(),
+        "Matrix::operator* - Attempting to multiply " + std::to_string(entries.size()) + 'x' + std::to_string(entries[0].size()) + " by a 1x" + std::to_string(v.size()) + " vector"
+    );
+    
     std::vector<float> res(entries.size());
     for (size_t i = 0; i < res.size(); i++) {
         res[i] = entries[i] * v;
@@ -112,10 +111,7 @@ void LPP::matrix_sub_helper(Matrix& m1, const LPP::Matrix& m2, size_t start, siz
 
 LPP::Matrix& LPP::Matrix::operator-=(const Matrix& m)
 {
-    if (!same_dims((*this), m)) {
-        const auto msg = "Attempting to subtract matrices of different sizes";
-        throw std::invalid_argument(msg);
-    }
+    __lpp_check__(same_dims(*this, m), "Matrix:operator-= - Attempting to subtract matrices of different sizes");
 
     for (size_t i = 0; i < rows(); i++) {
         entries[i] -= m.entries[i];
