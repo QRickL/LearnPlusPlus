@@ -31,7 +31,7 @@ class Network {
     void initialize_gradients_to_zero_(
         std::vector<std::unique_ptr<Matrix>>& delL_delW,
         std::vector<std::unique_ptr<std::vector<float>>>& delL_delb
-    );
+    ) const;
 
     void process_training_examples_(
         std::vector<std::unique_ptr<Matrix>>& delL_delW,
@@ -42,7 +42,7 @@ class Network {
         const Matrix& response_variates,
         LPP::Matrix& response_variates_hat,
         const std::vector<size_t>& permutation
-    );
+    ) const;
 
     void update_parameters_(
         std::vector<std::unique_ptr<Matrix>>& delL_delW,

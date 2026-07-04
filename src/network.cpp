@@ -305,7 +305,7 @@ Backpropagation will add partial sums to gradients
 void LPP::Network::initialize_gradients_to_zero_(
         std::vector<std::unique_ptr<LPP::Matrix>>& delL_delW,
         std::vector<std::unique_ptr<std::vector<float>>>& delL_delb
-) {
+) const {
     for (size_t cur_layer = 0; cur_layer < layers_.size(); cur_layer++) {
         size_t in     = layers_[cur_layer]->weights_->cols();
         size_t out    = layers_[cur_layer]->weights_->rows();
@@ -329,7 +329,7 @@ void LPP::Network::process_training_examples_(
     const LPP::Matrix&  response_variates,
     LPP::Matrix& response_variates_hat,
     const std::vector<size_t>& permutation
-) {
+) const {
     for (size_t t = start; t < end; t++) {
         size_t idx = permutation[t];
 
