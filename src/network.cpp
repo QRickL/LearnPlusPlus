@@ -4,8 +4,12 @@
 #include <fstream>
 #include <sstream>
 
-LPP::Network::Network(size_t input_size, const std::vector<std::pair<size_t, std::shared_ptr<Activation>>>& layer_info, const std::shared_ptr<ProbabilityDistribution>& pd)
-{
+LPP::Network::Network(
+    size_t input_size,
+    const std::vector<std::pair<size_t,
+    std::shared_ptr<Activation>>>& layer_info,
+    const std::shared_ptr<ProbabilityDistribution>& pd
+) {
     enforce_condition(!layer_info.empty(), "Network::Network - layer_info vector cannot be empty");
 
     loss_func_ = nullptr; // Loss function will be assigned when training
@@ -139,8 +143,12 @@ std::vector<float> LPP::Network::forward_propagation_(std::vector<float> current
     return current_fire;
 }
 
-void LPP::Network::back_propagation_(std::vector<std::unique_ptr<Matrix>>& del_W_partial_sum, std::vector<std::unique_ptr<std::vector<float>>>& del_b_partial_sum, const std::vector<float>& response_variates, const std::vector<float>& explanatory_variates) const
-{
+void LPP::Network::back_propagation_(
+    std::vector<std::unique_ptr<Matrix>>& del_W_partial_sum,
+    std::vector<std::unique_ptr<std::vector<float>>>& del_b_partial_sum,
+    const std::vector<float>& response_variates,
+    const std::vector<float>& explanatory_variates
+) const {
     // Used to calculate derivatives recursively
     std::vector<float> prev_gradient;
     std::vector<float> current_gradient;
@@ -210,10 +218,14 @@ float LPP::Network::train(
     std::ostream&                   os
 )
 {
-    enforce_condition(explanatory_variates.rows() == response_variates.rows(), "Network::train - different number of explanatory and respose variates");
-    enforce_condition(explanatory_variates.rows() != 0, "Network::train - training data is empty");
-    enforce_condition(init_learning_rate > 0.f, "Network::train - initial learning rate must be positive");
-    enforce_condition(sgd_mini_batch_size <= (int)explanatory_variates.rows(), "Network::train -- mini batch size is larger than number of training points");
+    enforce_condition(explanatory_variates.rows() == response_variates.rows(),
+        "Network::train - different number of explanatory and respose variates");
+    enforce_condition(explanatory_variates.rows() != 0,
+        "Network::train - training data is empty");
+    enforce_condition(init_learning_rate > 0.f,
+        "Network::train - initial learning rate must be positive");
+    enforce_condition(sgd_mini_batch_size <= (int)explanatory_variates.rows(),
+        "Network::train -- mini batch size is larger than number of training points");
 
     // Training info
     size_t  num_training_examples = explanatory_variates.rows();
@@ -252,6 +264,7 @@ float LPP::Network::train(
         // Shuffle training data if using stochastic gradient descent
         if (perform_sgd) std::shuffle(permutation.begin(), permutation.end(), *shuffler);
 
+        // If we are not using sgd, then the below will only trigger once
         for (size_t cur_mini_batch = 0; cur_mini_batch < num_batches; cur_mini_batch++)
         {
             // Initialize derivatives to be filled in by backpropagation
@@ -260,8 +273,6 @@ float LPP::Network::train(
             size_t batch_start_idx   = cur_mini_batch * sgd_mini_batch_size;
             size_t batch_end_idx     = std::min(batch_start_idx + sgd_mini_batch_size, num_training_examples);
             size_t actual_batch_size = batch_end_idx - batch_start_idx;   // If there is remainder
-
-            // std::cout << batch_start_idx << std::endl << batch_end_idx << std::endl << actual_batch_size << std::endl;
 
             // Begin to populate derivatives
             // Each item processed corresponds to a (x,y) pair within the loss' sum
