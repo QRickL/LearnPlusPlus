@@ -1,7 +1,7 @@
 #include "random_gen.hpp"
 #include "../checking/check.hpp"
 
-std::mt19937 LPP::ProbabilityDistribution::MT_ENGINE = std::mt19937(std::random_device{}());
+std::mt19937 LPP::ProbabilityDistribution::mt_engine_ = std::mt19937(std::random_device{}());
 
 LPP::ProbabilityDistribution::~ProbabilityDistribution() {}
 
@@ -14,7 +14,7 @@ LPP::Normal::Normal(float mean, float stddev)
 
 float LPP::Normal::sample()
 {
-    return norm(ProbabilityDistribution::MT_ENGINE);
+    return norm(ProbabilityDistribution::mt_engine_);
 }
 
 LPP::Uniform::Uniform(float lower, float upper)
@@ -26,5 +26,5 @@ LPP::Uniform::Uniform(float lower, float upper)
 
 float LPP::Uniform::sample()
 {
-    return unif(ProbabilityDistribution::MT_ENGINE);
+    return unif(ProbabilityDistribution::mt_engine_);
 }

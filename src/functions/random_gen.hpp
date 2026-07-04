@@ -8,7 +8,7 @@ namespace LPP
 
 class ProbabilityDistribution {
 protected:
-    static std::mt19937 MT_ENGINE;
+    static std::mt19937 mt_engine_;
 
 public:
     virtual ~ProbabilityDistribution() = 0;
