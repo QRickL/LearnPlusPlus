@@ -130,11 +130,11 @@ std::vector<float> LPP::Network::forward_propagation_(std::vector<float> current
         // z = Wx + b
         current_fire = (*layer->weights_) * current_fire + (*layer->biases_);
         if (training) {
-            layer->pre_activation_vals_ = current_fire; // Store copy if training
+            layer->pre_activation_vals_ = current_fire; // Store copy 'z' if training
         }
 
         // a = σ(z)
-        layer->apply_activation_layer_(current_fire);   // Store copy if training
+        layer->apply_activation_layer_(current_fire);   // Store copy 'a' if training
         if (training) {
             layer->post_activation_vals_ = current_fire;
         }
@@ -186,6 +186,7 @@ void LPP::Network::back_propagation_(
             (*del_b_partial_sum[cur_layer])[i] += imed_value;
 
             // Update derivatives wrt weights
+            // Different mode for very first layer
             for (size_t j = 0; j < layers_[cur_layer]->weights_->cols(); j++) {
                 if (cur_layer > 0) {
                     (*del_W_partial_sum[cur_layer])[i][j] += imed_value * layers_[cur_layer-1]->post_activation_vals_[j];
@@ -236,7 +237,7 @@ void LPP::Network::train(
             loss_func_            = loss_ptr;
     
     // Mini-batch info for SGD
-    std::mt19937        shuffler;                               // Use to shuffle the permutation every epoch
+    std::mt19937 shuffler;                                      // Use to shuffle the permutation every epoch
     std::unique_ptr<std::vector<size_t>> permutation = nullptr; // Used to track explanatory variate and response pairs if applicable
 
     if (options.use_mini_batch()) {
@@ -255,7 +256,7 @@ void LPP::Network::train(
     // estimated_training_responses: holds predicted values for epoch
     // del_W: stores derivatives wrt to weights
     // del_b: stores derivaiives wrt to biases
-    LPP::Matrix                                      estimated_training_responses(training_features.rows(), training_features.cols());
+    LPP::Matrix                                      estimated_training_responses(training_features.rows(), training_responses.cols());
     std::vector<std::unique_ptr<Matrix>>             del_W(layers_.size());
     std::vector<std::unique_ptr<std::vector<float>>> del_b(layers_.size());
     initialize_gradient_sizes_(del_W, del_b);
@@ -264,7 +265,6 @@ void LPP::Network::train(
         if (options.has_output_stream()) {
             options.output_stream() << "Epoch " << cur_epoch + 1 << ':' << std::endl; // Flush in case of crash during training
         }
-        float training_penalty_loss = 0.f;
 
         // Shuffle training data if using stochastic gradient descent
         if (options.use_mini_batch()) std::shuffle(permutation->begin(), permutation->end(), shuffler);
@@ -273,7 +273,7 @@ void LPP::Network::train(
         for (size_t cur_mini_batch = 0; cur_mini_batch < num_batches; cur_mini_batch++)
         {
             // Initialize derivatives to be filled in by backpropagation
-            initialize_gradients_to_zero_(del_W, del_b);
+            initialize_partial_sums_to_zero_(del_W, del_b);
 
             size_t batch_start_idx   = cur_mini_batch * mini_batch_size;
             size_t batch_end_idx     = std::min(batch_start_idx + mini_batch_size, num_training_examples);
@@ -298,17 +298,25 @@ void LPP::Network::train(
                 del_b,
                 actual_batch_size,
                 learning_rate,
-                options.regularizer(),
-                training_penalty_loss //
+                options.regularizer()
             );
         }
         
-        // Compute training loss
+        // Compute training data loss
         float training_data_loss = loss_func_->apply_loss(
             estimated_training_responses,
             training_responses
         );
-        float training_loss = training_data_loss + training_penalty_loss;
+
+        // Compute penalty loss
+        float penalty_loss = 0.f;
+        if (options.use_regularization()) {
+            for (auto& layer : layers_) {
+                penalty_loss += options.regularizer()->add_regularization_loss_penalty(*layer->weights_);
+            }
+        }
+
+        float training_loss = training_data_loss + penalty_loss;
 
         // Compute valiation loss if applicable
         float validation_loss;
@@ -317,6 +325,7 @@ void LPP::Network::train(
                 options.validation_features(),
                 options.validation_responses()
             );
+            validation_loss += penalty_loss;
         }
 
         if (options.has_output_stream()) {
@@ -342,15 +351,15 @@ Backpropagation will add partial sums to gradients
 Have this as a separate function to minimize allocations in training hotpath
 */
 void LPP::Network::initialize_gradient_sizes_(
-        std::vector<std::unique_ptr<LPP::Matrix>>& delL_delW,
-        std::vector<std::unique_ptr<std::vector<float>>>& delL_delb
+    std::vector<std::unique_ptr<LPP::Matrix>>& delL_delW_partial_sum,
+    std::vector<std::unique_ptr<std::vector<float>>>& delL_delb_partial_sum
 ) const {
     for (size_t cur_layer = 0; cur_layer < layers_.size(); cur_layer++) {
         size_t in     = layers_[cur_layer]->weights_->cols();
         size_t out    = layers_[cur_layer]->weights_->rows();
 
-        delL_delW[cur_layer] = std::make_unique<Matrix>(out, in);
-        delL_delb[cur_layer] = std::make_unique<std::vector<float>>(out, 0.0);
+        delL_delW_partial_sum[cur_layer] = std::make_unique<Matrix>(out, in);
+        delL_delb_partial_sum[cur_layer] = std::make_unique<std::vector<float>>(out, 0.0);
     }
 }
 
@@ -358,19 +367,19 @@ void LPP::Network::initialize_gradient_sizes_(
 Set all the gradient partial sums to 0 for new training cycle
 TODO: could spawn separate threads for this
 */
-void LPP::Network::initialize_gradients_to_zero_(
-        std::vector<std::unique_ptr<LPP::Matrix>>& delL_delW,
-        std::vector<std::unique_ptr<std::vector<float>>>& delL_delb
+void LPP::Network::initialize_partial_sums_to_zero_(
+    std::vector<std::unique_ptr<LPP::Matrix>>& delL_delW_partial_sum,
+    std::vector<std::unique_ptr<std::vector<float>>>& delL_delb_partial_sum
 ) const {
-    for (auto& layer : layers_) {
-        layer->weights_->set_all(0.f);
-        set_all(*layer->biases_, 0.f);
+    for (size_t cur_layer = 0; cur_layer < layers_.size(); cur_layer++) {
+        delL_delW_partial_sum[cur_layer]->set_all(0.f);
+        set_all(*delL_delb_partial_sum[cur_layer], 0.f);
     }
 }
 
 /*
 For all (x_i, y_i) where i in [start, end-1]
-- perform forward_propagation by firing the pair through the network
+- perform forward_propagation_ by firing the pair through the network
 - perform backprogagation by moving back through the layers in reverse order
 */
 void LPP::Network::process_training_examples_(
@@ -409,8 +418,7 @@ void LPP::Network::update_parameters_(
     std::vector<std::unique_ptr<std::vector<float>>>& delL_delb,
     size_t batch_size,
     float cur_learning_rate,
-    const std::shared_ptr<regular::Regularizer>& regularization_option,  // shorten this somehow
-    float& loss
+    const std::shared_ptr<regular::Regularizer>& regularization_option  // shorten this somehow
 ) {
     for (size_t cur_layer = 0; cur_layer < layers_.size(); cur_layer++) {
         // W <- W - α ∇_W L
@@ -422,8 +430,6 @@ void LPP::Network::update_parameters_(
                 *(layers_[cur_layer]->weights_),
                 *(delL_delW[cur_layer])
             );
-
-            loss += regularization_option->add_regularization_loss_penalty(*(layers_[cur_layer]->weights_));
         }
         *delL_delW[cur_layer]         *= cur_learning_rate;     // Scale derivative by learning rate
         *layers_[cur_layer]->weights_ -= *delL_delW[cur_layer]; // Subtract for descent step

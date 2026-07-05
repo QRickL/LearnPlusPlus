@@ -3,7 +3,7 @@
 
 #include "layer.hpp"
 #include "functions/losses.hpp"
-#include "training_options.hpp"
+#include "options/training_options.hpp"
 
 namespace LPP {
 
@@ -36,13 +36,13 @@ class Network {
     ) const;
 
     void initialize_gradient_sizes_(
-        std::vector<up<Matrix>>& delL_delW,
-        std::vector<up<Vec>>& delL_delb
+        std::vector<up<Matrix>>& delL_delW_partial_sum,
+        std::vector<up<Vec>>& delL_delb_partial_sum
     ) const;
 
-    void initialize_gradients_to_zero_(
-        std::vector<up<Matrix>>& delL_delW,
-        std::vector<up<Vec>>& delL_delb
+    void initialize_partial_sums_to_zero_(
+        std::vector<up<Matrix>>& delL_delW_partial_sum,
+        std::vector<up<Vec>>& delL_delb_partial_sum
     ) const;
 
     void process_training_examples_(
@@ -61,8 +61,7 @@ class Network {
         std::vector<up<Vec>>&           delL_delb,
         size_t                          batch_size,
         float                           cur_learning_rate,
-        const sp<regular::Regularizer>& regularization_option,  // shorten this somehow
-        float&                          loss
+        const sp<regular::Regularizer>& regularization_option  // shorten this somehow
     );
 
     float validation_loss_(

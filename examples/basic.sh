@@ -13,6 +13,7 @@ g++ ../src/layer.cpp -c
 g++ ../src/network.cpp -c
 g++ ../src/mathobj/vector_overloads.cpp -c
 g++ ../src/regular/regularizers.cpp -c
+g++ ../src/options/training_options.cpp -c
 
 g++ basic.cpp -c
 

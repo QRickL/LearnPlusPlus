@@ -3,6 +3,7 @@
 
 #include "vector_overloads.hpp"
 #include "../functions/random_gen.hpp"
+#include <iostream>
 
 namespace LPP
 {
