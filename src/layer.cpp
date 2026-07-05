@@ -4,7 +4,7 @@
 LPP::Layer::Layer(
     size_t input_size,
     size_t output_size,
-    const std::shared_ptr<activations::Activation>& af,
+    const activations::Activation* af,
     const std::shared_ptr<distribution::ProbabilityDistribution>& pd
 ) {
     if (pd != nullptr) {
@@ -21,7 +21,7 @@ LPP::Layer::Layer(
     activation_func_ = af;
 }
 
-LPP::Layer::Layer(std::unique_ptr<Matrix>& given_weights, std::unique_ptr<std::vector<float>>& given_biases, std::shared_ptr<activations::Activation>& af)
+LPP::Layer::Layer(std::unique_ptr<Matrix>& given_weights, std::unique_ptr<std::vector<float>>& given_biases, const activations::Activation* af)
 {
     weights_ = std::move(given_weights);
     biases_ = std::move(given_biases);

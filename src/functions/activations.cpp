@@ -21,7 +21,7 @@ const std::string& LPP::activations::Identity::who() const {
 
 float LPP::activations::ReLU::apply_activation(float x) const
 {
-    return (x >= 0.f) ? x : 0.f;
+    return (x > 0.f) ? x : 0.f;
 }
 
 float LPP::activations::ReLU::apply_derivative(float x) const 

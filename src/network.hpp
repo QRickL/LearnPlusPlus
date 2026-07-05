@@ -74,7 +74,7 @@ public:
     // See examples
     Network(
         size_t input_size,
-        const std::vector<std::pair<size_t, sp<activations::Activation>>>& layer_info,
+        const std::vector<std::pair<size_t, const activations::Activation*>>& layer_info,
         const sp<distribution::ProbabilityDistribution>& pd = nullptr
     );
 

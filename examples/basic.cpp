@@ -19,9 +19,9 @@ int main() {
     LPP::Network example_model(
         3,                          // Input size
         {   
-            {16, LPP::activations::tanh},
-            {16, LPP::activations::tanh},
-            {1,  LPP::activations::identity}
+            {16, &LPP::activations::tanh},
+            {16, &LPP::activations::tanh},
+            {1,  &LPP::activations::identity}
         },
         my_distribution             // Weights sampled when network is created
     );

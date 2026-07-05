@@ -20,7 +20,7 @@ class Layer {
     up<Vec>    biases_;
     Vec        pre_activation_vals_;     // Needed for backpropagation, holds z = Wx + b
     Vec        post_activation_vals_;    // Needed for backpropagation, holds a = σ(z)
-    sp<activations::Activation> activation_func_;         // Pointer to activation function used by layer
+    const activations::Activation* activation_func_; // Pointer to activation function used by layer
 
     void apply_activation_layer_(Vec& z) const;    // Apply activation function to all entries, performed in place in z
 
@@ -31,7 +31,7 @@ public:
     Layer(
         size_t input_size,
         size_t output_size,
-        const sp<activations::Activation>& af,
+        const activations::Activation* af,
         const sp<distribution::ProbabilityDistribution>& pd
     );
 
@@ -39,7 +39,7 @@ public:
     Layer(
         up<Matrix>& given_weights,
         up<Vec>& given_biases,
-        sp<activations::Activation>& af
+        const activations::Activation* af
     );
 
     // Display information

@@ -62,23 +62,24 @@ public:
 };
 
 // Global variables for construction of models by user
+// Inline variables have a new meaning in C++17. No multiple definition errors
 
-const auto identity = std::make_shared<Identity>();
-const auto relu     = std::make_shared<ReLU>();
-const auto sigmod  = std::make_shared<Sigmoid>();
-const auto tanh     = std::make_shared<Tanh>();
+inline const auto identity = Identity();
+inline const auto relu     = ReLU();
+inline const auto sigmoid  = Sigmoid();
+inline const auto tanh     = Tanh();
 
 // Global variables for construction of models by file
-const std::string STRING_IDENTITY_  = "IDENTITY";
-const std::string STRING_RELU_      = "RELU";
-const std::string STRING_SIGMOID_   = "SIGMOID";
-const std::string STRING_TANH_      = "TANH";
+inline const std::string STRING_IDENTITY_  = "IDENTITY";
+inline const std::string STRING_RELU_      = "RELU";
+inline const std::string STRING_SIGMOID_   = "SIGMOID";
+inline const std::string STRING_TANH_      = "TANH";
 
-const std::unordered_map<std::string, std::shared_ptr<Activation>> choose_activation = {
-    {STRING_IDENTITY_,   activations::identity},
-    {STRING_RELU_,       activations::relu},
-    {STRING_SIGMOID_,    activations::sigmod},
-    {STRING_TANH_,       activations::tanh}
+inline const std::unordered_map<std::string, const Activation*> choose_activation = {
+    {STRING_IDENTITY_, &identity},
+    {STRING_RELU_,     &relu},
+    {STRING_SIGMOID_,  &sigmoid},
+    {STRING_TANH_,     &tanh}
 };
 
 } // namespace activations
