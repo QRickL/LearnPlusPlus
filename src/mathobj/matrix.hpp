@@ -1,5 +1,5 @@
-#ifndef LPP_MATRIX_H
-#define LPP_MATRIX_H
+#ifndef LPP_MATRIX_HPP
+#define LPP_MATRIX_HPP
 
 #include "vector_overloads.hpp"
 #include "../functions/random_gen.hpp"

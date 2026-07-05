@@ -1,5 +1,5 @@
-#ifndef LPP_VECTOR_OVERLOADS_S
-#define LPP_VECTOR_OVERLOADS_S
+#ifndef LPP_VECTOR_OVERLOADS_HPP
+#define LPP_VECTOR_OVERLOADS_HPP
 
 #include <vector>
 

@@ -146,8 +146,8 @@ std::vector<float> LPP::Network::forward_propagation_(std::vector<float> current
 void LPP::Network::back_propagation_(
     std::vector<std::unique_ptr<Matrix>>& del_W_partial_sum,
     std::vector<std::unique_ptr<std::vector<float>>>& del_b_partial_sum,
-    const std::vector<float>& response_variates,
-    const std::vector<float>& explanatory_variates
+    const std::vector<float>& training_responses,
+    const std::vector<float>& training_features
 ) const {
     // Used to calculate derivatives recursively
     std::vector<float> prev_gradient;
@@ -159,7 +159,7 @@ void LPP::Network::back_propagation_(
         
         if (cur_layer == layers_.size() - 1) {
             // Looking at last layer, calculate gradient using loss
-            current_gradient = loss_func_->find_gradient(layers_[cur_layer]->post_activation_vals_, response_variates);
+            current_gradient = loss_func_->find_gradient(layers_[cur_layer]->post_activation_vals_, training_responses);
         }
         else {
             // Looking at non-last layer, calculate gradient recursively
@@ -191,7 +191,7 @@ void LPP::Network::back_propagation_(
                 if (cur_layer > 0) {
                     (*del_W_partial_sum[cur_layer])[i][j] += imed_value * layers_[cur_layer-1]->post_activation_vals_[j];
                 } else {
-                    (*del_W_partial_sum[cur_layer])[i][j] += imed_value * explanatory_variates[j];
+                    (*del_W_partial_sum[cur_layer])[i][j] += imed_value * training_features[j];
                 }
             }
         }
@@ -209,27 +209,29 @@ std::vector<float> LPP::Network::inference(const std::vector<float>& x) const
 }
 
 void LPP::Network::train(
-    const Matrix&                   explanatory_variates,
-    const Matrix&                   response_variates,
+    const Matrix&                   training_features,
+    const Matrix&                   training_responses,
     size_t                          epochs,
     float                           init_learning_rate,
     const std::shared_ptr<loss::Loss>&    loss_ptr,
     int                             sgd_mini_batch_size,
     const std::shared_ptr<regular::Regularizer> regularization_option,  // shorten this somehow
+    // const Matrix& validation_features,
+    // const Matrix& validation_responses,
     std::ostream&                   os
 )
 {
-    enforce_condition(explanatory_variates.rows() == response_variates.rows(),
-        "Network::train - different number of explanatory and respose variates");
-    enforce_condition(explanatory_variates.rows() != 0,
+    enforce_condition(training_features.rows() == training_responses.rows(),
+        "Network::train - different number of feature and respose variates");
+    enforce_condition(training_features.rows() != 0,
         "Network::train - training data is empty");
     enforce_condition(init_learning_rate > 0.f,
         "Network::train - initial learning rate must be positive");
-    enforce_condition(sgd_mini_batch_size <= (int)explanatory_variates.rows(),
+    enforce_condition(sgd_mini_batch_size <= (int)training_features.rows(),
         "Network::train -- mini batch size is larger than number of training points");
 
     // Training info
-    size_t  num_training_examples = explanatory_variates.rows();
+    size_t  num_training_examples = training_features.rows();
     float   learning_rate         = init_learning_rate;
             loss_func_            = loss_ptr;
     
@@ -251,10 +253,10 @@ void LPP::Network::train(
     size_t num_batches = num_training_examples / sgd_mini_batch_size;
     if (num_training_examples % sgd_mini_batch_size != 0) num_batches++;
 
-    // response_variates_hat: holds predicted values for epoch
+    // training_responses_hat: holds predicted values for epoch
     // del_W: stores derivatives wrt to weights
     // del_b: stores derivaiives wrt to biases
-    LPP::Matrix                                         response_variates_hat(explanatory_variates.rows(), explanatory_variates.cols());
+    LPP::Matrix                                         training_responses_hat(training_features.rows(), training_features.cols());
     std::vector<std::unique_ptr<Matrix>>                del_W(layers_.size());
     std::vector<std::unique_ptr<std::vector<float>>>    del_b(layers_.size());
 
@@ -282,9 +284,9 @@ void LPP::Network::train(
                 del_b,
                 batch_start_idx,
                 batch_end_idx,
-                explanatory_variates,
-                response_variates,
-                response_variates_hat,
+                training_features,
+                training_responses,
+                training_responses_hat,
                 permutation
             );
 
@@ -300,7 +302,7 @@ void LPP::Network::train(
         }
         
         // Compute training loss
-        float training_data_loss = loss_func_->apply_loss(response_variates_hat, response_variates);
+        float training_data_loss = loss_func_->apply_loss(training_responses_hat, training_responses);
         float training_loss = training_data_loss + training_data_loss;
 
         // TODO: Compute validation loss
@@ -337,24 +339,24 @@ void LPP::Network::process_training_examples_(
     std::vector<std::unique_ptr<std::vector<float>>>& delL_delb,
     size_t start,
     size_t end,
-    const LPP::Matrix& explanatory_variates,
-    const LPP::Matrix&  response_variates,
-    LPP::Matrix& response_variates_hat,
+    const LPP::Matrix& training_features,
+    const LPP::Matrix& training_responses,
+    LPP::Matrix& training_responses_hat,
     const std::vector<size_t>& permutation
 ) const {
     for (size_t t = start; t < end; t++) {
         size_t idx = permutation[t];
 
-        response_variates_hat[idx] = forward_propagation_(
-            explanatory_variates[idx],
+        training_responses_hat[idx] = forward_propagation_(
+            training_features[idx],
             true /* indicates we're training the model */
         );
 
         back_propagation_(
             delL_delW,
             delL_delb,
-            response_variates[idx],
-            explanatory_variates[idx]
+            training_responses[idx],
+            training_features[idx]
         );
     }
 }
