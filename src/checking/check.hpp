@@ -1,5 +1,5 @@
-#ifndef LPP_CHECK_H
-#define LPP_CHECK_H
+#ifndef LPP_CHECK_HPP
+#define LPP_CHECK_HPP
 
 #include <string>
 

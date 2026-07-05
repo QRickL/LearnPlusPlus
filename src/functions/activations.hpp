@@ -1,5 +1,5 @@
-#ifndef LPP_ACTIVATIONS_H
-#define LPP_ACTIVATIONS_H
+#ifndef LPP_ACTIVATIONS_HPP
+#define LPP_ACTIVATIONS_HPP
 
 #include <unordered_map>
 #include <memory>

@@ -1,5 +1,5 @@
-#ifndef LPP_LOSSES_H
-#define LPP_LOSSES_H
+#ifndef LPP_LOSSES_HPP
+#define LPP_LOSSES_HPP
 
 #include "../mathobj/matrix.hpp"
 #include <memory>
@@ -10,8 +10,7 @@
 // * Binary cross entropy   - classification tasks
 // * Cross entropy          - classification tasks
 
-namespace LPP
-{
+namespace LPP {
 namespace loss {
 
 class Loss {

@@ -1,10 +1,9 @@
-#ifndef LPP_RANDOM_GEN_H
-#define LPP_RANDOM_GEN_H
+#ifndef LPP_RANDOM_GEN_HPP
+#define LPP_RANDOM_GEN_HPP
 
 #include <random>
 
-namespace LPP
-{
+namespace LPP {
 namespace distribution {
 
 class ProbabilityDistribution {
