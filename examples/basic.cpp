@@ -13,6 +13,7 @@ int main() {
 
     // Distribution to generate model weights
     auto my_distribution = std::make_shared<LPP::distribution::Normal>(0, 0.7); // mean, stddev
+    auto my_regularizer = std::make_shared<LPP::regular::Ridge>();
 
     // Create model
     LPP::Network example_model(
@@ -32,7 +33,10 @@ int main() {
         response_variates,
         1000,
         0.01,
-        LPP::loss::mean_squared_error
+        LPP::loss::mean_squared_error,
+        267,
+        //my_regularizer
+        nullptr
     );  // Dont worry about overfitting because of simple dataset
     LPP::end_timer();
 

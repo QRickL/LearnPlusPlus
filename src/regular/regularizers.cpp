@@ -51,6 +51,10 @@ void LPP::regular::ElasticNet::add_regularization_term_derivative(
     }
 }
 
+LPP::regular::LASSO::LASSO() {}
+
+LPP::regular::Ridge::Ridge() {}
+
 LPP::regular::ElasticNet::ElasticNet(float alpha)
 : alpha_{alpha}
 {

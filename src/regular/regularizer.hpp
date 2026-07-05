@@ -32,7 +32,6 @@ public:
         const Matrix& layer_weights
     ) const override;
 
-
     LASSO();
     ~LASSO() {}
 };

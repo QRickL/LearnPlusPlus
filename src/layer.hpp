@@ -24,7 +24,7 @@ public:
         size_t input_size,
         size_t output_size,
         const std::shared_ptr<activations::Activation>& af,
-        const std::shared_ptr<ProbabilityDistribution>& pd
+        const std::shared_ptr<distribution::ProbabilityDistribution>& pd
     );
 
     // Constructor called when network created from file

@@ -260,7 +260,7 @@ void LPP::Network::train(
 
     for (size_t cur_epoch = 0; cur_epoch < epochs; cur_epoch++) {
         os << "Epoch " << cur_epoch + 1 << ": " << std::flush; // Flush in case of crash during training
-        float current_loss = 0.f;
+        float training_penalty_loss = 0.f;
 
         // Shuffle training data if using stochastic gradient descent
         if (perform_sgd) std::shuffle(permutation.begin(), permutation.end(), *shuffler);
@@ -295,13 +295,18 @@ void LPP::Network::train(
                 actual_batch_size,
                 learning_rate,
                 regularization_option,
-                current_loss
+                training_penalty_loss
             );
         }
         
-        // Compute loss
-        current_loss += loss_func_->apply_loss(response_variates_hat, response_variates);
-        os << "Loss: " << current_loss << "\n\n";
+        // Compute training loss
+        float training_data_loss = loss_func_->apply_loss(response_variates_hat, response_variates);
+        float training_loss = training_data_loss + training_data_loss;
+
+        // TODO: Compute validation loss
+        float validation_loss;
+
+        os << "Loss: " << training_loss << "\n\n";
     }
 }
 

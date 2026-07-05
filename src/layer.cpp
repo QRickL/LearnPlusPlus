@@ -5,7 +5,7 @@ LPP::Layer::Layer(
     size_t input_size,
     size_t output_size,
     const std::shared_ptr<activations::Activation>& af,
-    const std::shared_ptr<ProbabilityDistribution>& pd
+    const std::shared_ptr<distribution::ProbabilityDistribution>& pd
 ) {
     if (pd != nullptr) {
         weights_ = std::make_unique<Matrix>(output_size, input_size, pd);
