@@ -58,13 +58,13 @@ size_t LPP::Matrix::cols() const
     return entries_[0].size();
 }
 
-void LPP::Matrix::print_entries() const
+void LPP::Matrix::print_entries(std::ostream& os) const
 {
-    std::cout << "{\n";
+    os << "{\n";
     for (size_t i = 0; i < entries_.size(); i++) {
-        print_object(entries_[i]);
+        print_object(entries_[i], os);
     }
-    std::cout << '}' << std::endl;
+    os << '}' << std::endl;
 }
 
 float LPP::Matrix::get(size_t i, size_t j) const
@@ -175,16 +175,16 @@ bool LPP::same_dims(const Matrix& m1, const Matrix& m2)
     return m1.rows() == m2.rows() && m1.cols() == m2.cols();
 }
 
-void LPP::print_object(const std::vector<float>& v)
+void LPP::print_object(const std::vector<float>& v, std::ostream& os)
 {
-    std::cout << '{';
+    os << '{';
     for (float d : v) {
-        std::cout << d << ", ";
+        os << d << ", ";
     }
-    std::cout << '}' << std::endl;
+    os << '}' << std::endl;
 }
 
-void LPP::print_object(const Matrix& m) {m.print_entries();}
+void LPP::print_object(const Matrix& m, std::ostream& os) {m.print_entries(os);}
 
 float LPP::Matrix::sum_entries_abs() const
 {

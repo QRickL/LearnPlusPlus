@@ -43,11 +43,11 @@ public:
     );
 
     // Display information
-    void display() const;
+    void display(std::ostream& os = std::cout) const;
 };
 
 // Display information
-void print_object(const Layer& l);
+void print_object(const Layer& l, std::ostream& os = std::cout);
 
 } // namespace LPP
 #endif

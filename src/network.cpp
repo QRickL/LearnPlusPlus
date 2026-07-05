@@ -208,17 +208,12 @@ std::vector<float> LPP::Network::inference(const std::vector<float>& x) const
 }
 
 void LPP::Network::train(
-    const Matrix&                   training_features,
-    const Matrix&                   training_responses,
-    size_t                          epochs,
-    float                           init_learning_rate,
-    const std::shared_ptr<loss::Loss>&    loss_ptr,
-    const ExtraTrainingOptions& options
-    // int                             sgd_mini_batch_size,
-    // const std::shared_ptr<regular::Regularizer> regularization_option,  // shorten this somehow
-    // // const Matrix& validation_features,
-    // // const Matrix& validation_responses,
-    // std::ostream&                   os
+    const Matrix&                       training_features,
+    const Matrix&                       training_responses,
+    size_t                              epochs,
+    float                               init_learning_rate,
+    const std::shared_ptr<loss::Loss>&  loss_ptr,
+    const ExtraTrainingOptions&         options
 )
 {
     enforce_condition(training_features.rows() == training_responses.rows(),
@@ -251,8 +246,8 @@ void LPP::Network::train(
     }
 
     // How many batches we need to loop through per epoch
-    size_t num_batches = num_training_examples / mini_batch_size;
     // Add extra batch to train on remainder... this is probably unstable if the remainder is small
+    size_t num_batches = num_training_examples / mini_batch_size;
     if (num_training_examples % mini_batch_size != 0) num_batches++;
 
     // estimated_training_responses: holds predicted values for epoch

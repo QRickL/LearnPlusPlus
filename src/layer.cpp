@@ -36,14 +36,14 @@ void LPP::Layer::apply_activation_layer_(std::vector<float>& z) const
     }
 }
 
-void LPP::Layer::display() const {
-    std::cout << "Weights:\n";
-    print_object(*weights_);
+void LPP::Layer::display(std::ostream& os) const {
+    os << "Weights:\n";
+    print_object(*weights_, os);
 
-    std::cout << "Biases:\n";
-    print_object(*biases_);
+    os << "Biases:\n";
+    print_object(*biases_, os);
 
-    std::cout << "Activation: " << activation_func_->who() << std::endl;
+    os << "Activation: " << activation_func_->who() << std::endl;
 }
 
-void LPP::print_object(const Layer& l) {l.display();}
+void LPP::print_object(const Layer& l, std::ostream& os) {l.display(os);}

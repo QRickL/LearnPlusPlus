@@ -21,7 +21,7 @@ public:
     // Display information
     size_t  rows() const;
     size_t  cols() const;
-    void    print_entries() const;
+    void    print_entries(std::ostream& os = std::cout) const;
 
     // Matrix operations
     const std::vector<float>&  operator[](size_t i) const;                     // Const version
@@ -38,8 +38,8 @@ public:
     float sum_entries_elastic(float a) const;
 };
 
-void print_object(const Matrix& m);             // Display matrix
-void print_object(const std::vector<float>& v); // Display vector
+void print_object(const Matrix& m, std::ostream& os = std::cout);             // Display matrix
+void print_object(const std::vector<float>& v, std::ostream& os = std::cout); // Display vector
 
 bool same_dims(const Matrix& m1, const Matrix& m2); // Compare two for same sizes
 
