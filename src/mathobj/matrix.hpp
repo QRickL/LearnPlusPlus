@@ -32,6 +32,10 @@ public:
     float                      get(size_t i, size_t j) const;
     void                       set(size_t i, size_t j, float s);
 
+    // Operations used for regularization
+    float sum_entries_abs() const;
+    float sum_entries_sqr() const;
+    float sum_entries_elastic(float a) const;
 };
 
 void print_object(const Matrix& m);             // Display matrix
