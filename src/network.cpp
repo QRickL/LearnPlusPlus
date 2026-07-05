@@ -377,7 +377,7 @@ void LPP::Network::update_parameters_(
                 *(delL_delW[cur_layer])
             );
 
-            loss += regularization_option->add_regularization_penalty(*(layers_[cur_layer]->weights_));
+            loss += regularization_option->add_regularization_loss_penalty(*(layers_[cur_layer]->weights_));
         }
         *delL_delW[cur_layer]         *= cur_learning_rate;     // Scale derivative by learning rate
         *layers_[cur_layer]->weights_ -= *delL_delW[cur_layer]; // Subtract for descent step

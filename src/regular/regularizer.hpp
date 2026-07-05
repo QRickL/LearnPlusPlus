@@ -13,7 +13,7 @@ public:
         Matrix& layer_derivatives
     ) const = 0;
 
-    virtual float add_regularization_penalty(
+    virtual float add_regularization_loss_penalty(
         const Matrix& layer_weights
     ) const = 0;
 
@@ -28,7 +28,7 @@ public:
         Matrix& layer_derivatives
     ) const override;
 
-    float add_regularization_penalty(
+    float add_regularization_loss_penalty(
         const Matrix& layer_weights
     ) const override;
 
@@ -44,7 +44,7 @@ public:
         Matrix& layer_derivatives
     ) const override;
 
-    float add_regularization_penalty(
+    float add_regularization_loss_penalty(
         const Matrix& layer_weights
     ) const override;
 
@@ -60,7 +60,7 @@ public:
         Matrix& layer_derivatives
     ) const override;
 
-    float add_regularization_penalty(
+    float add_regularization_loss_penalty(
         const Matrix& layer_weights
     ) const override;
 
