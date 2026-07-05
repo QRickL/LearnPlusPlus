@@ -37,7 +37,7 @@ LPP::Matrix::Matrix(size_t rows, size_t cols, float c): entries_{rows}
     // }
 }
 
-LPP::Matrix::Matrix(size_t rows, size_t cols, const std::shared_ptr<LPP::ProbabilityDistribution>& pd): entries_{rows}
+LPP::Matrix::Matrix(size_t rows, size_t cols, const std::shared_ptr<LPP::distribution::ProbabilityDistribution>& pd): entries_{rows}
 {
     for (size_t r = 0; r < rows; r++) {
         entries_[r].resize(cols);

@@ -12,15 +12,15 @@ float function(float x, float y, float z) {
 int main() {
 
     // Distribution to generate model weights
-    auto my_distribution = std::make_shared<LPP::Normal>(0, 0.7); // mean, stddev
+    auto my_distribution = std::make_shared<LPP::distribution::Normal>(0, 0.7); // mean, stddev
 
     // Create model
     LPP::Network example_model(
         3,                          // Input size
         {   
-            {16, LPP::activations::TANH},
-            {16, LPP::activations::TANH},
-            {1,  LPP::activations::IDENTITY}
+            {16, LPP::activations::tanh},
+            {16, LPP::activations::tanh},
+            {1,  LPP::activations::identity}
         },
         my_distribution             // Weights sampled when network is created
     );
@@ -32,7 +32,7 @@ int main() {
         response_variates,
         1000,
         0.01,
-        LPP::losses::MEAN_SQUARED_ERROR
+        LPP::loss::mean_squared_error
     );  // Dont worry about overfitting because of simple dataset
     LPP::end_timer();
 

@@ -5,6 +5,7 @@
 
 namespace LPP
 {
+namespace distribution {
 
 class ProbabilityDistribution {
 protected:
@@ -36,9 +37,10 @@ public:
     float sample() override;
 };
 
-const auto standard_normal_distn = std::make_shared<Normal>(0, 1);
-const auto standard_uniform_distn = std::make_shared<Uniform>(0, 1);
+const auto standard_normal = std::make_shared<Normal>(0, 1);
+const auto standard_uniform = std::make_shared<Uniform>(0, 1);
 
+} // namespace distribution
 } // namespace LPP
 
 #endif

@@ -16,7 +16,7 @@ public:
     Matrix(std::vector<std::vector<float>>& m);                             // Non-const version
     Matrix(size_t rows, size_t cols);                                       // Initialize to zeroes
     Matrix(size_t rows, size_t cols, float c);                              // Initialize to values
-    Matrix(size_t rows, size_t cols, const std::shared_ptr<ProbabilityDistribution>& pd); // Random init
+    Matrix(size_t rows, size_t cols, const std::shared_ptr<distribution::ProbabilityDistribution>& pd); // Random init
 
     // Display information
     size_t  rows() const;
