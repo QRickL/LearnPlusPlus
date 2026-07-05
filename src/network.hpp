@@ -4,6 +4,7 @@
 #include <iostream>
 #include "layer.hpp"
 #include "functions/losses.hpp"
+#include "regular/regularizer.hpp"
 
 namespace LPP {
 
@@ -48,11 +49,13 @@ class Network {
         std::vector<std::unique_ptr<Matrix>>& delL_delW,
         std::vector<std::unique_ptr<std::vector<float>>>& delL_delb,
         size_t batch_size,
-        float cur_learning_rate
+        float cur_learning_rate,
+        const std::shared_ptr<regular::Regularizer> regularization_option  // shorten this somehow
     );
 
 public:
     // Manually specify model architecture
+    // See examples
     Network(
         size_t input_size,
         const std::vector<std::pair<size_t, std::shared_ptr<Activation>>>& layer_info,
@@ -76,6 +79,7 @@ public:
         float                           init_learning_rate,
         const std::shared_ptr<Loss>&    loss_ptr,
         int                             sgd_mini_batch_size = -1, // can change this better later
+        const std::shared_ptr<regular::Regularizer> regularization_option = nullptr,  // shorten this somehow
         std::ostream&                   os = std::cout
     );
 

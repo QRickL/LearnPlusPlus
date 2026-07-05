@@ -215,6 +215,7 @@ float LPP::Network::train(
     float                           init_learning_rate,
     const std::shared_ptr<Loss>&    loss_ptr,
     int                             sgd_mini_batch_size,
+    const std::shared_ptr<regular::Regularizer> regularization_option,  // shorten this somehow
     std::ostream&                   os
 )
 {
@@ -288,7 +289,7 @@ float LPP::Network::train(
             );
 
             // This step changes layer weights and biases!
-            update_parameters_(del_W, del_b, actual_batch_size, learning_rate);
+            update_parameters_(del_W, del_b, actual_batch_size, learning_rate, regularization_option);
         }
         
         // Compute loss
@@ -355,15 +356,23 @@ void LPP::Network::update_parameters_(
     std::vector<std::unique_ptr<Matrix>>& delL_delW,
     std::vector<std::unique_ptr<std::vector<float>>>& delL_delb,
     size_t batch_size,
-    float cur_learning_rate
+    float cur_learning_rate,
+    const std::shared_ptr<regular::Regularizer> regularization_option  // shorten this somehow
 ) {
     for (size_t cur_layer = 0; cur_layer < layers_.size(); cur_layer++) {
         // W <- W - α ∇_W L
-        *delL_delW[cur_layer]           *= cur_learning_rate / batch_size;
-        *layers_[cur_layer]->weights_ -= *delL_delW[cur_layer];
+
+        *delL_delW[cur_layer]         *= 1.f / batch_size;      // Divide sum to obtain average
+        if (regularization_option) regularization_option->add_regularization_term(
+            layers_[cur_layer]->weights_.get(),
+            delL_delW[cur_layer].get()
+        );
+        *delL_delW[cur_layer]         *= cur_learning_rate;     // Scale derivative by learning rate
+        *layers_[cur_layer]->weights_ -= *delL_delW[cur_layer]; // Subtract for descent step
 
         // b <- b - α ∇_b L
-        *delL_delb[cur_layer]           *= cur_learning_rate / batch_size;
+
+        *delL_delb[cur_layer]         *= cur_learning_rate / batch_size;
         *layers_[cur_layer]->biases_  -= *delL_delb[cur_layer];
     }
 }
