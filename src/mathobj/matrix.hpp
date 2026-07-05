@@ -31,6 +31,7 @@ public:
     Matrix&                    operator*=(float c);
     float                      get(size_t i, size_t j) const;
     void                       set(size_t i, size_t j, float s);
+    void                       set_all(float s);
 
     // Operations used for regularization
     float sum_entries_abs() const;

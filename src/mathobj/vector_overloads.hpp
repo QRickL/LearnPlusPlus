@@ -26,4 +26,11 @@ std::vector<float>& operator-=(std::vector<float>& v1, const std::vector<float>&
 std::vector<float>& operator*=(std::vector<float>& v1, const float c);
 std::vector<float>& operator/=(std::vector<float>& v1, const std::vector<float>& v2);    // Division is defined by entry
 
+namespace LPP {
+
+// Fill operators
+void set_all(std::vector<float>& v1, float s);
+
+}
+
 #endif

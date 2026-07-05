@@ -12,7 +12,7 @@ LPP::ExtraTrainingOptions::ExtraTrainingOptions() :
 
 void LPP::ExtraTrainingOptions::set_mini_batch_size(size_t s) {
     enforce_condition(s != 0,
-            "ExtraTrainingOptions::set_mini_batch_size - batch size cannot be 0");
+        "ExtraTrainingOptions::set_mini_batch_size - batch size cannot be 0");
 
     mini_batch_size_option_ = std::make_unique<size_t>(s);
 }

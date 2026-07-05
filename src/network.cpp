@@ -130,11 +130,11 @@ std::vector<float> LPP::Network::forward_propagation_(std::vector<float> current
         // z = Wx + b
         current_fire = (*layer->weights_) * current_fire + (*layer->biases_);
         if (training) {
-            layer->pre_activation_vals_ = current_fire; // Store if training
+            layer->pre_activation_vals_ = current_fire; // Store copy if training
         }
 
         // a = σ(z)
-        layer->apply_activation_layer_(current_fire);   // Store if training
+        layer->apply_activation_layer_(current_fire);   // Store copy if training
         if (training) {
             layer->post_activation_vals_ = current_fire;
         }
@@ -229,20 +229,22 @@ void LPP::Network::train(
     enforce_condition(!options.use_validation() || options.validation_responses().cols() == training_responses.cols(),
         "Network::train - training and validation responses have different dimenions (matrix column error)");
     
-        // Training info
+    // Training info
     size_t  num_training_examples = training_features.rows();
     size_t  mini_batch_size       = num_training_examples;
     float   learning_rate         = init_learning_rate;
             loss_func_            = loss_ptr;
     
     // Mini-batch info for SGD
-    std::unique_ptr<std::mt19937> shuffler      = nullptr;                                  // Use to shuffle the permutation every epoch
-    std::vector<size_t>           permutation = std::vector<size_t>(num_training_examples); // Used to track explanatory variate and response pairs
-    std::iota(permutation.begin(), permutation.end(), 0);                                   // permutation = {0, 1, ..., n-1}
+    std::mt19937        shuffler;                               // Use to shuffle the permutation every epoch
+    std::unique_ptr<std::vector<size_t>> permutation = nullptr; // Used to track explanatory variate and response pairs if applicable
 
     if (options.use_mini_batch()) {
-        shuffler = std::make_unique<std::mt19937>(std::random_device{}());
+        shuffler = std::mt19937(std::random_device{}());
         mini_batch_size = options.mini_batch_size();
+
+        permutation = std::make_unique<std::vector<size_t>>(num_training_examples);
+        std::iota(permutation->begin(), permutation->end(), 0); // permutation = {0, 1, ..., n-1}
     }
 
     // How many batches we need to loop through per epoch
@@ -253,9 +255,10 @@ void LPP::Network::train(
     // estimated_training_responses: holds predicted values for epoch
     // del_W: stores derivatives wrt to weights
     // del_b: stores derivaiives wrt to biases
-    LPP::Matrix                                         estimated_training_responses(training_features.rows(), training_features.cols());
-    std::vector<std::unique_ptr<Matrix>>                del_W(layers_.size());
-    std::vector<std::unique_ptr<std::vector<float>>>    del_b(layers_.size());
+    LPP::Matrix                                      estimated_training_responses(training_features.rows(), training_features.cols());
+    std::vector<std::unique_ptr<Matrix>>             del_W(layers_.size());
+    std::vector<std::unique_ptr<std::vector<float>>> del_b(layers_.size());
+    initialize_gradient_sizes_(del_W, del_b);
 
     for (size_t cur_epoch = 0; cur_epoch < epochs; cur_epoch++) {
         if (options.has_output_stream()) {
@@ -264,7 +267,7 @@ void LPP::Network::train(
         float training_penalty_loss = 0.f;
 
         // Shuffle training data if using stochastic gradient descent
-        if (options.use_mini_batch()) std::shuffle(permutation.begin(), permutation.end(), *shuffler);
+        if (options.use_mini_batch()) std::shuffle(permutation->begin(), permutation->end(), shuffler);
 
         // If we are not using SGD, then the below will only trigger once
         for (size_t cur_mini_batch = 0; cur_mini_batch < num_batches; cur_mini_batch++)
@@ -336,8 +339,9 @@ void LPP::Network::train(
 /*
 Looping over each training example
 Backpropagation will add partial sums to gradients
+Have this as a separate function to minimize allocations in training hotpath
 */
-void LPP::Network::initialize_gradients_to_zero_(
+void LPP::Network::initialize_gradient_sizes_(
         std::vector<std::unique_ptr<LPP::Matrix>>& delL_delW,
         std::vector<std::unique_ptr<std::vector<float>>>& delL_delb
 ) const {
@@ -347,6 +351,20 @@ void LPP::Network::initialize_gradients_to_zero_(
 
         delL_delW[cur_layer] = std::make_unique<Matrix>(out, in);
         delL_delb[cur_layer] = std::make_unique<std::vector<float>>(out, 0.0);
+    }
+}
+
+/*
+Set all the gradient partial sums to 0 for new training cycle
+TODO: could spawn separate threads for this
+*/
+void LPP::Network::initialize_gradients_to_zero_(
+        std::vector<std::unique_ptr<LPP::Matrix>>& delL_delW,
+        std::vector<std::unique_ptr<std::vector<float>>>& delL_delb
+) const {
+    for (auto& layer : layers_) {
+        layer->weights_->set_all(0.f);
+        set_all(*layer->biases_, 0.f);
     }
 }
 
@@ -363,10 +381,10 @@ void LPP::Network::process_training_examples_(
     const LPP::Matrix& training_features,
     const LPP::Matrix& training_responses,
     LPP::Matrix& estimated_training_responses,
-    const std::vector<size_t>& permutation
+    const std::unique_ptr<std::vector<size_t>>& permutation
 ) const {
     for (size_t t = start; t < end; t++) {
-        size_t idx = permutation[t];
+        size_t idx = permutation ? (*permutation)[t] : t;
 
         estimated_training_responses[idx] = forward_propagation_(
             training_features[idx],

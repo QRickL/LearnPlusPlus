@@ -69,14 +69,16 @@ void LPP::Matrix::print_entries(std::ostream& os) const
 
 float LPP::Matrix::get(size_t i, size_t j) const
 {
-    __lpp_check__(i < entries_.size() && j < entries_[0].size(), "Matrix::get - Vector entry extraction out of range");
+    __lpp_check__(i < entries_.size() && j < entries_[0].size(),
+        "Matrix::get - Vector entry extraction out of range");
     
     return entries_[i][j];
 }
 
 void LPP::Matrix::set(size_t i, size_t j, float s)
 {
-    __lpp_check__(i < entries_.size() && j < entries_[0].size(), "Matrix::set - Vector entry setting out of range");
+    __lpp_check__(i < entries_.size() && j < entries_[0].size(),
+        "Matrix::set - Vector entry setting out of range");
  
     entries_[i][j] = s;
 }
@@ -87,14 +89,10 @@ std::vector<float>& LPP::Matrix::operator[](size_t i) {return entries_[i];}
 
 std::vector<float> LPP::Matrix::operator*(const std::vector<float>& v) const
 {
-    __lpp_check__(
-        !entries_.empty(),
-        "Matrix::operator* - Attempting to multiply by empty matrix"
-    );
-    __lpp_check__(
-        entries_[0].size() == v.size(),
-        "Matrix::operator* - Attempting to multiply " + std::to_string(entries_.size()) + 'x' + std::to_string(entries_[0].size()) + " by a 1x" + std::to_string(v.size()) + " vector"
-    );
+    __lpp_check__(!entries_.empty(),
+        "Matrix::operator* - Attempting to multiply by empty matrix");
+    __lpp_check__(entries_[0].size() == v.size(),
+        "Matrix::operator* - Attempting to multiply " + std::to_string(entries_.size()) + 'x' + std::to_string(entries_[0].size()) + " by a 1x" + std::to_string(v.size()) + " vector");
     
     std::vector<float> res(entries_.size());
     for (size_t i = 0; i < res.size(); i++) {
@@ -111,7 +109,8 @@ void LPP::matrix_sub_helper(Matrix& m1, const LPP::Matrix& m2, size_t start, siz
 
 LPP::Matrix& LPP::Matrix::operator-=(const Matrix& m)
 {
-    __lpp_check__(same_dims(*this, m), "Matrix:operator-= - Attempting to subtract matrices of different sizes");
+    __lpp_check__(same_dims(*this, m),
+        "Matrix:operator-= - Attempting to subtract matrices of different sizes");
 
     for (size_t i = 0; i < rows(); i++) {
         entries_[i] -= m.entries_[i];
@@ -217,4 +216,11 @@ float LPP::Matrix::sum_entries_elastic(float a) const
         }
     }
     return res;
+}
+
+void LPP::Matrix::set_all(float s)
+{
+    for (size_t i = 0; i < rows(); i++) {
+        LPP::set_all(entries_[i], s);
+    }
 }

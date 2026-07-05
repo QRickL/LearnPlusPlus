@@ -35,20 +35,25 @@ class Network {
         const Vec&               features
     ) const;
 
+    void initialize_gradient_sizes_(
+        std::vector<up<Matrix>>& delL_delW,
+        std::vector<up<Vec>>& delL_delb
+    ) const;
+
     void initialize_gradients_to_zero_(
         std::vector<up<Matrix>>& delL_delW,
         std::vector<up<Vec>>& delL_delb
     ) const;
 
     void process_training_examples_(
-        std::vector<up<Matrix>>&   delL_delW,
-        std::vector<up<Vec>>&      delL_delb,
-        size_t                     start,
-        size_t                     end,
-        const Matrix&              training_features,
-        const Matrix&              training_responses,
-        LPP::Matrix&               estimated_training_responses,
-        const std::vector<size_t>& permutation
+        std::vector<up<Matrix>>&       delL_delW,
+        std::vector<up<Vec>>&          delL_delb,
+        size_t                         start,
+        size_t                         end,
+        const Matrix&                  training_features,
+        const Matrix&                  training_responses,
+        LPP::Matrix&                   estimated_training_responses,
+        const up<std::vector<size_t>>& permutation
     ) const;
 
     void update_parameters_(

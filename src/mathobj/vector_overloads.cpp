@@ -18,7 +18,8 @@ std::vector<float> operator-(const std::vector<float>& v1, const std::vector<flo
 
 float operator*(const std::vector<float>& v1, const std::vector<float>& v2)
 {
-    __lpp_check__(v1.size() == v2.size(), "operator* - dotting vectors of sizes " + std::to_string(v1.size()) + " and "  + std::to_string(v2.size()));
+    __lpp_check__(v1.size() == v2.size(),
+        "operator* - dotting vectors of sizes " + std::to_string(v1.size()) + " and "  + std::to_string(v2.size()));
 
     float result = 0.f;
     for (size_t i = 0; i < v1.size(); i++) result += v1[i]*v2[i];
@@ -56,7 +57,8 @@ std::vector<float> operator/(const std::vector<float>& v1, const std::vector<flo
 
 std::vector<float>& operator+=(std::vector<float>& v1, const std::vector<float>& v2)
 {
-    __lpp_check__(v1.size() == v2.size(), "operator+ - adding vectors of sizes " + std::to_string(v1.size()) + " and "  + std::to_string(v2.size()));
+    __lpp_check__(v1.size() == v2.size(),
+        "operator+ - adding vectors of sizes " + std::to_string(v1.size()) + " and "  + std::to_string(v2.size()));
 
     for (size_t i = 0; i < v1.size(); i++) v1[i] += v2[i];
     return v1;
@@ -84,7 +86,9 @@ std::vector<float>& operator+=(std::vector<float>& v1, const float c)
 
 std::vector<float>& operator-=(std::vector<float>& v1, const std::vector<float>& v2)
 {
-    __lpp_check__(v1.size() == v2.size(), "operator- - subtracting vectors of sizes " + std::to_string(v1.size()) + " and "  + std::to_string(v2.size()));
+    __lpp_check__(v1.size() == v2.size(),
+        "operator- - subtracting vectors of sizes " + std::to_string(v1.size()) + " and "  + std::to_string(v2.size()));
+    
     for (size_t i = 0; i < v1.size(); i++) v1[i] -= v2[i];
     return v1;
 
@@ -111,7 +115,8 @@ std::vector<float>& operator*=(std::vector<float>& v1, const float c)
 
 std::vector<float>& operator/=(std::vector<float>& v1, const std::vector<float>& v2)
 {
-    __lpp_check__(v1.size() == v2.size(), "operator/ - dividing vectors of sizes " + std::to_string(v1.size()) + " and "  + std::to_string(v2.size()));
+    __lpp_check__(v1.size() == v2.size(),
+        "operator/ - dividing vectors of sizes " + std::to_string(v1.size()) + " and "  + std::to_string(v2.size()));
 
     for (size_t i = 0; i < v1.size(); i++) v1[i] /= v2[i];
     return v1;
@@ -123,4 +128,8 @@ std::vector<float>& operator/=(std::vector<float>& v1, const std::vector<float>&
     //     LPP::parallel_comp(v1, v2, &LPP::div_helper);
     // }
     // return v1;
+}
+
+void LPP::set_all(std::vector<float>& v1, float s) {
+    std::fill(v1.begin(), v1.end(), s);
 }
