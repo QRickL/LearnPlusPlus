@@ -13,6 +13,7 @@
 // * Tanh
 
 namespace LPP {
+namespace activations {
 
 class Activation {
 public:
@@ -62,28 +63,25 @@ public:
 
 // Global variables for construction of models by user
 
-namespace activations {
-
-const auto IDENTITY = std::make_shared<Identity>();
-const auto RELU     = std::make_shared<ReLU>();
-const auto SIGMOID  = std::make_shared<Sigmoid>();
-const auto TANH     = std::make_shared<Tanh>();
-
-}
+const auto identity = std::make_shared<Identity>();
+const auto relu     = std::make_shared<ReLU>();
+const auto sigmod  = std::make_shared<Sigmoid>();
+const auto tanh     = std::make_shared<Tanh>();
 
 // Global variables for construction of models by file
-const std::string STRING_IDENTITY  = "IDENTITY";
-const std::string STRING_RELU      = "RELU";
-const std::string STRING_SIGMOID   = "SIGMOID";
-const std::string STRING_TANH      = "TANH";
+const std::string STRING_IDENTITY_  = "IDENTITY";
+const std::string STRING_RELU_      = "RELU";
+const std::string STRING_SIGMOID_   = "SIGMOID";
+const std::string STRING_TANH_      = "TANH";
 
 const std::unordered_map<std::string, std::shared_ptr<Activation>> choose_activation = {
-    {STRING_IDENTITY,   activations::IDENTITY},
-    {STRING_RELU,       activations::RELU},
-    {STRING_SIGMOID,    activations::SIGMOID},
-    {STRING_TANH,       activations::TANH}
+    {STRING_IDENTITY_,   activations::identity},
+    {STRING_RELU_,       activations::relu},
+    {STRING_SIGMOID_,    activations::sigmod},
+    {STRING_TANH_,       activations::tanh}
 };
 
+} // namespace activations
 } // namespace LPP
 
 #endif

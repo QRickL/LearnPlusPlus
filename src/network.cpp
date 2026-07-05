@@ -7,7 +7,7 @@
 LPP::Network::Network(
     size_t input_size,
     const std::vector<std::pair<size_t,
-    std::shared_ptr<Activation>>>& layer_info,
+    std::shared_ptr<activations::Activation>>>& layer_info,
     const std::shared_ptr<ProbabilityDistribution>& pd
 ) {
     enforce_condition(!layer_info.empty(), "Network::Network - layer_info vector cannot be empty");
@@ -74,11 +74,11 @@ LPP::Network::Network(const std::string& filepath, std::ostream& os)
 
         // Read in activation
         model_file >> cur_line;
-        std::shared_ptr<Activation> cur_act;
-        enforce_condition(LPP::choose_activation.count(cur_line), "Network::Network - invalid activation function: " + cur_line);
+        std::shared_ptr<activations::Activation> cur_act;
+        enforce_condition(LPP::activations::choose_activation.count(cur_line), "Network::Network - invalid activation function: " + cur_line);
 
-        cur_act = LPP::choose_activation.at(cur_line);
-        os << "Activation: " + cur_line << "\n\n";
+        cur_act = LPP::activations::choose_activation.at(cur_line);
+        os << "activations::Activation: " + cur_line << "\n\n";
 
         // Construct layer and push back
         layers_.push_back(std::make_unique<Layer>(cur_weights, cur_biases, cur_act));
@@ -117,7 +117,7 @@ void LPP::Network::save_model(const std::string& filepath) const
         }
         model_file << '\n';
 
-        // Activation function
+        // activations::Activation function
         model_file << layers_[cur_layer]->activation_func_->who() << '\n';
     }
     model_file << "END\n";
