@@ -6,8 +6,7 @@
 
 LPP::Network::Network(
     size_t input_size,
-    const std::vector<std::pair<size_t,
-    std::shared_ptr<activations::Activation>>>& layer_info,
+    const std::vector<std::pair<size_t, std::shared_ptr<activations::Activation>>>& layer_info,
     const std::shared_ptr<distribution::ProbabilityDistribution>& pd
 ) {
     enforce_condition(!layer_info.empty(), "Network::Network - layer_info vector cannot be empty");
@@ -146,8 +145,8 @@ std::vector<float> LPP::Network::forward_propagation_(std::vector<float> current
 void LPP::Network::back_propagation_(
     std::vector<std::unique_ptr<Matrix>>& del_W_partial_sum,
     std::vector<std::unique_ptr<std::vector<float>>>& del_b_partial_sum,
-    const std::vector<float>& training_responses,
-    const std::vector<float>& training_features
+    const std::vector<float>& response,
+    const std::vector<float>& features
 ) const {
     // Used to calculate derivatives recursively
     std::vector<float> prev_gradient;
@@ -159,7 +158,7 @@ void LPP::Network::back_propagation_(
         
         if (cur_layer == layers_.size() - 1) {
             // Looking at last layer, calculate gradient using loss
-            current_gradient = loss_func_->find_gradient(layers_[cur_layer]->post_activation_vals_, training_responses);
+            current_gradient = loss_func_->find_gradient(layers_[cur_layer]->post_activation_vals_, response);
         }
         else {
             // Looking at non-last layer, calculate gradient recursively
@@ -191,7 +190,7 @@ void LPP::Network::back_propagation_(
                 if (cur_layer > 0) {
                     (*del_W_partial_sum[cur_layer])[i][j] += imed_value * layers_[cur_layer-1]->post_activation_vals_[j];
                 } else {
-                    (*del_W_partial_sum[cur_layer])[i][j] += imed_value * training_features[j];
+                    (*del_W_partial_sum[cur_layer])[i][j] += imed_value * features[j];
                 }
             }
         }
@@ -434,7 +433,7 @@ float LPP::Network::validation_loss_(
     {
         estimated_validation_responses[t] = forward_propagation_(
             validation_features[t],
-            false
+            false /* only final result is needed */
         );
     }
 

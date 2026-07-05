@@ -26,6 +26,7 @@ int main() {
         my_distribution             // Weights sampled when network is created
     );
 
+
     // Train the model!
     LPP::start_timer();
     example_model.train(
@@ -33,10 +34,10 @@ int main() {
         response_variates,
         1000,
         0.01,
-        LPP::loss::mean_squared_error,
-        267,
-        //my_regularizer
-        nullptr
+        LPP::loss::mean_squared_error
+        // 267,
+        // //my_regularizer
+        // nullptr
     );  // Dont worry about overfitting because of simple dataset
     LPP::end_timer();
 

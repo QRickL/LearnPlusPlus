@@ -1,5 +1,5 @@
-#ifndef LPP_REGULARIZER_H
-#define LPP_REGULARIZER_H
+#ifndef LPP_REGULARIZER_HPP
+#define LPP_REGULARIZER_HPP
 
 #include "../mathobj/matrix.hpp"
 
