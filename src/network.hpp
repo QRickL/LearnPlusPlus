@@ -40,7 +40,7 @@ class Network {
         size_t end,
         const Matrix& training_features,
         const Matrix& training_responses,
-        LPP::Matrix& training_responses_hat,
+        LPP::Matrix& estimated_training_responses,
         const std::vector<size_t>& permutation
     ) const;
 
@@ -49,9 +49,14 @@ class Network {
         std::vector<std::unique_ptr<std::vector<float>>>& delL_delb,
         size_t batch_size,
         float cur_learning_rate,
-        const std::shared_ptr<regular::Regularizer> regularization_option,  // shorten this somehow
+        const std::shared_ptr<regular::Regularizer>& regularization_option,  // shorten this somehow
         float& loss
     );
+
+    float validation_loss_(
+        const Matrix& validation_features,
+        const Matrix& validation_responses
+    ) const;
 
 public:
     // Manually specify model architecture
@@ -78,11 +83,12 @@ public:
         size_t                          epochs,
         float                           init_learning_rate,
         const std::shared_ptr<loss::Loss>&    loss_ptr,
-        int                             sgd_mini_batch_size = -1, // can change this better later
-        const std::shared_ptr<regular::Regularizer> regularization_option = nullptr,  // shorten this somehow
-        // const Matrix& validation_features, // how do i make these optional...
-        // const Matrix& validation_responses,
-        std::ostream&                   os = std::cout
+        const ExtraTrainingOptions& options
+        // int                             sgd_mini_batch_size = -1, // can change this better later
+        // const std::shared_ptr<regular::Regularizer> regularization_option = nullptr,  // shorten this somehow
+        // // const Matrix& validation_features, // how do i make these optional...
+        // // const Matrix& validation_responses,
+        // std::ostream&                   os = std::cout
     );
 
 };

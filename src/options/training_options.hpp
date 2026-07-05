@@ -9,8 +9,6 @@
 namespace LPP
 {
 
-class Network;
-
 class ExtraTrainingOptions {
 
     // Mini batch size
@@ -25,10 +23,11 @@ class ExtraTrainingOptions {
 
     // Validation data
     bool use_validation_option_;
-    const Matrix* validation_features_option_;
-    const Matrix* validation_responeses_option_;
+    const Matrix* validation_features_;
+    const Matrix* validation_responeses_;
 
-    // std::unique_ptr<regular::Regularizer> regularization_option_;
+    // Regularizer
+    std::shared_ptr<regular::Regularizer> regularization_option_;
 
 public:
 
@@ -37,11 +36,14 @@ ExtraTrainingOptions() :
     training_output_stream_{&std::cout},
     training_metadata_stream_{nullptr},
     use_validation_option_{false},
-    validation_features_option_{nullptr},
-    validation_responeses_option_{nullptr}
+    validation_features_{nullptr},
+    validation_responeses_{nullptr}
 {}
 
 void set_mini_batch_size(size_t s) {
+    enforce_condition(s != 0,
+            "ExtraTrainingOptions::set_mini_batch_size - batch size cannot be 0");
+
     mini_batch_size_option_ = std::make_unique<size_t>(s);
 }
 
@@ -60,15 +62,15 @@ void set_validation_data(
     enforce_condition(validation_features.rows() == validation_responses.rows(),
         "ExtraTrainingOptions::set_validation_data - validaation features and reponses have different number of rows");
 
-    validation_features_option_ = &validation_features;
-    validation_responeses_option_ = &validation_responses; // TODO: check if this is like... bad for me
+    validation_features_ = &validation_features;
+    validation_responeses_ = &validation_responses; // TODO: check if this is like... bad for me
     use_validation_option_ = true;
 }
 
 
-// void set_regularization(regular::Regularizer r) {
-//     regularization_option_ = std::make_unique<regular::Regularizer>(r);
-// }
+void set_regularization(std::shared_ptr<regular::Regularizer> r) {
+    regularization_option_ = r;
+}
 
 
 bool use_mini_batch() const { return mini_batch_size_option_ != nullptr; }
@@ -81,10 +83,11 @@ bool has_metadata_stream() const { return training_metadata_stream_ != nullptr; 
 std::ostream& metadata_stream() const { return *training_metadata_stream_; }
 
 bool use_validation() const { return use_validation_option_; }
-const Matrix& validation_features() const { return *validation_features_option_; }
-const Matrix& validation_responses() const { return *validation_responeses_option_; }
+const Matrix& validation_features() const { return *validation_features_; }
+const Matrix& validation_responses() const { return *validation_responeses_; }
 
-// const regular::Regularizer* regularizer() const { return regularization_option_; }
+bool use_regularization() const { return regularization_option_ != nullptr; }
+const std::shared_ptr<regular::Regularizer>& regularizer() const { return regularization_option_; }
 
 
 };

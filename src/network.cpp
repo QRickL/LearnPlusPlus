@@ -214,11 +214,12 @@ void LPP::Network::train(
     size_t                          epochs,
     float                           init_learning_rate,
     const std::shared_ptr<loss::Loss>&    loss_ptr,
-    int                             sgd_mini_batch_size,
-    const std::shared_ptr<regular::Regularizer> regularization_option,  // shorten this somehow
-    // const Matrix& validation_features,
-    // const Matrix& validation_responses,
-    std::ostream&                   os
+    const ExtraTrainingOptions& options
+    // int                             sgd_mini_batch_size,
+    // const std::shared_ptr<regular::Regularizer> regularization_option,  // shorten this somehow
+    // // const Matrix& validation_features,
+    // // const Matrix& validation_responses,
+    // std::ostream&                   os
 )
 {
     enforce_condition(training_features.rows() == training_responses.rows(),
@@ -227,54 +228,54 @@ void LPP::Network::train(
         "Network::train - training data is empty");
     enforce_condition(init_learning_rate > 0.f,
         "Network::train - initial learning rate must be positive");
-    enforce_condition(sgd_mini_batch_size <= (int)training_features.rows(),
+    enforce_condition(!options.use_mini_batch() || options.mini_batch_size() <= training_features.rows(),
         "Network::train -- mini batch size is larger than number of training points");
 
     // Training info
     size_t  num_training_examples = training_features.rows();
+    size_t  mini_batch_size       = num_training_examples;
     float   learning_rate         = init_learning_rate;
             loss_func_            = loss_ptr;
     
-    // SGD info
-    bool                          perform_sgd   = (sgd_mini_batch_size > 0);
+    // Mini-batch info for SGD
     std::unique_ptr<std::mt19937> shuffler      = nullptr;                                  // Use to shuffle the permutation every epoch
     std::vector<size_t>           permutation = std::vector<size_t>(num_training_examples); // Used to track explanatory variate and response pairs
+    std::iota(permutation.begin(), permutation.end(), 0);                                   // permutation = {0, 1, ..., n-1}
 
-    // permutation = {0, 1, ..., n-1}
-    std::iota(permutation.begin(), permutation.end(), 0);
-
-    if (perform_sgd) {
+    if (options.use_mini_batch()) {
         shuffler = std::make_unique<std::mt19937>(std::random_device{}());
-    } else {
-        sgd_mini_batch_size = num_training_examples;
+        mini_batch_size = options.mini_batch_size();
     }
 
     // How many batches we need to loop through per epoch
-    size_t num_batches = num_training_examples / sgd_mini_batch_size;
-    if (num_training_examples % sgd_mini_batch_size != 0) num_batches++;
+    size_t num_batches = num_training_examples / mini_batch_size;
+    // Add extra batch to train on remainder... this is probably unstable if the remainder is small
+    if (num_training_examples % mini_batch_size != 0) num_batches++;
 
-    // training_responses_hat: holds predicted values for epoch
+    // estimated_training_responses: holds predicted values for epoch
     // del_W: stores derivatives wrt to weights
     // del_b: stores derivaiives wrt to biases
-    LPP::Matrix                                         training_responses_hat(training_features.rows(), training_features.cols());
+    LPP::Matrix                                         estimated_training_responses(training_features.rows(), training_features.cols());
     std::vector<std::unique_ptr<Matrix>>                del_W(layers_.size());
     std::vector<std::unique_ptr<std::vector<float>>>    del_b(layers_.size());
 
     for (size_t cur_epoch = 0; cur_epoch < epochs; cur_epoch++) {
-        os << "Epoch " << cur_epoch + 1 << ": " << std::flush; // Flush in case of crash during training
+        if (options.has_output_stream()) {
+            options.output_stream() << "Epoch " << cur_epoch + 1 << ':' << std::endl; // Flush in case of crash during training
+        }
         float training_penalty_loss = 0.f;
 
         // Shuffle training data if using stochastic gradient descent
-        if (perform_sgd) std::shuffle(permutation.begin(), permutation.end(), *shuffler);
+        if (options.use_mini_batch()) std::shuffle(permutation.begin(), permutation.end(), *shuffler);
 
-        // If we are not using sgd, then the below will only trigger once
+        // If we are not using SGD, then the below will only trigger once
         for (size_t cur_mini_batch = 0; cur_mini_batch < num_batches; cur_mini_batch++)
         {
             // Initialize derivatives to be filled in by backpropagation
             initialize_gradients_to_zero_(del_W, del_b);
 
-            size_t batch_start_idx   = cur_mini_batch * sgd_mini_batch_size;
-            size_t batch_end_idx     = std::min(batch_start_idx + sgd_mini_batch_size, num_training_examples);
+            size_t batch_start_idx   = cur_mini_batch * mini_batch_size;
+            size_t batch_end_idx     = std::min(batch_start_idx + mini_batch_size, num_training_examples);
             size_t actual_batch_size = batch_end_idx - batch_start_idx;   // If there is remainder
 
             // Begin to populate derivatives
@@ -286,7 +287,7 @@ void LPP::Network::train(
                 batch_end_idx,
                 training_features,
                 training_responses,
-                training_responses_hat,
+                estimated_training_responses,
                 permutation
             );
 
@@ -296,19 +297,38 @@ void LPP::Network::train(
                 del_b,
                 actual_batch_size,
                 learning_rate,
-                regularization_option,
+                options.regularizer(),
                 training_penalty_loss
             );
         }
         
         // Compute training loss
-        float training_data_loss = loss_func_->apply_loss(training_responses_hat, training_responses);
-        float training_loss = training_data_loss + training_data_loss;
+        float training_data_loss = loss_func_->apply_loss(estimated_training_responses, training_responses);
+        float training_loss = training_data_loss + training_penalty_loss;
 
-        // TODO: Compute validation loss
+        // Compute valiation loss if applicable
         float validation_loss;
+        if (options.use_validation()) {
+            validation_loss = validation_loss_(
+                options.validation_features(),
+                options.validation_responses()
+            );
+        }
 
-        os << "Loss: " << training_loss << "\n\n";
+        if (options.has_output_stream()) {
+            auto& os = options.output_stream();
+            
+            os << "\tTraining Loss: " << training_loss << '\n';
+            if (options.use_validation()) os << "\tValidation Loss: " << validation_loss << '\n';
+            os << std::endl;
+        }
+        if (options.has_metadata_stream()) {
+            auto& ms = options.metadata_stream();
+
+            ms << cur_epoch + 1 << ' ' << training_loss;
+            if (options.use_validation()) ms << ' ' << validation_loss;
+            ms << std::endl;
+        }
     }
 }
 
@@ -341,13 +361,13 @@ void LPP::Network::process_training_examples_(
     size_t end,
     const LPP::Matrix& training_features,
     const LPP::Matrix& training_responses,
-    LPP::Matrix& training_responses_hat,
+    LPP::Matrix& estimated_training_responses,
     const std::vector<size_t>& permutation
 ) const {
     for (size_t t = start; t < end; t++) {
         size_t idx = permutation[t];
 
-        training_responses_hat[idx] = forward_propagation_(
+        estimated_training_responses[idx] = forward_propagation_(
             training_features[idx],
             true /* indicates we're training the model */
         );
@@ -370,7 +390,7 @@ void LPP::Network::update_parameters_(
     std::vector<std::unique_ptr<std::vector<float>>>& delL_delb,
     size_t batch_size,
     float cur_learning_rate,
-    const std::shared_ptr<regular::Regularizer> regularization_option,  // shorten this somehow
+    const std::shared_ptr<regular::Regularizer>& regularization_option,  // shorten this somehow
     float& loss
 ) {
     for (size_t cur_layer = 0; cur_layer < layers_.size(); cur_layer++) {
