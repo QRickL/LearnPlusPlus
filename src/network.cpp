@@ -229,9 +229,13 @@ void LPP::Network::train(
     enforce_condition(init_learning_rate > 0.f,
         "Network::train - initial learning rate must be positive");
     enforce_condition(!options.use_mini_batch() || options.mini_batch_size() <= training_features.rows(),
-        "Network::train -- mini batch size is larger than number of training points");
-
-    // Training info
+        "Network::train - mini batch size is larger than number of training points");
+    enforce_condition(!options.use_validation() || options.validation_features().cols() == training_features.cols(),
+        "Network::train - training and validation features have different dimenions (matrix column error)");
+    enforce_condition(!options.use_validation() || options.validation_responses().cols() == training_responses.cols(),
+        "Network::train - training and validation responses have different dimenions (matrix column error)");
+    
+        // Training info
     size_t  num_training_examples = training_features.rows();
     size_t  mini_batch_size       = num_training_examples;
     float   learning_rate         = init_learning_rate;
@@ -298,12 +302,15 @@ void LPP::Network::train(
                 actual_batch_size,
                 learning_rate,
                 options.regularizer(),
-                training_penalty_loss
+                training_penalty_loss //
             );
         }
         
         // Compute training loss
-        float training_data_loss = loss_func_->apply_loss(estimated_training_responses, training_responses);
+        float training_data_loss = loss_func_->apply_loss(
+            estimated_training_responses,
+            training_responses
+        );
         float training_loss = training_data_loss + training_penalty_loss;
 
         // Compute valiation loss if applicable
@@ -397,8 +404,8 @@ void LPP::Network::update_parameters_(
         // W <- W - α ∇_W L
 
         *delL_delW[cur_layer]         *= 1.f / batch_size;      // Divide sum to obtain average
-        if (regularization_option) {
-
+        if (regularization_option)
+        {
             regularization_option->add_regularization_term_derivative(
                 *(layers_[cur_layer]->weights_),
                 *(delL_delW[cur_layer])
@@ -414,4 +421,23 @@ void LPP::Network::update_parameters_(
         *delL_delb[cur_layer]         *= cur_learning_rate / batch_size;
         *layers_[cur_layer]->biases_  -= *delL_delb[cur_layer];
     }
+}
+
+float LPP::Network::validation_loss_(
+    const LPP::Matrix& validation_features,
+    const LPP::Matrix& validation_responses
+) const {
+    // Calculate estimated response
+    LPP::Matrix estimated_validation_responses(validation_responses.rows(), validation_responses.cols());
+
+    for (size_t t = 0; t < validation_responses.rows(); t++)
+    {
+        estimated_validation_responses[t] = forward_propagation_(
+            validation_features[t],
+            false
+        );
+    }
+
+    // Return validation loss
+    return loss_func_->apply_loss(estimated_validation_responses, validation_responses);
 }
