@@ -50,7 +50,8 @@ class Network {
         std::vector<std::unique_ptr<std::vector<float>>>& delL_delb,
         size_t batch_size,
         float cur_learning_rate,
-        const std::shared_ptr<regular::Regularizer> regularization_option  // shorten this somehow
+        const std::shared_ptr<regular::Regularizer> regularization_option,  // shorten this somehow
+        float& loss
     );
 
 public:
@@ -72,7 +73,7 @@ public:
     std::vector<float> inference(const std::vector<float>& x) const;
 
     // Train model using training set and response variates
-    float train(
+    void train(
         const Matrix&                   explanatory_variates,
         const Matrix&                   response_variates,
         size_t                          epochs,

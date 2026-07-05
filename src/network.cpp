@@ -208,7 +208,7 @@ std::vector<float> LPP::Network::inference(const std::vector<float>& x) const
     );
 }
 
-float LPP::Network::train(
+void LPP::Network::train(
     const Matrix&                   explanatory_variates,
     const Matrix&                   response_variates,
     size_t                          epochs,
@@ -231,7 +231,6 @@ float LPP::Network::train(
     // Training info
     size_t  num_training_examples = explanatory_variates.rows();
     float   learning_rate         = init_learning_rate;
-    float   current_loss;
             loss_func_            = loss_ptr;
     
     // SGD info
@@ -261,6 +260,7 @@ float LPP::Network::train(
 
     for (size_t cur_epoch = 0; cur_epoch < epochs; cur_epoch++) {
         os << "Epoch " << cur_epoch + 1 << ": " << std::flush; // Flush in case of crash during training
+        float current_loss = 0.f;
 
         // Shuffle training data if using stochastic gradient descent
         if (perform_sgd) std::shuffle(permutation.begin(), permutation.end(), *shuffler);
@@ -289,14 +289,20 @@ float LPP::Network::train(
             );
 
             // This step changes layer weights and biases!
-            update_parameters_(del_W, del_b, actual_batch_size, learning_rate, regularization_option);
+            update_parameters_(
+                del_W,
+                del_b,
+                actual_batch_size,
+                learning_rate,
+                regularization_option,
+                current_loss
+            );
         }
         
         // Compute loss
-        current_loss = loss_func_->apply_loss(response_variates_hat, response_variates);
+        current_loss += loss_func_->apply_loss(response_variates_hat, response_variates);
         os << "Loss: " << current_loss << "\n\n";
     }
-    return current_loss;
 }
 
 /*
@@ -357,16 +363,22 @@ void LPP::Network::update_parameters_(
     std::vector<std::unique_ptr<std::vector<float>>>& delL_delb,
     size_t batch_size,
     float cur_learning_rate,
-    const std::shared_ptr<regular::Regularizer> regularization_option  // shorten this somehow
+    const std::shared_ptr<regular::Regularizer> regularization_option,  // shorten this somehow
+    float& loss
 ) {
     for (size_t cur_layer = 0; cur_layer < layers_.size(); cur_layer++) {
         // W <- W - α ∇_W L
 
         *delL_delW[cur_layer]         *= 1.f / batch_size;      // Divide sum to obtain average
-        if (regularization_option) regularization_option->add_regularization_term(
-            layers_[cur_layer]->weights_.get(),
-            delL_delW[cur_layer].get()
-        );
+        if (regularization_option) {
+
+            regularization_option->add_regularization_term_derivative(
+                *(layers_[cur_layer]->weights_),
+                *(delL_delW[cur_layer])
+            );
+
+            loss += regularization_option->add_regularization_penalty(*(layers_[cur_layer]->weights_));
+        }
         *delL_delW[cur_layer]         *= cur_learning_rate;     // Scale derivative by learning rate
         *layers_[cur_layer]->weights_ -= *delL_delW[cur_layer]; // Subtract for descent step
 
