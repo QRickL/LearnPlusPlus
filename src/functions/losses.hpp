@@ -12,6 +12,7 @@
 
 namespace LPP
 {
+namespace loss {
 
 class Loss {
 public:
@@ -50,6 +51,7 @@ const auto CROSS_ENTROPY        = std::make_shared<CrossEntropy>();
 
 }
 
+} // namespace loss
 } // namespace LPP
 
 #endif

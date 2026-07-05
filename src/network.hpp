@@ -12,7 +12,7 @@ const std::string MODEL_SAVE_END_MSG = "Check out: https://github.com/QRickL/Lea
 
 class Network {
     std::vector<std::unique_ptr<Layer>> layers_;
-    std::shared_ptr<Loss> loss_func_;
+    std::shared_ptr<loss::Loss> loss_func_;
 
     // Fire through the network. Layer outputs, pre and post activation, are saved if training = true
     std::vector<float> forward_propagation_(
@@ -78,7 +78,7 @@ public:
         const Matrix&                   response_variates,
         size_t                          epochs,
         float                           init_learning_rate,
-        const std::shared_ptr<Loss>&    loss_ptr,
+        const std::shared_ptr<loss::Loss>&    loss_ptr,
         int                             sgd_mini_batch_size = -1, // can change this better later
         const std::shared_ptr<regular::Regularizer> regularization_option = nullptr,  // shorten this somehow
         std::ostream&                   os = std::cout

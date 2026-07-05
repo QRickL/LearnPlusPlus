@@ -213,7 +213,7 @@ void LPP::Network::train(
     const Matrix&                   response_variates,
     size_t                          epochs,
     float                           init_learning_rate,
-    const std::shared_ptr<Loss>&    loss_ptr,
+    const std::shared_ptr<loss::Loss>&    loss_ptr,
     int                             sgd_mini_batch_size,
     const std::shared_ptr<regular::Regularizer> regularization_option,  // shorten this somehow
     std::ostream&                   os
