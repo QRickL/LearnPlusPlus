@@ -10,6 +10,7 @@ LPP::Network::Network(
     distribution::ProbabilityDistribution* pd
 ) {
     enforce_condition(!layer_info.empty(), "Network::Network - layer_info vector cannot be empty");
+    enforce_condition(pd, "Network::Network - provided probability distribution is nullptr");
 
     loss_func_ = nullptr; // Loss function will be assigned when training
     size_t in_layer_size;
@@ -229,6 +230,8 @@ void LPP::Network::train(
         "Network::train - training data is empty");
     enforce_condition(init_learning_rate > 0.f,
         "Network::train - initial learning rate must be positive");
+    enforce_condition(loss_ptr,
+        "Network::train - provided loss function is nullptr");
     enforce_condition(!options.use_mini_batch() || options.mini_batch_size() <= training_features.rows(),
         "Network::train - mini batch size is larger than number of training points");
     enforce_condition(!options.use_validation() || options.validation_features().cols() == training_features.cols(),

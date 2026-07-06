@@ -1,4 +1,5 @@
 #include "layer.hpp"
+#include "checking/check.hpp"
 #include <iostream>
 
 LPP::Layer::Layer(
@@ -6,34 +7,33 @@ LPP::Layer::Layer(
     size_t output_size,
     const activations::Activation* af,
     distribution::ProbabilityDistribution* pd
-) {
+) :
+    activation_func_{af}
+{
+    enforce_condition(af, "Layer::Layer - provided activation function is nullptr");
+
     if (pd != nullptr) {
         weights_ = std::make_unique<Matrix>(output_size, input_size, pd);
-
-        biases_ = std::make_unique<std::vector<float>>(output_size);
-        for (size_t i = 0; i < output_size; i++) {
-            (*biases_)[i] = pd->sample();
-        }
     } else {
         weights_ = std::make_unique<Matrix>(output_size, input_size);
-        biases_ = std::make_unique<std::vector<float>>(output_size, 0.0);
     }
-    activation_func_ = af;
+    biases_ = std::make_unique<std::vector<float>>(output_size, 0.f); // biases typically initialized as 0
 }
 
-LPP::Layer::Layer(std::unique_ptr<Matrix>& given_weights, std::unique_ptr<std::vector<float>>& given_biases, const activations::Activation* af)
-{
-    weights_ = std::move(given_weights);
-    biases_ = std::move(given_biases);
-    activation_func_ = af;
-}
+LPP::Layer::Layer(
+    std::unique_ptr<Matrix>& given_weights,
+    std::unique_ptr<std::vector<float>>& given_biases,
+    const activations::Activation* af
+) :
+    weights_{std::move(given_weights)},
+    biases_{std::move(given_biases)},
+    activation_func_{af}
+{}
 
 // TODO: this can be parallelized
 void LPP::Layer::apply_activation_layer_(std::vector<float>& z) const
 {
-    for (size_t i = 0; i < z.size(); i++) {
-       z[i] = activation_func_->apply_activation(z[i]);
-    }
+    for (float& ele : z) ele = activation_func_->apply_activation(ele);
 }
 
 void LPP::Layer::display(std::ostream& os) const {

@@ -12,7 +12,7 @@ LPP::Matrix::Matrix(std::vector<std::vector<float>>& m) {entries_ = std::move(m)
 LPP::Matrix::Matrix(size_t rows, size_t cols): entries_{rows}
 {
     for (size_t r = 0; r < rows; r++) {
-        entries_[r] = std::vector<float>(cols, 0.0);
+        entries_[r] = std::vector<float>(cols, 0.f);
     }
     // if (rows < LPP::CONSTANTS::MATRIX_PARALLEL_THRESHOLD) {
     //     for (size_t r = 0; r < rows; r++) {
