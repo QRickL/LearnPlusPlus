@@ -7,7 +7,8 @@ LPP::ExtraTrainingOptions::ExtraTrainingOptions() :
     training_metadata_stream_{nullptr},
     use_validation_option_{false},
     validation_features_{nullptr},
-    validation_responeses_{nullptr}
+    validation_responeses_{nullptr},
+    regularization_option_{nullptr}
 {}
 
 void LPP::ExtraTrainingOptions::set_mini_batch_size(size_t s) {
