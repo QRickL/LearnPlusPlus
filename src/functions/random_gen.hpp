@@ -3,6 +3,10 @@
 
 #include <random>
 
+/*
+Note: distributions should not be marked const
+*/
+
 namespace LPP {
 namespace distribution {
 
@@ -36,8 +40,8 @@ public:
     float sample() override;
 };
 
-inline const auto standard_normal = Normal(0, 1);
-inline const auto standard_uniform = Uniform(0, 1);
+inline auto standard_normal = Normal(0, 1);
+inline auto standard_uniform = Uniform(0, 1);
 
 } // namespace distribution
 } // namespace LPP
