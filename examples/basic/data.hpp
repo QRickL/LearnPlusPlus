@@ -1,4 +1,4 @@
-#include "../src/mathobj/matrix.hpp"
+#include "../../src/mathobj/matrix.hpp"
 
 const LPP::Matrix explanatory_variates({
     { 1.11381, 1.14352, -1.40002 },

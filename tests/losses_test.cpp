@@ -44,7 +44,7 @@ int main() {
         {0, 0, 0, 0, 1, 0}
     });
 
-    std::cout << "MSE: " << LPP::losses::MEAN_SQUARED_ERROR->apply_loss(x1, y1)   << std::endl;
-    std::cout << "BCE: " << LPP::losses::BINARY_CROSS_ENTROPY->apply_loss(x2, y2) << std::endl;
-    std::cout << "CE: "  << LPP::losses::CROSS_ENTROPY->apply_loss(x3,y3)         << std::endl;
+    std::cout << "MSE: " << LPP::loss::mean_squared_error.apply_loss(x1, y1)   << std::endl;
+    std::cout << "BCE: " << LPP::loss::binary_cross_entropy.apply_loss(x2, y2) << std::endl;
+    std::cout << "CE: "  << LPP::loss::cross_entropy.apply_loss(x3,y3)         << std::endl;
 }

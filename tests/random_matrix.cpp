@@ -2,15 +2,15 @@
 #include <memory>
 
 int main() {
-    auto standard_norm      = LPP::standard_normal_distn;
-    auto scale_shift_norm   = std::make_shared<LPP::Normal>(10, 4);
-    auto unif               = LPP::standard_uniform_distn;
-    auto scale_shift_unif   = std::make_shared<LPP::Uniform>(-60, -45.5);
+    auto standard_norm      = LPP::distribution::standard_normal;
+    auto scale_shift_norm   = LPP::distribution::Normal(10, 4);
+    auto unif               = LPP::distribution::standard_uniform;
+    auto scale_shift_unif   = LPP::distribution::Uniform(-60, -45.5);
 
-    LPP::Matrix m1(10, 10, standard_norm);
-    LPP::Matrix m2(10, 10, scale_shift_norm);
-    LPP::Matrix m3(10, 10, unif);
-    LPP::Matrix m4(10, 10, scale_shift_unif);
+    LPP::Matrix m1(10, 10, &standard_norm);
+    LPP::Matrix m2(10, 10, &scale_shift_norm);
+    LPP::Matrix m3(10, 10, &unif);
+    LPP::Matrix m4(10, 10, &scale_shift_unif);
 
     LPP::print_object(m1);
     LPP::print_object(m2);
