@@ -49,6 +49,9 @@ inline const auto cross_entropy        = CrossEntropy();
 inline const float epsilon = 1e-7f;
 
 } // namespace loss
+
+float clamp(float x, float lower, float upper);
+
 } // namespace LPP
 
 #endif
