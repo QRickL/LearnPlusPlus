@@ -67,6 +67,9 @@ public:
     ~ElasticNet() {}
 };
 
+inline const auto ridge = Ridge();
+inline const auto lasson = LASSO();
+
 }
 
 int sign(float x);

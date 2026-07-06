@@ -10,12 +10,9 @@ namespace LPP {
 const std::string MODEL_SAVE_END_MSG = "Check out: https://github.com/QRickL/LearnPlusPlus";
 
 class Network {
-
-    using Vec = std::vector<float>;
     template <typename T>
     using up = std::unique_ptr<T>;
-    template <typename T>
-    using sp = std::shared_ptr<T>;
+    using Vec = std::vector<float>;
 
     std::vector<up<Layer>> layers_;
     const loss::Loss* loss_func_;
@@ -61,7 +58,7 @@ class Network {
         std::vector<up<Vec>>&           delL_delb,
         size_t                          batch_size,
         float                           cur_learning_rate,
-        const sp<regular::Regularizer>& regularization_option  // shorten this somehow
+        const regular::Regularizer*     regularization_option  // shorten this somehow
     );
 
     float validation_loss_(

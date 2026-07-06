@@ -424,7 +424,7 @@ void LPP::Network::update_parameters_(
     std::vector<std::unique_ptr<std::vector<float>>>& delL_delb,
     size_t batch_size,
     float cur_learning_rate,
-    const std::shared_ptr<regular::Regularizer>& regularization_option  // shorten this somehow
+    const regular::Regularizer* regularization_option  // shorten this somehow
 ) {
     for (size_t cur_layer_idx = 0; cur_layer_idx < layers_.size(); cur_layer_idx++) {
         // W <- W - α ∇_W L

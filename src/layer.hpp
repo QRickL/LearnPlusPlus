@@ -9,10 +9,9 @@
 namespace LPP {
 
 class Layer {
-
-    using Vec = std::vector<float>;
     template <typename T>
     using up = std::unique_ptr<T>;
+    using Vec = std::vector<float>;
 
     up<Matrix> weights_;
     up<Vec>    biases_;

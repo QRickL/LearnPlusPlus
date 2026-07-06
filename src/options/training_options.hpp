@@ -26,7 +26,7 @@ class ExtraTrainingOptions {
     const Matrix* validation_responeses_;
 
     // Regularizer
-    std::shared_ptr<regular::Regularizer> regularization_option_;
+    const regular::Regularizer* regularization_option_;
 
 public:
 
@@ -49,9 +49,9 @@ bool use_validation() const;
 const Matrix& validation_features() const;
 const Matrix& validation_responses() const;
 
-void set_regularization(std::shared_ptr<regular::Regularizer> r);
+void set_regularization(const regular::Regularizer* r);
 bool use_regularization() const;
-const std::shared_ptr<regular::Regularizer>& regularizer() const;
+const regular::Regularizer* regularizer() const;
 
 
 };
