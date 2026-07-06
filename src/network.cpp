@@ -219,7 +219,7 @@ void LPP::Network::train(
     const Matrix&                       training_responses,
     size_t                              epochs,
     float                               init_learning_rate,
-    const std::shared_ptr<loss::Loss>&  loss_ptr,
+    const loss::Loss*                   loss_ptr,
     const ExtraTrainingOptions&         options
 )
 {

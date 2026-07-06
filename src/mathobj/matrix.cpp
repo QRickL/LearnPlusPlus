@@ -201,7 +201,8 @@ float LPP::Matrix::sum_entries_sqr() const
     float res = 0.f;
     for (size_t i = 0; i < rows(); i++) {
         for (size_t j = 0; j < cols(); j++) {
-            res += std::pow(entries_[i][j], 2);
+            float e = entries_[i][j];
+            res += e*e;
         }
     }
     return res;
@@ -212,7 +213,8 @@ float LPP::Matrix::sum_entries_elastic(float a) const
     float res = 0.f;
     for (size_t i = 0; i < rows(); i++) {
         for (size_t j = 0; j < cols(); j++) {
-            res += a * std::abs(entries_[i][j]) + (1-a) * std::pow(entries_[i][j], 2);
+            float d = entries_[i][j];
+            res += a * std::abs(d) + (1-a) * d * d;
         }
     }
     return res;

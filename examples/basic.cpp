@@ -34,7 +34,7 @@ int main() {
         response_variates,
         1000,
         0.01,
-        LPP::loss::mean_squared_error
+        &LPP::loss::mean_squared_error
         // 267,
         // //my_regularizer
         // nullptr

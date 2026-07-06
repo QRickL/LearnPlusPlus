@@ -15,7 +15,8 @@ float LPP::loss::MeanSquaredError::apply_loss(const Matrix& y_hat, const Matrix&
 
     for (size_t i = 0; i < m; i ++) {
         for (size_t j = 0; j < n; j++) {
-            sum += pow(y_hat.get(i,j) - y.get(i,j), 2);
+            float d = y_hat.get(i,j) - y.get(i,j);
+            sum += d*d;
         }
     }
     return sum / m;
@@ -26,7 +27,8 @@ std::vector<float> LPP::loss::MeanSquaredError::find_gradient(const std::vector<
     __lpp_check__(y_hat.size() == y.size(),
         "MeanSquaredError::find_gradient - y_hat and y different size");
 
-    return 2 * (y_hat - y);
+    return 2.f * (y_hat - y);
+    //return (2.f / (float)y_hat.size()) * (y_hat - y);
 }
 
 float LPP::loss::BinaryCrossEntropy::apply_loss(const Matrix& y_hat, const Matrix& y) const
@@ -40,7 +42,7 @@ float LPP::loss::BinaryCrossEntropy::apply_loss(const Matrix& y_hat, const Matri
     size_t n = y_hat.cols();
     float sum = 0.0;
 
-    for (size_t i = 0; i < n; i ++) {
+    for (size_t i = 0; i < m; i ++) {
         sum += y.get(i, 0) * std::log(y_hat.get(i, 0)) + (1 - y.get(i, 0)) * std::log(1 - y_hat.get(i, 0));
     }
     return -sum / m;

@@ -42,9 +42,11 @@ public:
     ~CrossEntropy() {}
 };
 
-const auto mean_squared_error   = std::make_shared<MeanSquaredError>();
-const auto binary_cross_entropy = std::make_unique<BinaryCrossEntropy>();
-const auto cross_entropy        = std::make_shared<CrossEntropy>();
+inline const auto mean_squared_error   = MeanSquaredError();
+inline const auto binary_cross_entropy = BinaryCrossEntropy();
+inline const auto cross_entropy        = CrossEntropy();
+
+inline const float epsilon = 1e-7f;
 
 } // namespace loss
 } // namespace LPP

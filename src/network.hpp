@@ -18,7 +18,7 @@ class Network {
     using sp = std::shared_ptr<T>;
 
     std::vector<up<Layer>> layers_;
-    sp<loss::Loss> loss_func_;
+    const loss::Loss* loss_func_;
 
     // Fire through the network. Layer outputs, pre and post activation, are saved if training = true
     Vec forward_propagation_(
@@ -93,7 +93,7 @@ public:
         const Matrix&               training_responses,
         size_t                      epochs,
         float                       init_learning_rate,
-        const sp<loss::Loss>&       loss_ptr,
+        const loss::Loss*           loss_ptr,
         const ExtraTrainingOptions& options = ExtraTrainingOptions()
     );
 
