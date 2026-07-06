@@ -17,14 +17,14 @@ public:
     Matrix(std::vector<std::vector<float>>& m);                             // Non-const version
     Matrix(size_t rows, size_t cols);                                       // Initialize to zeroes
     Matrix(size_t rows, size_t cols, float c);                              // Initialize to values
-    Matrix(size_t rows, size_t cols, const std::shared_ptr<distribution::ProbabilityDistribution>& pd); // Random init
+    Matrix(size_t rows, size_t cols, distribution::ProbabilityDistribution* pd); // Random init
 
     // Display information
     size_t  rows() const;
     size_t  cols() const;
     void    print_entries(std::ostream& os = std::cout) const;
 
-    // Matrix operations
+    // Matrix operationss
     const std::vector<float>&  operator[](size_t i) const;                     // Const version
     std::vector<float>&        operator[](size_t i);                           // Non-const versions
     std::vector<float>         operator*(const std::vector<float>& v) const;

@@ -12,7 +12,7 @@ float function(float x, float y, float z) {
 int main() {
 
     // Distribution to generate model weights
-    auto my_distribution = std::make_shared<LPP::distribution::Normal>(0, 0.7); // mean, stddev
+    auto my_distribution = LPP::distribution::Normal(0, 0.7); // mean, stddev
     auto my_regularizer = std::make_shared<LPP::regular::Ridge>();
 
     // Create model
@@ -23,7 +23,7 @@ int main() {
             {16, &LPP::activations::tanh},
             {1,  &LPP::activations::identity}
         },
-        my_distribution             // Weights sampled when network is created
+        &my_distribution             // Weights sampled when network is created
     );
 
 

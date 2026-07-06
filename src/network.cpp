@@ -7,7 +7,7 @@
 LPP::Network::Network(
     size_t input_size,
     const std::vector<std::pair<size_t, const activations::Activation*>>& layer_info,
-    const std::shared_ptr<distribution::ProbabilityDistribution>& pd
+    distribution::ProbabilityDistribution* pd
 ) {
     enforce_condition(!layer_info.empty(), "Network::Network - layer_info vector cannot be empty");
 

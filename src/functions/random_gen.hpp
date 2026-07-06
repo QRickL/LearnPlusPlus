@@ -17,7 +17,7 @@ public:
 };
 
 class Normal : public ProbabilityDistribution {
-    std::normal_distribution<> norm;
+    std::normal_distribution<float> norm;
 
 public:
     Normal(float mean, float stddev);
@@ -27,7 +27,7 @@ public:
 };
 
 class Uniform : public ProbabilityDistribution {
-    std::uniform_real_distribution<> unif;
+    std::uniform_real_distribution<float> unif;
 
 public:
     Uniform(float lower, float upper);
@@ -36,8 +36,8 @@ public:
     float sample() override;
 };
 
-const auto standard_normal = std::make_shared<Normal>(0, 1);
-const auto standard_uniform = std::make_shared<Uniform>(0, 1);
+inline const auto standard_normal = Normal(0, 1);
+inline const auto standard_uniform = Uniform(0, 1);
 
 } // namespace distribution
 } // namespace LPP

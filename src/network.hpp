@@ -75,7 +75,7 @@ public:
     Network(
         size_t input_size,
         const std::vector<std::pair<size_t, const activations::Activation*>>& layer_info,
-        const sp<distribution::ProbabilityDistribution>& pd = nullptr
+        distribution::ProbabilityDistribution* = nullptr
     );
 
     // Load model + weights from file

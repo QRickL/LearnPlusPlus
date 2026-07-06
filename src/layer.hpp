@@ -13,8 +13,6 @@ class Layer {
     using Vec = std::vector<float>;
     template <typename T>
     using up = std::unique_ptr<T>;
-    template <typename T>
-    using sp = std::shared_ptr<T>;
 
     up<Matrix> weights_;
     up<Vec>    biases_;
@@ -32,7 +30,7 @@ public:
         size_t input_size,
         size_t output_size,
         const activations::Activation* af,
-        const sp<distribution::ProbabilityDistribution>& pd
+        distribution::ProbabilityDistribution* pd
     );
 
     // Constructor called when network created from file
