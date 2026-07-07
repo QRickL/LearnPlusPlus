@@ -19,8 +19,6 @@ class Layer {
     Vec        post_activation_vals_;    // Needed for backpropagation, holds a = σ(z)
     const activations::Activation* activation_func_; // Pointer to activation function used by layer
 
-    void apply_activation_layer_(Vec& z) const;    // Apply activation function to all entries, performed in place in z
-
     friend class Network;
 
 public:

@@ -4,6 +4,7 @@
 #include <unordered_map>
 #include <memory>
 #include <string>
+#include <vector>
 
 // Activation functions are used by the layer and network classes to perform inference and training
 // Available activation functions:
@@ -17,6 +18,7 @@ namespace activations {
 
 class Activation {
 public:
+    void          apply_activation(std::vector<float>& v) const; // vector is modified in place
     virtual float apply_activation(float x) const = 0;
     virtual float apply_derivative(float x) const = 0;
     virtual const std::string& who() const = 0;

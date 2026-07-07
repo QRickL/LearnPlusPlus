@@ -136,7 +136,7 @@ std::vector<float> LPP::Network::forward_propagation_(std::vector<float> current
         }
 
         // a = σ(z)
-        layer->apply_activation_layer_(current_fire);   // Store copy 'a' if training
+        layer->activation_func_->apply_activation(current_fire); // current_fire is modified in place
         if (training) {
             layer->post_activation_vals_ = current_fire;
         }
@@ -173,6 +173,7 @@ void LPP::Network::back_propagation_(
             size_t current_layer_size = layer->weights_->rows();
             current_gradient = std::vector<float>(current_layer_size, 0.0);
 
+        // TODO: change apply_derivative
             for (size_t c = 0; c < current_layer_size; c++) {
                 for (size_t k = 0; k < forward_layer_size; k++) {
                     float delL_dela1 = prev_gradient[k];
@@ -185,6 +186,7 @@ void LPP::Network::back_propagation_(
             }
         }
 
+        // TODO: change apply_derivative
         for (size_t i = 0; i < layer->weights_->rows(); i++) {
             // Define intermediate value to prevent eyesore below
             float imed_value = current_gradient[i] * layer->activation_func_->apply_derivative(layer->pre_activation_vals_[i]);

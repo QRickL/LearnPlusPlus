@@ -5,6 +5,11 @@
 
 LPP::activations::Activation::~Activation() {}
 
+void LPP::activations::Activation::apply_activation(std::vector<float>& v) const
+{
+    for (auto& x : v) x = apply_activation(x);
+}
+
 float LPP::activations::Identity::apply_activation(float x) const
 {
     return x;

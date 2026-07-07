@@ -30,12 +30,6 @@ LPP::Layer::Layer(
     activation_func_{af}
 {}
 
-// TODO: this can be parallelized
-void LPP::Layer::apply_activation_layer_(std::vector<float>& z) const
-{
-    for (float& ele : z) ele = activation_func_->apply_activation(ele);
-}
-
 void LPP::Layer::display(std::ostream& os) const {
     os << "Weights:\n";
     print_object(*weights_, os);
