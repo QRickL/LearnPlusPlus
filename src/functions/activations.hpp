@@ -5,6 +5,7 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include "../mathobj/matrix.hpp"
 
 // Activation functions are used by the layer and network classes to perform inference and training
 // Available activation functions:
@@ -26,11 +27,11 @@ class Activation {
 
 public:
     virtual bool elements_non_interdependent_() const = 0;
+    virtual void calculate_jacobian(const std::vector<float>& fv, LPP::Matrix& J) const; // Jacobian will be square in this case
+                                                                                         // We will use post-activation values to calculate jacobian
 
     virtual void  apply_activation(std::vector<float>& v) const; // vector is modified in place
     virtual float apply_derivative(float x) const = 0;
-    virtual float jacobian(const std::vector<float>& v, size_t top_idx, size_t bot_idx) const {return -69;}
-    //virtual float calculate_jacobian(std::vector<float>& v, size_t input_idx, size_t output_idx);
     virtual const std::string& who() const = 0;
 
     // Activation is abstract
@@ -90,6 +91,7 @@ class Softmax : public Activation {
 
 public:
     virtual bool elements_non_interdependent_() const {return false;}
+    void calculate_jacobian(const std::vector<float>& fv, LPP::Matrix& J) const override;
 
     void apply_activation(std::vector<float>& v) const override;
     float apply_derivative(float x) const override;

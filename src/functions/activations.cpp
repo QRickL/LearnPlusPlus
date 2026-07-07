@@ -21,6 +21,17 @@ float LPP::activations::Identity::apply_derivative(float x) const
     return 1.f;
 }
 
+void LPP::activations::Activation::calculate_jacobian(const std::vector<float>& fv, LPP::Matrix& J) const
+{
+    __lpp_check__(J.rows() == J.cols(),
+        "Activation::calculate_jacobian - given matrix is non-square");
+    __lpp_check__(fv.size() == J.rows(),
+        "Activation::calculate_jacobian - vector and matrix sizes disagree");
+    enforce_condition(false,
+        "Activation::calculate_jacobian - TODO: calculate_jacobian has not yet been implemented for this loss function :(");
+}
+
+
 const std::string& LPP::activations::Identity::who() const {
     return STRING_IDENTITY_;
 }
@@ -86,14 +97,37 @@ void LPP::activations::Softmax::apply_activation(std::vector<float>& v) const
     }
 }
 
+void LPP::activations::Softmax::calculate_jacobian(const std::vector<float>& fv, LPP::Matrix& J) const
+{
+    __lpp_check__(J.rows() == J.cols(),
+        "Softmax::calculate_jacobian - given matrix is non-square");
+    __lpp_check__(fv.size() == J.rows(),
+        "Softmax::calculate_jacobian - vector and matrix sizes disagree");
+
+    size_t m = J.rows();
+    size_t n = J.cols();
+
+    for (size_t i = 0; i < m; i++) {
+        for (size_t j = 0; j < n; j++) {
+            if (i != j) {
+                J[i][j] = -1 * fv[i] * fv[j];
+            } else {
+                J[i][j] = fv[i] * (1.f - fv[i]);
+            }
+        }
+    }
+}
+
+
 float LPP::activations::Softmax::apply_activation_(float x) const
 {
-    __lpp_check__(false,
+    enforce_condition(false,
         "Softmax::apply_activation - this method should not be called element-wise");
 }
 
 float LPP::activations::Softmax::apply_derivative(float x) const {
-//
+    enforce_condition(false,
+        "Softmax::apply_derivative - jacobian matrix is non-diagonal");
 }
 
 const std::string& LPP::activations::Softmax::who() const {

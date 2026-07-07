@@ -155,10 +155,16 @@ void LPP::Network::back_propagation_(
     std::vector<float> prev_gradient;
     std::vector<float> current_gradient;
 
+    // Used to avoid recomputing jacobians for interdependent activation functions
+    std::unique_ptr<LPP::Matrix> prev_jacobian = nullptr;
+    std::unique_ptr<LPP::Matrix> current_jacobian = nullptr;
+
     // Don't use size_t to avoid underflow
     // Loop through layers from last layer back to first layer
     for (int cur_layer_idx = layers_.size() - 1; cur_layer_idx >=0 ; cur_layer_idx--) {
         auto& layer = layers_[cur_layer_idx];
+        size_t current_layer_size = layer->weights_->rows();
+
         
         if (cur_layer_idx == layers_.size() - 1) {
             // Looking at last layer, calculate gradient using loss
@@ -170,7 +176,6 @@ void LPP::Network::back_propagation_(
             // Don't call it 'next_layer' because it could be confused with next layer in the backwards loop
             auto& forward_layer = layers_[cur_layer_idx+1];
             size_t forward_layer_size = forward_layer->weights_->rows();
-            size_t current_layer_size = layer->weights_->rows();
 
             // Looking at non-last layer, calculate gradient recursively
             // current_gradient stores the derivative of loss wrt activation in current layer
@@ -199,7 +204,8 @@ void LPP::Network::back_propagation_(
 
                         for (size_t c = 0; c < forward_layer_size; c++)
                         {
-                            float dela1_k_delz_c = forward_layer->activation_func_->jacobian(forward_layer->pre_activation_vals_, k, c);
+                            //float dela1_k_delz_c = forward_layer->activation_func_->jacobian(forward_layer->pre_activation_vals_, k, c);
+                            float dela1_k_delz_c = (*prev_jacobian)[k][c];
                             imed_val += dela1_k_delz_c * forward_layer->weights_->get(c,i);
                         }
                         current_gradient[i] += delL_dela1 * imed_val;
@@ -208,11 +214,19 @@ void LPP::Network::back_propagation_(
             }
         }
 
+        // Calculate jacobian for this layer's loss wrt activation
+        if (layer->activation_func_->elements_non_interdependent_()){
+            current_jacobian = nullptr;
+        } else {
+            current_jacobian = std::make_unique<Matrix>(current_layer_size, current_layer_size);
+            layer->activation_func_->calculate_jacobian(layer->post_activation_vals_, *current_jacobian);
+        }
+
         // Loop over (i) will hit every bias in layer
         // Loop over (i,j) will hit every weight in layer
-        for (size_t i = 0; i < layer->weights_->rows(); i++) {
+        for (size_t i = 0; i < current_layer_size; i++) {
 
-            // See [CHOOSENAME LATER].pdf for mathematical details
+            // See general_activations.pdf for mathematical details
             // Define intermediate value to prevent eyesore when actually adding to partial sums
             float imed_value = 0.f;
             if (layer->activation_func_->elements_non_interdependent_())
@@ -223,9 +237,10 @@ void LPP::Network::back_propagation_(
             }
             else
             {
-                for (size_t c = 0; c < layer->weights_->rows(); c++)
+                for (size_t c = 0; c < current_layer_size; c++)
                 {
-                    float dela0_c_delz_i = layer->activation_func_->jacobian(layer->pre_activation_vals_, c, i);
+                    //float dela0_c_delz_i = layer->activation_func_->jacobian(layer->pre_activation_vals_, c, i);
+                    float dela0_c_delz_i = (*current_jacobian)[c][i];
                     imed_value += current_gradient[c] * dela0_c_delz_i;
                 }
             }
@@ -245,6 +260,7 @@ void LPP::Network::back_propagation_(
         }
         // The previous gradient is not needed anymore. Set current to previous
         std::swap(current_gradient, prev_gradient);
+        std::swap(current_jacobian, prev_jacobian);
     }
 }
 
