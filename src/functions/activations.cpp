@@ -73,9 +73,12 @@ const std::string& LPP::activations::Tanh::who() const {
 
 void LPP::activations::Softmax::apply_activation(std::vector<float>& v) const
 {
+    // Provide numerical stability
+    float m = *std::max_element(v.begin(), v.end());
+
     float denom = 0.f;
     for (float& x : v) {
-        x = std::exp(x);
+        x = std::exp(x-m);
         denom += x;
     }
     for (float&x : v) {

@@ -177,7 +177,7 @@ void LPP::Network::back_propagation_(
             // prev_gradient stores the derivative of loss wrt activation in forward layer
 
             // derivatives.pdf: del L / del a_i
-            current_gradient = std::vector<float>(current_layer_size, 0.0);
+            current_gradient.assign(current_layer_size, 0.f);
 
             // Computing derivative of loss wrt i-th activation
             for (size_t i = 0; i < current_layer_size; i++) {
@@ -200,7 +200,7 @@ void LPP::Network::back_propagation_(
                         for (size_t c = 0; c < forward_layer_size; c++)
                         {
                             float dela1_k_delz_c = forward_layer->activation_func_->jacobian(forward_layer->pre_activation_vals_, k, c);
-                            imed_val += dela1_k_delz_c + forward_layer->weights_->get(c,i);
+                            imed_val += dela1_k_delz_c * forward_layer->weights_->get(c,i);
                         }
                         current_gradient[i] += delL_dela1 * imed_val;
                     }
