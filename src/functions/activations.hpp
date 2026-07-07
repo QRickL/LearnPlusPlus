@@ -22,12 +22,15 @@ class Activation {
     We say an activation function is non-interdependent if the
     i-th element of the output ONLY relies on the i-th element of the input
     */
-    virtual bool elements_non_interdependent_() const = 0;
     virtual float apply_activation_(float x) const = 0;
 
 public:
+    virtual bool elements_non_interdependent_() const = 0;
+
     virtual void  apply_activation(std::vector<float>& v) const; // vector is modified in place
     virtual float apply_derivative(float x) const = 0;
+    virtual float jacobian(const std::vector<float>& v, size_t top_idx, size_t bot_idx) const {return -69;}
+    //virtual float calculate_jacobian(std::vector<float>& v, size_t input_idx, size_t output_idx);
     virtual const std::string& who() const = 0;
 
     // Activation is abstract
@@ -35,10 +38,11 @@ public:
 };
 
 class Identity : public Activation {
-    virtual bool elements_non_interdependent_() const {return true;}
     float apply_activation_(float x) const override;
 
 public:
+    virtual bool elements_non_interdependent_() const {return true;}
+
     float apply_derivative(float x) const override;
     const std::string& who() const override;
 
@@ -46,10 +50,11 @@ public:
 };
 
 class ReLU : public Activation {
-    virtual bool elements_non_interdependent_() const {return true;}
     float apply_activation_(float x) const override;
 
 public:
+    virtual bool elements_non_interdependent_() const {return true;}
+
     float apply_derivative(float x) const override;
     const std::string& who() const override;
 
@@ -57,10 +62,11 @@ public:
 };
 
 class Sigmoid : public Activation {
-    virtual bool elements_non_interdependent_() const {return true;}
     float apply_activation_(float x) const override;
 
 public:
+    virtual bool elements_non_interdependent_() const {return true;}
+
     float apply_derivative(float x) const override;
     const std::string& who() const override;
     
@@ -68,10 +74,11 @@ public:
 };
 
 class Tanh : public Activation {
-    virtual bool elements_non_interdependent_() const {return true;}
     float apply_activation_(float x) const override;
 
 public:
+    virtual bool elements_non_interdependent_() const {return true;}
+
     float apply_derivative(float x) const override;
     const std::string& who() const override;
     
@@ -79,10 +86,11 @@ public:
 };
 
 class Softmax : public Activation {
-    virtual bool elements_non_interdependent_() const {return false;}
     float apply_activation_(float x) const override;
 
 public:
+    virtual bool elements_non_interdependent_() const {return false;}
+
     void apply_activation(std::vector<float>& v) const override;
     float apply_derivative(float x) const override;
     const std::string& who() const override;

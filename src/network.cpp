@@ -162,34 +162,73 @@ void LPP::Network::back_propagation_(
         
         if (cur_layer_idx == layers_.size() - 1) {
             // Looking at last layer, calculate gradient using loss
+            // Differentiate directly
             current_gradient = loss_func_->find_gradient(layer->post_activation_vals_, response);
         }
         else {
             // 'forward_layer' is the layer which comes after current layer when firing
             // Don't call it 'next_layer' because it could be confused with next layer in the backwards loop
-            auto& foward_layer = layers_[cur_layer_idx+1];
+            auto& forward_layer = layers_[cur_layer_idx+1];
+            size_t forward_layer_size = forward_layer->weights_->rows();
+            size_t current_layer_size = layer->weights_->rows();
 
             // Looking at non-last layer, calculate gradient recursively
-            // current_gradient stores the derivative of loss wrt activation
-            size_t forward_layer_size = foward_layer->weights_->rows();
-            size_t current_layer_size = layer->weights_->rows();
+            // current_gradient stores the derivative of loss wrt activation in current layer
+            // prev_gradient stores the derivative of loss wrt activation in forward layer
+
+            // derivatives.pdf: del L / del a_i
             current_gradient = std::vector<float>(current_layer_size, 0.0);
 
-            for (size_t c = 0; c < current_layer_size; c++) {
+            // Computing derivative of loss wrt i-th activation
+            for (size_t i = 0; i < current_layer_size; i++) {
                 for (size_t k = 0; k < forward_layer_size; k++) {
-                    float delL_dela1 = prev_gradient[k];
-                    float dela1_delz = foward_layer->activation_func_->apply_derivative(foward_layer->pre_activation_vals_[k]);
-                    float delz_dela0 = foward_layer->weights_->get(k,c);
+                    
+                    if (forward_layer->activation_func_->elements_non_interdependent_())
+                    {
+                        float delL_dela1 = prev_gradient[k];
+                        float dela1_delz = forward_layer->activation_func_->apply_derivative(forward_layer->pre_activation_vals_[k]);
+                        float delz_dela0 = forward_layer->weights_->get(k,i);
+                        
+                        // Chain rule: delL_dela0 = delL_dela1 * dela1_delz * delz_dela0
+                        current_gradient[i] += delL_dela1 * dela1_delz * delz_dela0;
+                    }
+                    else
+                    {
+                        float delL_dela1 = prev_gradient[k];
+                        float imed_val = 0.f;
 
-                    // Chain rule: delL_dela0 = delL_dela1 * dela1_delz * delz_dela0
-                    current_gradient[c] += delL_dela1 * dela1_delz * delz_dela0;
+                        for (size_t c = 0; c < forward_layer_size; c++)
+                        {
+                            float dela1_k_delz_c = forward_layer->activation_func_->jacobian(forward_layer->pre_activation_vals_, k, c);
+                            imed_val += dela1_k_delz_c + forward_layer->weights_->get(c,i);
+                        }
+                        current_gradient[i] += delL_dela1 * imed_val;
+                    }
                 }
             }
         }
 
+        // Loop over (i) will hit every bias in layer
+        // Loop over (i,j) will hit every weight in layer
         for (size_t i = 0; i < layer->weights_->rows(); i++) {
-            // Define intermediate value to prevent eyesore below
-            float imed_value = current_gradient[i] * layer->activation_func_->apply_derivative(layer->pre_activation_vals_[i]);
+
+            // See [CHOOSENAME LATER].pdf for mathematical details
+            // Define intermediate value to prevent eyesore when actually adding to partial sums
+            float imed_value = 0.f;
+            if (layer->activation_func_->elements_non_interdependent_())
+            {
+                //float dela0_i_delz_i = layer->activation_func_->apply_derivative(layer->pre_activation_vals_[i]);
+                float dela0_i_delz_i = layer->activation_func_->apply_derivative(layer->pre_activation_vals_[i]);
+                imed_value = current_gradient[i] * dela0_i_delz_i;
+            }
+            else
+            {
+                for (size_t c = 0; c < layer->weights_->rows(); c++)
+                {
+                    float dela0_c_delz_i = layer->activation_func_->jacobian(layer->pre_activation_vals_, c, i);
+                    imed_value += current_gradient[c] * dela0_c_delz_i;
+                }
+            }
 
             // Update derivatives wrt bias
             (*del_b_partial_sum[cur_layer_idx])[i] += imed_value;
@@ -197,11 +236,11 @@ void LPP::Network::back_propagation_(
             // Update derivatives wrt weights
             // Different mode for very first layer
             for (size_t j = 0; j < layer->weights_->cols(); j++) {
-                if (cur_layer_idx > 0) {
-                    (*del_W_partial_sum[cur_layer_idx])[i][j] += imed_value * layers_[cur_layer_idx-1]->post_activation_vals_[j];
-                } else {
-                    (*del_W_partial_sum[cur_layer_idx])[i][j] += imed_value * features[j];
-                }
+
+                float& W_ij = (*del_W_partial_sum[cur_layer_idx])[i][j];
+                float delz0_i_del_W_ij = (cur_layer_idx > 0) ? layers_[cur_layer_idx-1]->post_activation_vals_[j] : features[j];
+
+                W_ij += imed_value * delz0_i_del_W_ij;
             }
         }
         // The previous gradient is not needed anymore. Set current to previous
