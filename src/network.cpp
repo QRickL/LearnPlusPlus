@@ -75,7 +75,8 @@ LPP::Network::Network(const std::string& filepath, std::ostream& os)
         // Read in activation
         model_file >> cur_line;
         const activations::Activation* cur_act = nullptr;
-        enforce_condition(LPP::activations::choose_activation.count(cur_line), "Network::Network - invalid activation function: " + cur_line);
+        enforce_condition(LPP::activations::choose_activation.count(cur_line),
+            "Network::Network - invalid activation function: " + cur_line);
 
         cur_act = LPP::activations::choose_activation.at(cur_line);
         os << "activations::Activation: " + cur_line << "\n\n";
@@ -169,11 +170,11 @@ void LPP::Network::back_propagation_(
             auto& foward_layer = layers_[cur_layer_idx+1];
 
             // Looking at non-last layer, calculate gradient recursively
+            // current_gradient stores the derivative of loss wrt activation
             size_t forward_layer_size = foward_layer->weights_->rows();
             size_t current_layer_size = layer->weights_->rows();
             current_gradient = std::vector<float>(current_layer_size, 0.0);
 
-        // TODO: change apply_derivative
             for (size_t c = 0; c < current_layer_size; c++) {
                 for (size_t k = 0; k < forward_layer_size; k++) {
                     float delL_dela1 = prev_gradient[k];
@@ -186,7 +187,6 @@ void LPP::Network::back_propagation_(
             }
         }
 
-        // TODO: change apply_derivative
         for (size_t i = 0; i < layer->weights_->rows(); i++) {
             // Define intermediate value to prevent eyesore below
             float imed_value = current_gradient[i] * layer->activation_func_->apply_derivative(layer->pre_activation_vals_[i]);
