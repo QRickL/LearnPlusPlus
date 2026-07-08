@@ -71,8 +71,11 @@ public:
     // See examples
     Network(
         size_t input_size,
-        const std::vector<std::pair<size_t, const activations::Activation*>>& layer_info,
-        distribution::ProbabilityDistribution* pd
+        const std::vector<std::tuple<
+            size_t,
+            const activations::Activation*,
+            distribution::ProbabilityDistribution*
+        >>& layer_info
     );
 
     // Load model + weights from file

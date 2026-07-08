@@ -22,11 +22,12 @@ class Layer {
 
 public:
     // Constructor called when network created manually
+    // If no probability distribution is provided, then the network initializes with He initialization
     Layer(
         size_t input_size,
         size_t output_size,
         const activations::Activation* af,
-        distribution::ProbabilityDistribution* pd
+        distribution::ProbabilityDistribution* pd = nullptr
     );
 
     // Constructor called when network created from file

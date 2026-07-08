@@ -7,11 +7,13 @@
 
 LPP::Network::Network(
     size_t input_size,
-    const std::vector<std::pair<size_t, const activations::Activation*>>& layer_info,
-    distribution::ProbabilityDistribution* pd
+    const std::vector<std::tuple<
+        size_t,
+        const activations::Activation*,
+        distribution::ProbabilityDistribution*
+    >>& layer_info
 ) {
     enforce_condition(!layer_info.empty(), "Network::Network - layer_info vector cannot be empty");
-    enforce_condition(pd, "Network::Network - provided probability distribution is nullptr");
 
     loss_func_ = nullptr; // Loss function will be assigned when training
     size_t in_layer_size;
@@ -19,13 +21,13 @@ LPP::Network::Network(
 
     for (const auto& layer : layer_info) {
         in_layer_size = out_layer_size;
-        out_layer_size = layer.first;
+        out_layer_size = std::get<0>(layer);
 
         layers_.emplace_back(
             in_layer_size,
             out_layer_size,
-            layer.second,
-            pd
+            std::get<1>(layer),
+            std::get<2>(layer)
         );
     }
 }
@@ -358,6 +360,10 @@ void LPP::Network::train(
         // If we are not using SGD, then the below will only trigger once
         for (size_t cur_mini_batch = 0; cur_mini_batch < num_batches; cur_mini_batch++)
         {
+            if (options.has_output_stream() && options.use_mini_batch()) {
+                options.output_stream() << "\r\tMini-batch " << cur_mini_batch + 1 << " / " << num_batches << std::flush;
+            }
+
             // Initialize derivatives to be filled in by backpropagation
             initialize_partial_sums_to_zero_(del_W, del_b);
 
@@ -417,6 +423,7 @@ void LPP::Network::train(
         if (options.has_output_stream()) {
             auto& os = options.output_stream();
             
+            if (options.use_mini_batch()) os << '\n';
             os << "\tTraining Loss: " << training_loss << '\n';
             if (options.use_validation()) os << "\tValidation Loss: " << validation_loss << '\n';
             os << '\n';

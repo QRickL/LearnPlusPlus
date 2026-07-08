@@ -17,11 +17,10 @@ int main() {
     LPP::Network example_model(
         3,  // Network input size
         {
-            {16, &LPP::activations::tanh},  // {layer output size, activation function}
-            {16, &LPP::activations::tanh},
-            {1,  &LPP::activations::identity}
-        },
-        &my_distribution
+            {16, &LPP::activations::tanh, &my_distribution},  // {layer output size, activation function}
+            {16, &LPP::activations::tanh, &my_distribution},
+            {1,  &LPP::activations::identity, &my_distribution}
+        }
     );
 
     // Train the model!
