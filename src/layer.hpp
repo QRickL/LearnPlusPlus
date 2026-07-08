@@ -13,11 +13,11 @@ class Layer {
     using up = std::unique_ptr<T>;
     using Vec = std::vector<float>;
 
-    up<Matrix> weights_;
-    up<Vec>    biases_;
-    Vec        pre_activation_vals_;     // Needed for backpropagation, holds z = Wx + b
-    Vec        post_activation_vals_;    // Needed for backpropagation, holds a = σ(z)
-                                         // Two vectors are allocated at construction. Copying does not use extra allocation
+    up<Matrix>  weights_;
+    up<Vec>     biases_;
+    mutable Vec pre_activation_vals_;     // Needed for backpropagation, holds z = Wx + b
+    mutable Vec post_activation_vals_;    // Needed for backpropagation, holds a = σ(z)
+                                          // Two vectors are allocated at construction. Copying does not use extra allocation
     const activations::Activation* activation_func_; // Pointer to activation function used by layer
 
     friend class Network;

@@ -14,7 +14,7 @@ class Network {
     using up = std::unique_ptr<T>;
     using Vec = std::vector<float>;
 
-    std::vector<up<Layer>> layers_;
+    std::vector<Layer> layers_;
     const loss::Loss* loss_func_;
 
     // Fire through the network. Layer outputs, pre and post activation, are saved if training = true
