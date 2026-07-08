@@ -26,7 +26,7 @@ class ExtraTrainingOptions {
     const Matrix* validation_responeses_;
 
     // Regularizer
-    const regular::Regularizer* regularization_option_;
+    regular::Regularizer* regularization_option_;
 
 public:
 
@@ -49,10 +49,9 @@ bool use_validation() const;
 const Matrix& validation_features() const;
 const Matrix& validation_responses() const;
 
-void set_regularization(const regular::Regularizer* r);
+void set_regularization(regular::Regularizer* r);
 bool use_regularization() const;
-const regular::Regularizer* regularizer() const;
-
+regular::Regularizer* regularizer() const;
 
 };
     

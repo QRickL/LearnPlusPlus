@@ -7,7 +7,11 @@ namespace LPP {
 namespace regular {
 
 class Regularizer {
+protected:
+    float lambda_;
 public:
+    Regularizer();
+
     virtual void add_regularization_term_derivative(
         const Matrix& layer_weights,
         Matrix& layer_derivatives
@@ -16,6 +20,9 @@ public:
     virtual float add_regularization_loss_penalty(
         const Matrix& layer_weights
     ) const = 0;
+
+    void set_lambda(float l);
+    float lambda() const;
 
     virtual ~Regularizer() = 0;
 };
@@ -67,8 +74,8 @@ public:
     ~ElasticNet() {}
 };
 
-inline const auto ridge = Ridge();
-inline const auto lasson = LASSO();
+inline auto ridge = Ridge();
+inline auto lasson = LASSO();
 
 }
 

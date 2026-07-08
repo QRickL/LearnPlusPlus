@@ -1,6 +1,19 @@
 #include "regularizer.hpp"
 #include "../checking/check.hpp"
 
+
+void LPP::regular::Regularizer::set_lambda(float l)
+{
+    lambda_ = l;
+}
+
+float LPP::regular::Regularizer::lambda() const
+{
+    return lambda_;
+}
+
+LPP::regular::Regularizer::Regularizer() : lambda_{0.01f} {}
+
 LPP::regular::Regularizer::~Regularizer() {}
 
 int LPP::sign(float x)
@@ -17,7 +30,7 @@ void LPP::regular::LASSO::add_regularization_term_derivative(
 
     for (size_t i = 0; i < m; i++) {
         for (size_t j = 0; j < n; j++) {
-            layer_derivatives[i][j] += (float)sign(layer_weights[i][j]);
+            layer_derivatives[i][j] += lambda_ * (float)sign(layer_weights[i][j]);
         }
     }
 }
@@ -31,7 +44,7 @@ void LPP::regular::Ridge::add_regularization_term_derivative(
 
     for (size_t i = 0; i < m; i++) {
         for (size_t j = 0; j < n; j++) {
-            layer_derivatives[i][j] += 2 * layer_weights[i][j];
+            layer_derivatives[i][j] += lambda_ * 2 * layer_weights[i][j];
         }
     }
 }
@@ -46,7 +59,7 @@ void LPP::regular::ElasticNet::add_regularization_term_derivative(
     for (size_t i = 0; i < m; i++) {
         for (size_t j = 0; j < n; j++) {
             float d = layer_weights[i][j];
-            layer_derivatives[i][j] += alpha_ * (float)sign(d) + (1 - alpha_) * 2 * d;
+            layer_derivatives[i][j] += lambda_ * (alpha_ * (float)sign(d) + (1 - alpha_) * 2 * d);
         }
     }
 }
@@ -65,17 +78,17 @@ LPP::regular::ElasticNet::ElasticNet(float alpha)
 float LPP::regular::LASSO::add_regularization_loss_penalty(
     const LPP::Matrix& layer_weights
 ) const {
-    return layer_weights.sum_entries_abs();
+    return lambda_ * layer_weights.sum_entries_abs();
 }
 
 float LPP::regular::Ridge::add_regularization_loss_penalty(
     const LPP::Matrix& layer_weights
 ) const {
-    return layer_weights.sum_entries_sqr();
+    return lambda_ * layer_weights.sum_entries_sqr();
 }
 
 float LPP::regular::ElasticNet::add_regularization_loss_penalty(
     const LPP::Matrix& layer_weights
 ) const {
-    return layer_weights.sum_entries_elastic(alpha_);
+    return lambda_* layer_weights.sum_entries_elastic(alpha_);
 }

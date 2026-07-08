@@ -39,7 +39,7 @@ void LPP::ExtraTrainingOptions::set_validation_data(
 }
 
 
-void LPP::ExtraTrainingOptions::set_regularization(const regular::Regularizer* r) {
+void LPP::ExtraTrainingOptions::set_regularization(regular::Regularizer* r) {
     regularization_option_ = r;
 }
 
@@ -58,4 +58,4 @@ const LPP::Matrix& LPP::ExtraTrainingOptions::validation_features() const { retu
 const LPP::Matrix& LPP::ExtraTrainingOptions::validation_responses() const { return *validation_responeses_; }
 
 bool LPP::ExtraTrainingOptions::use_regularization() const { return regularization_option_ != nullptr; }
-const LPP::regular::Regularizer* LPP::ExtraTrainingOptions::regularizer() const { return regularization_option_; }
+LPP::regular::Regularizer* LPP::ExtraTrainingOptions::regularizer() const { return regularization_option_; }
