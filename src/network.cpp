@@ -169,8 +169,8 @@ void LPP::Network::back_propagation_(
     std::vector<float> current_gradient;
 
     // Used to avoid recomputing jacobians for interdependent activation functions
-    std::unique_ptr<LPP::Matrix> prev_jacobian = nullptr;
-    std::unique_ptr<LPP::Matrix> current_jacobian = nullptr;
+    auto prev_jacobian    = Matrix();
+    auto current_jacobian = Matrix();
 
     // Don't use size_t to avoid underflow
     // Loop through layers from last layer back to first layer
@@ -217,7 +217,7 @@ void LPP::Network::back_propagation_(
                         for (size_t c = 0; c < forward_layer_size; c++)
                         {
                             //float dela1_k_delz_c = forward_layer->activation_func_->jacobian(forward_layer->pre_activation_vals_, k, c);
-                            float dela1_k_delz_c = (*prev_jacobian)[k][c];
+                            float dela1_k_delz_c = prev_jacobian[k][c];
                             imed_val += dela1_k_delz_c * forward_layer.weights_.get(c,i);
                         }
                         current_gradient[i] += delL_dela1 * imed_val;
@@ -227,12 +227,11 @@ void LPP::Network::back_propagation_(
         }
 
         // Calculate jacobian for this layer's loss wrt activation
-        // TODO avoid make unique
         if (layer.activation_func_->elements_non_interdependent_()){
-            current_jacobian = nullptr;
+            current_jacobian = Matrix();
         } else {
-            current_jacobian = std::make_unique<Matrix>(current_layer_size, current_layer_size);
-            layer.activation_func_->calculate_jacobian(layer.post_activation_vals_, *current_jacobian);
+            current_jacobian = Matrix(current_layer_size, current_layer_size);
+            layer.activation_func_->calculate_jacobian(layer.post_activation_vals_, current_jacobian);
         }
 
         // Loop over (i) will hit every bias in layer
@@ -253,7 +252,7 @@ void LPP::Network::back_propagation_(
                 for (size_t c = 0; c < current_layer_size; c++)
                 {
                     //float dela0_c_delz_i = layer->activation_func_->jacobian(layer->pre_activation_vals_, c, i);
-                    float dela0_c_delz_i = (*current_jacobian)[c][i];
+                    float dela0_c_delz_i = current_jacobian[c][i];
                     imed_value += current_gradient[c] * dela0_c_delz_i;
                 }
             }
@@ -485,10 +484,7 @@ void LPP::Network::process_training_examples_(
     for (size_t t = start; t < end; t++) {
         size_t idx = permutation ? (*permutation)[t] : t;
 
-        X.assign(
-            training_features[idx].begin(),
-            training_features[idx].end()
-        );
+        X.assign(training_features[idx].begin(), training_features[idx].end());
         estimated_training_responses.set_row(
             idx,
             forward_propagation_(
@@ -497,10 +493,7 @@ void LPP::Network::process_training_examples_(
             )
         );
 
-        Y.assign(
-            training_responses[idx].begin(),
-            training_responses[idx].end()
-        );
+        Y.assign(training_responses[idx].begin(), training_responses[idx].end());
         back_propagation_(
             delL_delW,
             delL_delb,
@@ -550,10 +543,7 @@ float LPP::Network::validation_loss_(
 
     for (size_t t = 0; t < validation_responses.rows(); t++)
     {
-        X.assign(
-            validation_features[t].begin(),
-            validation_features[t].end()
-        );
+        X.assign(validation_features[t].begin(), validation_features[t].end());
         estimated_validation_responses.set_row(
             t,
             forward_propagation_(
@@ -561,10 +551,6 @@ float LPP::Network::validation_loss_(
                 false /* only final result is needed */
             )
         );
-        // estimated_validation_responses[t] = forward_propagation_(
-        //     feat,
-        //     false /* only final result is needed */
-        // );
     }
 
     // Return validation loss
