@@ -5,15 +5,49 @@
 #include <iostream>
 #include <random>
 
-LPP::Matrix::Matrix(const std::vector<std::vector<float>>& m) {entries_ = m;}
-
-LPP::Matrix::Matrix(std::vector<std::vector<float>>& m) {entries_ = std::move(m);}
-
-LPP::Matrix::Matrix(size_t rows, size_t cols): entries_{rows}
+LPP::Matrix::Matrix(const std::vector<std::vector<float>>& m) :
+    rows_{m.size()},
+    cols_{m[0].size()},
+    entries_(rows_ * cols_)
 {
-    for (size_t r = 0; r < rows; r++) {
-        entries_[r] = std::vector<float>(cols, 0.f);
+    for (size_t i = 0; i < rows_; i++)
+    {
+        for (size_t j = 0; j < cols_; j++)
+        {
+            entries_[i * cols_ + j] = m[i][j];
+        }
     }
+}
+
+LPP::Matrix::Matrix(std::vector<std::vector<float>>& m) :
+    rows_{m.size()},
+    cols_{m[0].size()},
+    entries_(rows_ * cols_)
+{
+    for (size_t i = 0; i < rows_; i++)
+    {
+        for (size_t j = 0; j < cols_; j++)
+        {
+            entries_[i * cols_ + j] = m[i][j];
+        }
+    }
+}
+
+LPP::Matrix::Matrix(size_t rows, size_t cols) :
+    rows_{rows},
+    cols_{cols},
+    entries_(rows_ * cols_)
+{
+    for (size_t i = 0; i < rows_; i++)
+    {
+        for (size_t j = 0; j < cols_; j++)
+        {
+            entries_[i * cols_ + j] = 0.f;
+        }
+    }
+    // for (size_t r = 0; r < rows; r++) {
+    //     entries_[r] = std::vector<float>(cols, 0.f);
+    // }
     // if (rows < LPP::CONSTANTS::MATRIX_PARALLEL_THRESHOLD) {
     //     for (size_t r = 0; r < rows; r++) {
     //         entries_[r] = std::vector<float>(cols, 0.0);
@@ -23,10 +57,17 @@ LPP::Matrix::Matrix(size_t rows, size_t cols): entries_{rows}
     // }
 }
 
-LPP::Matrix::Matrix(size_t rows, size_t cols, float c): entries_{rows}
+LPP::Matrix::Matrix(size_t rows, size_t cols, float c) :
+    rows_{rows},
+    cols_{cols},
+    entries_(rows_ * cols_)
 {
-    for (size_t r = 0; r < rows; r++) {
-        entries_[r] = std::vector<float>(cols, c);
+    for (size_t i = 0; i < rows_; i++)
+    {
+        for (size_t j = 0; j < cols_; j++)
+        {
+            entries_[i * cols_ + j] = c;
+        }
     }
     // if (rows < LPP::CONSTANTS::MATRIX_PARALLEL_THRESHOLD) {
     //     for (size_t r = 0; r < rows; r++) {
@@ -37,82 +78,96 @@ LPP::Matrix::Matrix(size_t rows, size_t cols, float c): entries_{rows}
     // }
 }
 
-LPP::Matrix::Matrix(size_t rows, size_t cols, LPP::distribution::ProbabilityDistribution* pd): entries_{rows}
+LPP::Matrix::Matrix(size_t rows, size_t cols, LPP::distribution::ProbabilityDistribution* pd) : 
+    rows_{rows},
+    cols_{cols},
+    entries_(rows_ * cols_)
 {
-    for (size_t r = 0; r < rows; r++) {
-        entries_[r].resize(cols);
-        for (size_t c = 0; c < cols; c++) {
-            entries_[r][c] = pd->sample();
+    for (size_t i = 0; i < rows_; i++)
+    {
+        for (size_t j = 0; j < cols_; j++)
+        {
+            entries_[i * cols_ + j] = pd->sample();
         }
     }
 }
 
 size_t LPP::Matrix::rows() const
 {
-    return entries_.size();
+    return rows_;
 }
 
 size_t LPP::Matrix::cols() const
 {
-    if (entries_.empty()) return 0;
-    return entries_[0].size();
+    return cols_;
 }
 
 void LPP::Matrix::print_entries(std::ostream& os) const
 {
     os << "{\n";
     for (size_t i = 0; i < entries_.size(); i++) {
-        print_object(entries_[i], os);
+        print_object(this->operator[](i), os);
     }
     os << '}' << std::endl;
 }
 
 float LPP::Matrix::get(size_t i, size_t j) const
 {
-    __lpp_check__(i < entries_.size() && j < entries_[0].size(),
+    __lpp_check__(i < rows_ && j < cols_,
         "Matrix::get - Vector entry extraction out of range");
     
-    return entries_[i][j];
+    return entries_[i * cols_ + j];
 }
 
 void LPP::Matrix::set(size_t i, size_t j, float s)
 {
-    __lpp_check__(i < entries_.size() && j < entries_[0].size(),
+    __lpp_check__(i < rows_ && j < cols_,
         "Matrix::set - Vector entry setting out of range");
  
-    entries_[i][j] = s;
+    entries_[i * cols_ + j] = s;
 }
 
-const std::vector<float>& LPP::Matrix::operator[](size_t i) const {return entries_[i];}
+std::span<const float> LPP::Matrix::operator[](size_t i) const
+{
+    __lpp_check__(i < rows_,
+        "Matrix::operator[] out of bounds");
 
-std::vector<float>& LPP::Matrix::operator[](size_t i) {return entries_[i];}
+    return {entries_.data() + i * cols_, cols_};
+    //return entries_[i];
+}
+
+std::span<float> LPP::Matrix::operator[](size_t i)
+{
+    return {entries_.data() + i * cols_, cols_};
+    //return entries_[i];
+}
 
 std::vector<float> LPP::Matrix::operator*(const std::vector<float>& v) const
 {
     __lpp_check__(!entries_.empty(),
         "Matrix::operator* - Attempting to multiply by empty matrix");
-    __lpp_check__(entries_[0].size() == v.size(),
-        "Matrix::operator* - Attempting to multiply " + std::to_string(entries_.size()) + 'x' + std::to_string(entries_[0].size()) + " by a 1x" + std::to_string(v.size()) + " vector");
+    __lpp_check__(cols_ == v.size(),
+        "Matrix::operator* - Attempting to multiply " + std::to_string(rows_) + 'x' + std::to_string(cols_) + " by a 1x" + std::to_string(v.size()) + " vector");
     
-    std::vector<float> res(entries_.size());
-    for (size_t i = 0; i < res.size(); i++) {
-        res[i] = entries_[i] * v;
+    std::vector<float> res(rows_);
+    for (size_t i = 0; i < rows_; i++) {
+        res[i] = this->operator[](i) * v;
     }
     return res;
 }
 
-void LPP::matrix_sub_helper(Matrix& m1, const LPP::Matrix& m2, size_t start, size_t end) {
-    for (size_t r = start; r < end; r++) {
-        m1[r] -= m2[r];
-    }
-}
+// void LPP::matrix_sub_helper(Matrix& m1, const LPP::Matrix& m2, size_t start, size_t end) {
+//     for (size_t r = start; r < end; r++) {
+//         m1[r] -= m2[r];
+//     }
+// }
 
 LPP::Matrix& LPP::Matrix::operator-=(const Matrix& m)
 {
     __lpp_check__(same_dims(*this, m),
         "Matrix:operator-= - Attempting to subtract matrices of different sizes");
 
-    for (size_t i = 0; i < rows(); i++) {
+    for (size_t i = 0; i < rows_ * cols_; i++) {
         entries_[i] -= m.entries_[i];
     }
     return *this;
@@ -136,12 +191,12 @@ LPP::Matrix& LPP::Matrix::operator-=(const Matrix& m)
     // return *this;
 }
 
-void LPP::matrix_mult_helper(Matrix& m1, size_t start, size_t end, float c)
-{
-    for (size_t r = start; r < end; r++) {
-        m1[r] *= c;
-    }
-}
+// void LPP::matrix_mult_helper(Matrix& m1, size_t start, size_t end, float c)
+// {
+//     for (size_t r = start; r < end; r++) {
+//         m1[r] *= c;
+//     }
+// }
 
 LPP::Matrix& LPP::Matrix::operator*=(float c)
 {
@@ -174,6 +229,15 @@ bool LPP::same_dims(const Matrix& m1, const Matrix& m2)
     return m1.rows() == m2.rows() && m1.cols() == m2.cols();
 }
 
+void LPP::print_object(const std::span<const float> v, std::ostream& os)
+{
+    os << '{';
+    for (float d : v) {
+        os << d << ", ";
+    }
+    os << '}' << std::endl;
+}
+
 void LPP::print_object(const std::vector<float>& v, std::ostream& os)
 {
     os << '{';
@@ -188,9 +252,9 @@ void LPP::print_object(const Matrix& m, std::ostream& os) {m.print_entries(os);}
 float LPP::Matrix::sum_entries_abs() const
 {
     float res = 0.f;
-    for (size_t i = 0; i < rows(); i++) {
-        for (size_t j = 0; j < cols(); j++) {
-            res += std::abs(entries_[i][j]);
+    for (size_t i = 0; i < rows_; i++) {
+        for (size_t j = 0; j < cols_; j++) {
+            res += std::abs(entries_[i * cols_ + j]);
         }
     }
     return res;
@@ -199,9 +263,9 @@ float LPP::Matrix::sum_entries_abs() const
 float LPP::Matrix::sum_entries_sqr() const
 {
     float res = 0.f;
-    for (size_t i = 0; i < rows(); i++) {
-        for (size_t j = 0; j < cols(); j++) {
-            float e = entries_[i][j];
+    for (size_t i = 0; i < rows_; i++) {
+        for (size_t j = 0; j < cols_; j++) {
+            float e = entries_[i * cols_ + j];
             res += e*e;
         }
     }
@@ -211,9 +275,9 @@ float LPP::Matrix::sum_entries_sqr() const
 float LPP::Matrix::sum_entries_elastic(float a) const
 {
     float res = 0.f;
-    for (size_t i = 0; i < rows(); i++) {
-        for (size_t j = 0; j < cols(); j++) {
-            float d = entries_[i][j];
+    for (size_t i = 0; i < rows_; i++) {
+        for (size_t j = 0; j < cols_; j++) {
+            float d = entries_[i * cols_ + j];
             res += a * std::abs(d) + (1-a) * d * d;
         }
     }
@@ -222,7 +286,18 @@ float LPP::Matrix::sum_entries_elastic(float a) const
 
 void LPP::Matrix::set_all(float s)
 {
-    for (size_t i = 0; i < rows(); i++) {
-        LPP::set_all(entries_[i], s);
+    std::fill(entries_.begin(), entries_.end(), s);
+}
+
+void LPP::Matrix::set_row(size_t row, const std::vector<float>& v)
+{
+    __lpp_check__(row < rows_,
+        "Matrix::set_row - setting out of bounds");
+    __lpp_check__(cols_ == v.size(),
+        "Matrix::set_row - matrix column size not same as vector dimension");
+
+    for (size_t j = 0; j < cols_; j++)
+    {
+        entries_[row * cols_ + j] = v[j];
     }
 }

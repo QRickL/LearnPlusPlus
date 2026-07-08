@@ -123,11 +123,15 @@ float LPP::activations::Softmax::apply_activation_(float x) const
 {
     enforce_condition(false,
         "Softmax::apply_activation - this method should not be called element-wise");
+    
+    return std::nan("");
 }
 
 float LPP::activations::Softmax::apply_derivative(float x) const {
     enforce_condition(false,
         "Softmax::apply_derivative - jacobian matrix is non-diagonal");
+
+    return std::nan("");
 }
 
 const std::string& LPP::activations::Softmax::who() const {

@@ -2,6 +2,7 @@
 #define LPP_VECTOR_OVERLOADS_HPP
 
 #include <vector>
+#include <span>
 
 // Vector addition
 std::vector<float> operator+(const std::vector<float>& v1, const std::vector<float>& v2);
@@ -10,6 +11,7 @@ std::vector<float> operator/(const std::vector<float>& v1, const std::vector<flo
 
 // Vector dot product
 float operator*(const std::vector<float>&v1, const std::vector<float>& v2);
+float operator*(const std::span<const float> v1, const std::vector<float>& v2);
 
 // For adding biases
 std::vector<float> operator+(const std::vector<float>& v1, float c);
@@ -30,6 +32,7 @@ namespace LPP {
 
 // Fill operators
 void set_all(std::vector<float>& v1, float s);
+void set_all(std::span<float> v1, float s);
 
 }
 

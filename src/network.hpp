@@ -83,6 +83,7 @@ public:
 
     // Single fire through network
     Vec inference(const Vec& x) const;
+    Vec inference(const std::span<const float> x) const;
 
     // Train model using training set and response variates
     void train(

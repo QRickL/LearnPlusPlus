@@ -42,7 +42,7 @@ class Identity : public Activation {
     float apply_activation_(float x) const override;
 
 public:
-    virtual bool elements_non_interdependent_() const {return true;}
+    virtual bool elements_non_interdependent_() const override {return true;}
 
     float apply_derivative(float x) const override;
     const std::string& who() const override;
@@ -54,7 +54,7 @@ class ReLU : public Activation {
     float apply_activation_(float x) const override;
 
 public:
-    virtual bool elements_non_interdependent_() const {return true;}
+    virtual bool elements_non_interdependent_() const override {return true;}
 
     float apply_derivative(float x) const override;
     const std::string& who() const override;
@@ -66,7 +66,7 @@ class Sigmoid : public Activation {
     float apply_activation_(float x) const override;
 
 public:
-    virtual bool elements_non_interdependent_() const {return true;}
+    virtual bool elements_non_interdependent_() const override {return true;}
 
     float apply_derivative(float x) const override;
     const std::string& who() const override;
@@ -78,7 +78,7 @@ class Tanh : public Activation {
     float apply_activation_(float x) const override;
 
 public:
-    virtual bool elements_non_interdependent_() const {return true;}
+    virtual bool elements_non_interdependent_() const override {return true;}
 
     float apply_derivative(float x) const override;
     const std::string& who() const override;
@@ -90,7 +90,7 @@ class Softmax : public Activation {
     float apply_activation_(float x) const override;
 
 public:
-    virtual bool elements_non_interdependent_() const {return false;}
+    virtual bool elements_non_interdependent_() const override {return false;}
     void calculate_jacobian(const std::vector<float>& fv, LPP::Matrix& J) const override;
 
     void apply_activation(std::vector<float>& v) const override;

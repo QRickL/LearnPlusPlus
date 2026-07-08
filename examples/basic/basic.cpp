@@ -9,7 +9,7 @@ float function(float x, float y, float z) {
 
 
 int main() {
-
+    
     // Distribution to initialize model weights
     auto my_distribution = LPP::distribution::Normal(0, 0.2);
 

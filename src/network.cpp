@@ -284,6 +284,14 @@ std::vector<float> LPP::Network::inference(const std::vector<float>& x) const
         false /* indicates model not training */
     );
 }
+std::vector<float> LPP::Network::inference(const std::span<const float> x) const
+{
+    std::vector<float> x_vec(x.begin(), x.end());
+    return forward_propagation_(
+        x_vec, 
+        false /* indicates model not training */
+    );
+}
 
 void LPP::Network::train(
     const Matrix&                       training_features,
@@ -471,19 +479,33 @@ void LPP::Network::process_training_examples_(
     LPP::Matrix& estimated_training_responses,
     const std::unique_ptr<std::vector<size_t>>& permutation
 ) const {
+    std::vector<float> X(training_features.cols());
+    std::vector<float> Y(training_responses.cols());
+
     for (size_t t = start; t < end; t++) {
         size_t idx = permutation ? (*permutation)[t] : t;
 
-        estimated_training_responses[idx] = forward_propagation_(
-            training_features[idx],
-            true /* indicates we're training the model */
+        X.assign(
+            training_features[idx].begin(),
+            training_features[idx].end()
+        );
+        estimated_training_responses.set_row(
+            idx,
+            forward_propagation_(
+                X,
+                true /* indicates we're training the model */
+            )
         );
 
+        Y.assign(
+            training_responses[idx].begin(),
+            training_responses[idx].end()
+        );
         back_propagation_(
             delL_delW,
             delL_delb,
-            training_responses[idx],
-            training_features[idx]
+            Y,
+            X
         );
     }
 }
@@ -501,7 +523,7 @@ void LPP::Network::update_parameters_(
 ) {
     for (size_t cur_layer_idx = 0; cur_layer_idx < layers_.size(); cur_layer_idx++) {
         // W <- W - α ∇_W L
-        *delL_delW[cur_layer_idx]         *= 1.f / batch_size;      // Divide sum to obtain average
+        *delL_delW[cur_layer_idx]        *= 1.f / batch_size;      // Divide sum to obtain average
         if (regularization_option)
         {
             regularization_option->add_regularization_term_derivative(
@@ -509,12 +531,12 @@ void LPP::Network::update_parameters_(
                 *(delL_delW[cur_layer_idx])
             );
         }
-        *delL_delW[cur_layer_idx]         *= cur_learning_rate;     // Scale derivative by learning rate
-        *layers_[cur_layer_idx].weights_  -= *delL_delW[cur_layer_idx]; // Subtract for descent step
+        *delL_delW[cur_layer_idx]        *= cur_learning_rate;     // Scale derivative by learning rate
+        *layers_[cur_layer_idx].weights_ -= *delL_delW[cur_layer_idx]; // Subtract for descent step
 
         // b <- b - α ∇_b L
-        *delL_delb[cur_layer_idx]         *= cur_learning_rate / batch_size;
-        *layers_[cur_layer_idx].biases_   -= *delL_delb[cur_layer_idx];
+        *delL_delb[cur_layer_idx]        *= cur_learning_rate / batch_size;
+        *layers_[cur_layer_idx].biases_  -= *delL_delb[cur_layer_idx];
     }
 }
 
@@ -524,13 +546,25 @@ float LPP::Network::validation_loss_(
 ) const {
     // Calculate estimated response
     LPP::Matrix estimated_validation_responses(validation_responses.rows(), validation_responses.cols());
+    std::vector<float> X(validation_features.cols());
 
     for (size_t t = 0; t < validation_responses.rows(); t++)
     {
-        estimated_validation_responses[t] = forward_propagation_(
-            validation_features[t],
-            false /* only final result is needed */
+        X.assign(
+            validation_features[t].begin(),
+            validation_features[t].end()
         );
+        estimated_validation_responses.set_row(
+            t,
+            forward_propagation_(
+                X,
+                false /* only final result is needed */
+            )
+        );
+        // estimated_validation_responses[t] = forward_propagation_(
+        //     feat,
+        //     false /* only final result is needed */
+        // );
     }
 
     // Return validation loss
