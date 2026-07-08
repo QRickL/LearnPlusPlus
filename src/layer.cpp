@@ -8,7 +8,10 @@ LPP::Layer::Layer(
     const activations::Activation* af,
     distribution::ProbabilityDistribution* pd
 ) :
-    activation_func_{af}
+    activation_func_{af},
+    // Use std::copy when copying to avoid reallocations during training
+    pre_activation_vals_{std::vector<float>(output_size)},
+    post_activation_vals_{std::vector<float>(output_size)}
 {
     enforce_condition(af, "Layer::Layer - provided activation function is nullptr");
 
@@ -27,7 +30,10 @@ LPP::Layer::Layer(
 ) :
     weights_{std::move(given_weights)},
     biases_{std::move(given_biases)},
-    activation_func_{af}
+    activation_func_{af},
+    // Use std::copy when copying to avoid reallocations during training
+    pre_activation_vals_{std::vector<float>(weights_->rows())},
+    post_activation_vals_{std::vector<float>(weights_->rows())}
 {}
 
 void LPP::Layer::display(std::ostream& os) const {

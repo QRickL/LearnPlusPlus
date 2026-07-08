@@ -133,13 +133,25 @@ std::vector<float> LPP::Network::forward_propagation_(std::vector<float> current
         // z = Wx + b
         current_fire = (*layer->weights_) * current_fire + (*layer->biases_);
         if (training) {
-            layer->pre_activation_vals_ = current_fire; // Store copy 'z' if training
+            // Store copy 'z' if training
+            // below performs: layer->pre_activation_vals_ = current_fire; without allocation
+            std::copy(
+                current_fire.begin(),
+                current_fire.end(),
+                layer->pre_activation_vals_.begin()
+            );
         }
 
         // a = σ(z)
         layer->activation_func_->apply_activation(current_fire); // current_fire is modified in place
         if (training) {
-            layer->post_activation_vals_ = current_fire;
+            // Store copy 'a' if training
+            // below performs: layer->post_activation_vals_ = current_fire; without allocation
+            std::copy(
+                current_fire.begin(),
+                current_fire.end(),
+                layer->post_activation_vals_.begin()
+            );
         }
     }
     return current_fire;
@@ -164,7 +176,6 @@ void LPP::Network::back_propagation_(
     for (int cur_layer_idx = layers_.size() - 1; cur_layer_idx >=0 ; cur_layer_idx--) {
         auto& layer = layers_[cur_layer_idx];
         size_t current_layer_size = layer->weights_->rows();
-
         
         if (cur_layer_idx == layers_.size() - 1) {
             // Looking at last layer, calculate gradient using loss
