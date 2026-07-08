@@ -16,12 +16,13 @@ class Matrix {
     std::vector<float> entries_;
 
 public:
-    // Constructors
+    // Constructors                                                         
     Matrix(const std::vector<std::vector<float>>& m);                       // Const version
     Matrix(std::vector<std::vector<float>>& m);                             // Non-const version
     Matrix(size_t rows, size_t cols);                                       // Initialize to zeroes
     Matrix(size_t rows, size_t cols, float c);                              // Initialize to values
     Matrix(size_t rows, size_t cols, distribution::ProbabilityDistribution* pd); // Random init
+    Matrix();                                                               // Should only be called when constructed by later
 
     // Display information
     size_t  rows() const;

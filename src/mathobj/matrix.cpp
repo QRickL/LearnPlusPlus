@@ -5,6 +5,12 @@
 #include <iostream>
 #include <random>
 
+LPP::Matrix::Matrix() :
+    rows_{0},
+    cols_{0},
+    entries_{}
+{}
+
 LPP::Matrix::Matrix(const std::vector<std::vector<float>>& m) :
     rows_{m.size()},
     cols_{m[0].size()},
@@ -83,6 +89,9 @@ LPP::Matrix::Matrix(size_t rows, size_t cols, LPP::distribution::ProbabilityDist
     cols_{cols},
     entries_(rows_ * cols_)
 {
+    __lpp_check__(pd,
+        "Matrix::Matrix - probability distribution parameter is nullptr");
+    
     for (size_t i = 0; i < rows_; i++)
     {
         for (size_t j = 0; j < cols_; j++)

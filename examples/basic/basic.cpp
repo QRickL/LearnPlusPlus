@@ -28,7 +28,7 @@ int main() {
     example_model.train(
         explanatory_variates,           // Features 
         response_variates,              // Responses
-        500,                            // Number of epochs
+        5000,                            // Number of epochs
         0.005,                          // Learning rate
         &LPP::loss::mean_squared_error  // Loss function
     );

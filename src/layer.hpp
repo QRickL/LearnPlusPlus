@@ -9,12 +9,10 @@
 namespace LPP {
 
 class Layer {
-    template <typename T>
-    using up = std::unique_ptr<T>;
     using Vec = std::vector<float>;
 
-    up<Matrix>  weights_;
-    up<Vec>     biases_;
+    Matrix  weights_;
+    Vec     biases_;
     mutable Vec pre_activation_vals_;     // Needed for backpropagation, holds z = Wx + b
     mutable Vec post_activation_vals_;    // Needed for backpropagation, holds a = σ(z)
                                           // Two vectors are allocated at construction. Copying does not use extra allocation
@@ -33,8 +31,8 @@ public:
 
     // Constructor called when network created from file
     Layer(
-        up<Matrix>& given_weights,
-        up<Vec>& given_biases,
+        Matrix& given_weights,
+        Vec& given_biases,
         const activations::Activation* af
     );
 
