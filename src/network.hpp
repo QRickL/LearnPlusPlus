@@ -26,25 +26,25 @@ class Network {
     // Populates del_W_partial_sum with the derivatives of loss wrt to individual weights
     // Populates del_b_partial_sum with the derivatives of loss wrt to individual biases
     void back_propagation_(
-        std::vector<up<Matrix>>& del_W_partial_sum,
-        std::vector<up<Vec>>&    del_b_partial_sum,
-        const Vec&               response,
-        const Vec&               features
+        std::vector<Matrix>& del_W_partial_sum,
+        std::vector<Vec>&    del_b_partial_sum,
+        const Vec&           response,
+        const Vec&           features
     ) const;
 
     void initialize_gradient_sizes_(
-        std::vector<up<Matrix>>& delL_delW_partial_sum,
-        std::vector<up<Vec>>& delL_delb_partial_sum
+        std::vector<Matrix>& delL_delW_partial_sum,
+        std::vector<Vec>& delL_delb_partial_sum
     ) const;
 
     void initialize_partial_sums_to_zero_(
-        std::vector<up<Matrix>>& delL_delW_partial_sum,
-        std::vector<up<Vec>>& delL_delb_partial_sum
+        std::vector<Matrix>& delL_delW_partial_sum,
+        std::vector<Vec>& delL_delb_partial_sum
     ) const;
 
     void process_training_examples_(
-        std::vector<up<Matrix>>&       delL_delW,
-        std::vector<up<Vec>>&          delL_delb,
+        std::vector<Matrix>&           delL_delW,
+        std::vector<Vec>&              delL_delb,
         size_t                         start,
         size_t                         end,
         const Matrix&                  training_features,
@@ -54,11 +54,11 @@ class Network {
     ) const;
 
     void update_parameters_(
-        std::vector<up<Matrix>>&        delL_delW,
-        std::vector<up<Vec>>&           delL_delb,
-        size_t                          batch_size,
-        float                           cur_learning_rate,
-        const regular::Regularizer*     regularization_option  // shorten this somehow
+        std::vector<Matrix>&        delL_delW,
+        std::vector<Vec>&           delL_delb,
+        size_t                      batch_size,
+        float                       cur_learning_rate,
+        const regular::Regularizer* regularization_option  // shorten this somehow
     );
 
     float validation_loss_(
