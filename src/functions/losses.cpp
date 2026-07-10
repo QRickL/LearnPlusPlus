@@ -43,8 +43,8 @@ float LPP::loss::BinaryCrossEntropy::apply_loss(const Matrix& y_hat, const Matri
     float sum = 0.0;
 
     for (size_t i = 0; i < m; i ++) {
-        float y_val = clamp(y.get(i, 0), epsilon, 1.f - epsilon);
-        float y_hat_val = clamp(y_hat.get(i,0), epsilon, 1.f - epsilon);
+        float y_val = clamp(y.get(i, 0), loss_epsilon, 1.f - loss_epsilon);
+        float y_hat_val = clamp(y_hat.get(i,0), loss_epsilon, 1.f - loss_epsilon);
 
         sum += y_val * std::log(y_hat_val) + (1 - y_val) * std::log(1 - y_hat_val);
     }
@@ -58,8 +58,8 @@ std::vector<float> LPP::loss::BinaryCrossEntropy::find_gradient(const std::vecto
     __lpp_check__(y_hat.size() == 1,
         "BinaryCrossEntropy::apply_loss - BCE can only have one response variate");
 
-    float y_val = clamp(y[0], epsilon, 1.f - epsilon);
-    float y_hat_val = clamp(y_hat[0], epsilon, 1.f - epsilon);
+    float y_val = clamp(y[0], loss_epsilon, 1.f - loss_epsilon);
+    float y_hat_val = clamp(y_hat[0], loss_epsilon, 1.f - loss_epsilon);
 
     const float l = (1.f - y_val) / (1.f - y_hat_val) - y_val / y_hat_val;
     return {l};
@@ -76,7 +76,7 @@ float LPP::loss::CrossEntropy::apply_loss(const Matrix& y_hat, const Matrix& y) 
 
     for (size_t i = 0; i < m; i++) {
         for (size_t j = 0; j < n; j++) {
-            sum += y.get(i,j) * std::log(clamp(y_hat.get(i,j), epsilon, 1.f - epsilon));
+            sum += y.get(i,j) * std::log(clamp(y_hat.get(i,j), loss_epsilon, 1.f - loss_epsilon));
         }
     }
     return -sum / m;

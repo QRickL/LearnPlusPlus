@@ -103,11 +103,11 @@ public:
 // Global variables for construction of models by user
 // Inline variables have a new meaning in C++17. No multiple definition errors
 
-inline const auto identity = Identity();
-inline const auto relu     = ReLU();
-inline const auto sigmoid  = Sigmoid();
-inline const auto tanh     = Tanh();
-inline const auto softmax  = Softmax();
+inline const Identity identity = Identity();
+inline const ReLU     relu     = ReLU();
+inline const Sigmoid  sigmoid  = Sigmoid();
+inline const Tanh     tanh     = Tanh();
+inline const Softmax  softmax  = Softmax();
 
 // Global variables for construction of models by file
 inline const std::string STRING_IDENTITY_  = "IDENTITY";

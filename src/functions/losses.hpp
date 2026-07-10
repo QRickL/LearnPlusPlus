@@ -46,7 +46,7 @@ inline const auto mean_squared_error   = MeanSquaredError();
 inline const auto binary_cross_entropy = BinaryCrossEntropy();
 inline const auto cross_entropy        = CrossEntropy();
 
-inline const float epsilon = 1e-7f;
+inline const float loss_epsilon = 1e-7f;
 
 } // namespace loss
 

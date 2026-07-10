@@ -5,6 +5,8 @@
 
 /*
 Note: distributions should not be marked const
+
+One thing I learned that is very important is the variance of the distribution we draw the weights from
 */
 
 namespace LPP {
@@ -40,8 +42,8 @@ public:
     float sample() override;
 };
 
-inline auto standard_normal = Normal(0, 1);
-inline auto standard_uniform = Uniform(0, 1);
+inline Normal standard_normal = Normal(0, 1);
+inline Uniform standard_uniform = Uniform(0, 1);
 
 } // namespace distribution
 } // namespace LPP

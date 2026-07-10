@@ -44,6 +44,12 @@ public:
     float sum_entries_abs() const;
     float sum_entries_sqr() const;
     float sum_entries_elastic(float a) const;
+
+    // Preprocessing
+    // All entries - use on images
+    void normalize();
+    // Per-feature - use on tabular data
+    void normalize_rows();
 };
 
 void print_object(const Matrix& m, std::ostream& os = std::cout);                // Display matrix
@@ -54,6 +60,8 @@ bool same_dims(const Matrix& m1, const Matrix& m2); // Compare two for same size
 
 void matrix_sub_helper(Matrix& m1, const LPP::Matrix& m2, size_t start, size_t end); // Matrix-matrix subtraction helper
 void matrix_mult_helper(Matrix& m1, size_t start, size_t end, float c);              // Matrix-scalar multiplication helper
+
+inline const float normalization_epsilon = 1.e-7f;
 
 } // namespace LPP
 

@@ -310,3 +310,27 @@ void LPP::Matrix::set_row(size_t row, const std::vector<float>& v)
         entries_[row * cols_ + j] = v[j];
     }
 }
+
+void LPP::Matrix::normalize()
+{
+    float mean = 0.0f;
+    float pop_var = 0.0f;
+    const size_t n = entries_.size();
+
+    // Run over
+    for (size_t i = 0; i < n; i++) {
+        mean += entries_[i];
+        pop_var += entries_[i] * entries_[i];
+    }
+
+    mean /= n;
+    pop_var = (pop_var / n) - mean * mean; // Var(x) = E(x^2) - E(x)^2
+    pop_var = std::max(pop_var, normalization_epsilon);     // Floating point error
+
+    const float sigma = std::sqrtf(pop_var);
+
+    // Standardize
+    for (size_t i = 0; i < n; i++) {
+        entries_[i] = (entries_[i] - mean) / sigma;
+    }
+}
