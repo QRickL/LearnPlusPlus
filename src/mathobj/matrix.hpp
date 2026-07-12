@@ -39,6 +39,14 @@ public:
     void                   set(size_t i, size_t j, float s);
     void                   set_all(float s);
     void                   set_row(size_t row, const std::vector<float>& v);
+    // Avoid allocations in training loop
+    void mult_add_write(
+        const std::vector<float>& to_mult,
+        const std::vector<float>& to_add,
+        std::vector<float>& to_write
+    ) const;
+    void resize(size_t rows, size_t);
+    void resize_and_set(size_t rows, size_t cols, float s);
 
     // Operations used for regularization
     float sum_entries_abs() const;

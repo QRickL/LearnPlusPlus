@@ -15,7 +15,17 @@ class Network {
     using Vec = std::vector<float>;
 
     std::vector<Layer> layers_;
+
+    // For training
     const loss::Loss* loss_func_;
+    mutable size_t max_layer_size_;
+    mutable Vec current_fire_buffer_;
+    mutable Vec prev_gradient_;
+    mutable Vec current_gradient_;
+    mutable Matrix prev_jacobian_;
+    mutable Matrix current_jacobian_;
+    mutable Vec X_i_;
+    mutable Vec Y_i_;
 
     // Fire through the network. Layer outputs, pre and post activation, are saved if training = true
     Vec forward_propagation_(

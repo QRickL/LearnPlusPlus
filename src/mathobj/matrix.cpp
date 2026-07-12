@@ -142,13 +142,11 @@ std::span<const float> LPP::Matrix::operator[](size_t i) const
         "Matrix::operator[] out of bounds");
 
     return {entries_.data() + i * cols_, cols_};
-    //return entries_[i];
 }
 
 std::span<float> LPP::Matrix::operator[](size_t i)
 {
     return {entries_.data() + i * cols_, cols_};
-    //return entries_[i];
 }
 
 std::vector<float> LPP::Matrix::operator*(const std::vector<float>& v) const
@@ -163,6 +161,18 @@ std::vector<float> LPP::Matrix::operator*(const std::vector<float>& v) const
         res[i] = this->operator[](i) * v;
     }
     return res;
+}
+
+void LPP::Matrix::mult_add_write(
+    const std::vector<float>& to_mult,
+    const std::vector<float>& to_add,
+    std::vector<float>& to_write
+) const {
+    // TODO: add checks later
+
+    for (size_t r = 0; r < rows_; r++) {
+        to_write[r] = this->operator[](r) * to_mult + to_add[r];
+    }
 }
 
 // void LPP::matrix_sub_helper(Matrix& m1, const LPP::Matrix& m2, size_t start, size_t end) {
@@ -287,7 +297,7 @@ float LPP::Matrix::sum_entries_elastic(float a) const
     for (size_t i = 0; i < rows_; i++) {
         for (size_t j = 0; j < cols_; j++) {
             float d = entries_[i * cols_ + j];
-            res += a * std::abs(d) + (1-a) * d * d;
+            res += a * std::abs(d) + (1.f-a) * d * d;
         }
     }
     return res;
@@ -324,8 +334,8 @@ void LPP::Matrix::normalize()
     }
 
     mean /= n;
-    pop_var = (pop_var / n) - mean * mean; // Var(x) = E(x^2) - E(x)^2
-    pop_var = std::max(pop_var, normalization_epsilon);     // Floating point error
+    pop_var = (pop_var / n) - mean * mean;              // Var(x) = E(x^2) - E(x)^2
+    pop_var = std::max(pop_var, normalization_epsilon); // Floating point error
 
     const float sigma = std::sqrtf(pop_var);
 
@@ -333,4 +343,19 @@ void LPP::Matrix::normalize()
     for (size_t i = 0; i < n; i++) {
         entries_[i] = (entries_[i] - mean) / sigma;
     }
+}
+
+void LPP::Matrix::resize_and_set(size_t rows, size_t cols, float s)
+{
+    rows_ = rows;
+    cols_ = cols;
+    entries_.resize(rows_ * cols_);
+    set_all(s);
+}
+
+void LPP::Matrix::resize(size_t rows, size_t cols)
+{
+    rows_ = rows;
+    cols_ = cols;
+    entries_.resize(rows_ * cols_);
 }
