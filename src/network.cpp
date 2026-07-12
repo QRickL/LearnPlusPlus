@@ -1,5 +1,6 @@
 #include "network.hpp"
 #include "checking/check.hpp"
+#include "options/classify.hpp"
 #include <utility>
 #include <fstream>
 #include <sstream>
@@ -91,7 +92,7 @@ LPP::Network::Network(const std::string& filepath, std::ostream& os)
             "Network::Network - invalid activation function: " + cur_line);
 
         cur_act = LPP::activations::choose_activation.at(cur_line);
-        os << "activations::Activation: " + cur_line << "\n\n";
+        os << "Activation function: " + cur_line << "\n\n";
 
         // Construct layer and push back
         layers_.emplace_back(cur_weights, cur_biases, cur_act);
@@ -433,12 +434,25 @@ void LPP::Network::train(
             validation_loss += penalty_loss;
         }
 
+        float training_accuracy;
+        if (options.performs_classification()) {
+            training_accuracy = compute_accuracy(training_responses, estimated_training_responses);
+        }
+        float validation_accuracy;
+        if (options.performs_classification() && options.use_validation()) {
+            // implement this later. problem is that estimated response for validation is within validation_loss_ stack, just move its def to current training loop
+            // validation_accuracy = compute_accuracy();
+            validation_accuracy = -1.f;
+        }
+
         if (options.has_output_stream()) {
             auto& os = options.output_stream();
             
             if (options.use_mini_batch()) os << '\n';
             os << "\tTraining Loss: " << training_loss << '\n';
             if (options.use_validation()) os << "\tValidation Loss: " << validation_loss << '\n';
+            if (options.performs_classification()) os << "\tTraining Accuracy: " << training_accuracy << '\n';
+            if (options.performs_classification() && options.use_validation()) os << "\tValidation Accuracy: " << validation_accuracy << '\n';
             os << '\n';
         }
         if (options.has_metadata_stream()) {
@@ -446,6 +460,8 @@ void LPP::Network::train(
 
             ms << cur_epoch + 1 << ' ' << training_loss;
             if (options.use_validation()) ms << ' ' << validation_loss;
+            if (options.performs_classification()) ms << ' ' << training_accuracy;
+            if (options.performs_classification() && options.use_validation()) ms << ' ' << validation_accuracy;
             ms << '\n';
         }
     }

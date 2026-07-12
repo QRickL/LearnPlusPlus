@@ -8,7 +8,8 @@ LPP::ExtraTrainingOptions::ExtraTrainingOptions() :
     use_validation_option_{false},
     validation_features_{nullptr},
     validation_responeses_{nullptr},
-    regularization_option_{nullptr}
+    regularization_option_{nullptr},
+    compute_accuracy_{false}
 {}
 
 void LPP::ExtraTrainingOptions::set_mini_batch_size(size_t s) {
@@ -38,11 +39,10 @@ void LPP::ExtraTrainingOptions::set_validation_data(
     use_validation_option_ = true;
 }
 
+void LPP::ExtraTrainingOptions::set_performs_classification(bool b) { compute_accuracy_ = b; };
 
-void LPP::ExtraTrainingOptions::set_regularization(regular::Regularizer* r) {
-    regularization_option_ = r;
-}
 
+void LPP::ExtraTrainingOptions::set_regularization(regular::Regularizer* r) {regularization_option_ = r;}
 
 bool LPP::ExtraTrainingOptions::use_mini_batch() const { return mini_batch_size_option_ != nullptr; }
 size_t LPP::ExtraTrainingOptions::mini_batch_size() const { return *mini_batch_size_option_; }
@@ -59,3 +59,5 @@ const LPP::Matrix& LPP::ExtraTrainingOptions::validation_responses() const { ret
 
 bool LPP::ExtraTrainingOptions::use_regularization() const { return regularization_option_ != nullptr; }
 LPP::regular::Regularizer* LPP::ExtraTrainingOptions::regularizer() const { return regularization_option_; }
+
+bool LPP::ExtraTrainingOptions::performs_classification() const { return compute_accuracy_; }

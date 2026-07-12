@@ -28,6 +28,9 @@ class ExtraTrainingOptions {
     // Regularizer
     regular::Regularizer* regularization_option_;
 
+    // Classification
+    bool compute_accuracy_;
+
 public:
 
 ExtraTrainingOptions();
@@ -52,6 +55,9 @@ const Matrix& validation_responses() const;
 void set_regularization(regular::Regularizer* r);
 bool use_regularization() const;
 regular::Regularizer* regularizer() const;
+
+void set_performs_classification(bool b);
+bool performs_classification() const;
 
 };
     
