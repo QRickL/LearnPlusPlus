@@ -104,10 +104,9 @@ void LPP::activations::Softmax::calculate_jacobian(const std::vector<float>& fv,
     __lpp_check__(fv.size() == J.rows(),
         "Softmax::calculate_jacobian - vector and matrix sizes disagree");
 
-    size_t m = J.rows();
-    size_t n = J.cols();
+    size_t n = J.rows();
 
-    for (size_t i = 0; i < m; i++) {
+    for (size_t i = 0; i < n; i++) {
         for (size_t j = 0; j < n; j++) {
             if (i != j) {
                 J[i][j] = -1 * fv[i] * fv[j];

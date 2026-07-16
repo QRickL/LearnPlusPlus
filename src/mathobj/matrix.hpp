@@ -15,6 +15,8 @@ class Matrix {
     size_t cols_;
     std::vector<float> entries_;
 
+    friend void scale_then_decrement(Matrix& to_decrement, float scale, const Matrix& to_scale);
+
 public:
     // Constructors                                                         
     Matrix(const std::vector<std::vector<float>>& m);                       // Const version
@@ -70,6 +72,9 @@ void matrix_sub_helper(Matrix& m1, const LPP::Matrix& m2, size_t start, size_t e
 void matrix_mult_helper(Matrix& m1, size_t start, size_t end, float c);              // Matrix-scalar multiplication helper
 
 inline const float normalization_epsilon = 1.e-7f;
+
+void scale_then_decrement(Matrix& to_decrement, float scale, const Matrix& to_scale);
+void scale_then_decrement(std::vector<float>& to_decrement, float scale, const std::vector<float>& to_scale);
 
 } // namespace LPP
 

@@ -33,9 +33,9 @@ LPP::Network::Network(
             std::get<2>(layer)
         );
     }
-    current_fire_buffer_.reserve(max_layer_size_);
-    current_gradient_.reserve(max_layer_size_);
-    prev_gradient_.reserve(max_layer_size_);
+    current_fire_buffer_.resize(max_layer_size_);
+    current_gradient_.resize(max_layer_size_);
+    prev_gradient_.resize(max_layer_size_);
     current_jacobian_.resize(max_layer_size_, max_layer_size_);
     prev_jacobian_.resize(max_layer_size_, max_layer_size_);
 }
@@ -98,9 +98,9 @@ LPP::Network::Network(const std::string& filepath, std::ostream& os)
         layers_.emplace_back(cur_weights, cur_biases, cur_act);
     }
     os << std::endl;
-    current_fire_buffer_.reserve(max_layer_size_);
-    current_gradient_.reserve(max_layer_size_);
-    prev_gradient_.reserve(max_layer_size_);
+    current_fire_buffer_.resize(max_layer_size_);
+    current_gradient_.resize(max_layer_size_);
+    prev_gradient_.resize(max_layer_size_);
     current_jacobian_.resize(max_layer_size_, max_layer_size_);
     prev_jacobian_.resize(max_layer_size_, max_layer_size_);
 }
@@ -211,7 +211,8 @@ void LPP::Network::back_propagation_(
             // 'forward_layer' is the layer which comes after current layer when firing
             // Don't call it 'next_layer' because it could be confused with next layer in the backwards loop
             auto& forward_layer = layers_[cur_layer_idx+1];
-            size_t forward_layer_size = forward_layer.weights_.rows();
+            const size_t forward_layer_size = forward_layer.weights_.rows();
+            const bool forward_layer_activation_elements_non_interdependent = forward_layer.activation_func_->elements_non_interdependent_();
 
             // Looking at non-last layer, calculate gradient recursively
             // current_gradient stores the derivative of loss wrt activation in current layer
@@ -224,7 +225,7 @@ void LPP::Network::back_propagation_(
             for (size_t i = 0; i < current_layer_size; i++) {
                 for (size_t k = 0; k < forward_layer_size; k++) {
                     
-                    if (forward_layer.activation_func_->elements_non_interdependent_())
+                    if (forward_layer_activation_elements_non_interdependent)
                     {
                         float delL_dela1 = prev_gradient_[k];
                         float dela1_delz = forward_layer.activation_func_->apply_derivative(forward_layer.pre_activation_vals_[k]);
@@ -249,8 +250,9 @@ void LPP::Network::back_propagation_(
             }
         }
 
+        const bool layer_activation_elements_non_interdependent = layer.activation_func_->elements_non_interdependent_();
         // Calculate jacobian for this layer's loss wrt activation
-        if (!layer.activation_func_->elements_non_interdependent_()) {
+        if (!layer_activation_elements_non_interdependent) {
             current_jacobian_.resize_and_set(current_layer_size, current_layer_size, 0.f);
             layer.activation_func_->calculate_jacobian(layer.post_activation_vals_, current_jacobian_);
         }
@@ -262,7 +264,7 @@ void LPP::Network::back_propagation_(
             // See general_activations.pdf for mathematical details
             // Define intermediate value to prevent eyesore when actually adding to partial sums
             float imed_value = 0.f;
-            if (layer.activation_func_->elements_non_interdependent_())
+            if (layer_activation_elements_non_interdependent)
             {
                 //float dela0_i_delz_i = layer->activation_func_->apply_derivative(layer->pre_activation_vals_[i]);
                 float dela0_i_delz_i = layer.activation_func_->apply_derivative(layer.pre_activation_vals_[i]);
@@ -544,20 +546,31 @@ void LPP::Network::update_parameters_(
     const regular::Regularizer* regularization_option  // shorten this somehow
 ) {
     for (size_t cur_layer_idx = 0; cur_layer_idx < layers_.size(); cur_layer_idx++) {
+
         // W <- W - α ∇_W L
-        delL_delW[cur_layer_idx]        *= 1.f / batch_size;      // Divide sum to obtain average
-        if (regularization_option) {
+        if (regularization_option)
+        {
+            delL_delW[cur_layer_idx]        *= 1.f / batch_size;
             regularization_option->add_regularization_term_derivative(
                 layers_[cur_layer_idx].weights_,
                 delL_delW[cur_layer_idx]
             );
+            delL_delW[cur_layer_idx]        *= cur_learning_rate;
+            layers_[cur_layer_idx].weights_ -= delL_delW[cur_layer_idx];
         }
-        delL_delW[cur_layer_idx]        *= cur_learning_rate;     // Scale derivative by learning rate
-        layers_[cur_layer_idx].weights_ -= delL_delW[cur_layer_idx]; // Subtract for descent step
-
+        else
+        {
+            delL_delW[cur_layer_idx]        *= cur_learning_rate / batch_size;
+            layers_[cur_layer_idx].weights_ -= delL_delW[cur_layer_idx];
+        }
+        
         // b <- b - α ∇_b L
         delL_delb[cur_layer_idx]       *= cur_learning_rate / batch_size;
         layers_[cur_layer_idx].biases_ -= delL_delb[cur_layer_idx];
+
+        // TODO: replace these once proven to work
+        // scale_then_decrement(layers_[cur_layer_idx].weights_, cur_learning_rate, delL_delW[cur_layer_idx]);
+        // scale_then_decrement(layers_[cur_layer_idx].biases_, cur_learning_rate / batch_size, delL_delb[cur_layer_idx]);
     }
 }
 

@@ -44,23 +44,7 @@ LPP::Matrix::Matrix(size_t rows, size_t cols) :
     cols_{cols},
     entries_(rows_ * cols_)
 {
-    for (size_t i = 0; i < rows_; i++)
-    {
-        for (size_t j = 0; j < cols_; j++)
-        {
-            entries_[i * cols_ + j] = 0.f;
-        }
-    }
-    // for (size_t r = 0; r < rows; r++) {
-    //     entries_[r] = std::vector<float>(cols, 0.f);
-    // }
-    // if (rows < LPP::CONSTANTS::MATRIX_PARALLEL_THRESHOLD) {
-    //     for (size_t r = 0; r < rows; r++) {
-    //         entries_[r] = std::vector<float>(cols, 0.0);
-    //     }
-    // } else {
-    //     LPP::matrix_parallel_init(entries_, rows, cols, 0.0);
-    // }
+    std::fill(entries_.begin(), entries_.end(), 0.f);
 }
 
 LPP::Matrix::Matrix(size_t rows, size_t cols, float c) :
@@ -68,20 +52,7 @@ LPP::Matrix::Matrix(size_t rows, size_t cols, float c) :
     cols_{cols},
     entries_(rows_ * cols_)
 {
-    for (size_t i = 0; i < rows_; i++)
-    {
-        for (size_t j = 0; j < cols_; j++)
-        {
-            entries_[i * cols_ + j] = c;
-        }
-    }
-    // if (rows < LPP::CONSTANTS::MATRIX_PARALLEL_THRESHOLD) {
-    //     for (size_t r = 0; r < rows; r++) {
-    //         entries_[r] = std::vector<float>(cols, c);
-    //     }
-    // } else {
-    //     LPP::matrix_parallel_init(entries_, rows, cols, c);
-    // }
+    std::fill(entries_.begin(), entries_.end(), c);
 }
 
 LPP::Matrix::Matrix(size_t rows, size_t cols, LPP::distribution::ProbabilityDistribution* pd) : 
@@ -115,7 +86,7 @@ void LPP::Matrix::print_entries(std::ostream& os) const
 {
     os << "{\n";
     for (size_t i = 0; i < entries_.size(); i++) {
-        print_object(this->operator[](i), os);
+        print_object((*this)[i], os);
     }
     os << '}' << std::endl;
 }
@@ -156,9 +127,13 @@ std::vector<float> LPP::Matrix::operator*(const std::vector<float>& v) const
     __lpp_check__(cols_ == v.size(),
         "Matrix::operator* - Attempting to multiply " + std::to_string(rows_) + 'x' + std::to_string(cols_) + " by a 1x" + std::to_string(v.size()) + " vector");
     
-    std::vector<float> res(rows_);
-    for (size_t i = 0; i < rows_; i++) {
-        res[i] = this->operator[](i) * v;
+    std::vector<float> res(rows_, 0.f);
+    for (size_t r = 0; r < rows_; r++) {
+        std::span<const float> row = (*this)[r];
+        for (size_t c = 0; c < cols_; c++)
+        {
+            res[r] += row[c]*v[c];
+        }
     }
     return res;
 }
@@ -171,15 +146,15 @@ void LPP::Matrix::mult_add_write(
     // TODO: add checks later
 
     for (size_t r = 0; r < rows_; r++) {
-        to_write[r] = this->operator[](r) * to_mult + to_add[r];
+        //to_write[r] = this->operator[](r) * to_mult + to_add[r];
+        to_write[r] = to_add[r];
+        std::span<const float> row = (*this)[r];
+        for (size_t c = 0; c < cols_; c++)
+        {
+            to_write[r] += row[c]*to_mult[c];
+        }
     }
 }
-
-// void LPP::matrix_sub_helper(Matrix& m1, const LPP::Matrix& m2, size_t start, size_t end) {
-//     for (size_t r = start; r < end; r++) {
-//         m1[r] -= m2[r];
-//     }
-// }
 
 LPP::Matrix& LPP::Matrix::operator-=(const Matrix& m)
 {
@@ -190,32 +165,7 @@ LPP::Matrix& LPP::Matrix::operator-=(const Matrix& m)
         entries_[i] -= m.entries_[i];
     }
     return *this;
-    
-    // if (this->rows() < LPP::CONSTANTS::MATRIX_PARALLEL_THRESHOLD) {
-    //     for (size_t i = 0; i < rows(); i++) {
-    //         entries_[i] -= m.entries_[i];
-    //     }
-    // } else {
-    //     std::vector<std::thread> blocks;
-    //     size_t block_size = this->rows() / LPP::CONSTANTS::USE_THREADS;
-
-    //     for (size_t r = 0; r <= LPP::CONSTANTS::USE_THREADS; r++) {
-    //         size_t start  = r * block_size;
-    //         size_t end    = std::min( (r + 1) * block_size, this->rows() );
-
-    //         blocks.emplace_back(LPP::matrix_sub_helper, std::ref(*this), std::ref(m), start, end);
-    //     }
-    //     for (auto& block : blocks) block.join();
-    // }
-    // return *this;
 }
-
-// void LPP::matrix_mult_helper(Matrix& m1, size_t start, size_t end, float c)
-// {
-//     for (size_t r = start; r < end; r++) {
-//         m1[r] *= c;
-//     }
-// }
 
 LPP::Matrix& LPP::Matrix::operator*=(float c)
 {
@@ -223,24 +173,6 @@ LPP::Matrix& LPP::Matrix::operator*=(float c)
         entries_[i] *= c;
     }
     return *this;
-
-    // if (this->rows() < LPP::CONSTANTS::MATRIX_PARALLEL_THRESHOLD) {
-    //     for (size_t i = 0; i < entries_.size(); i++) {
-    //         entries_[i] *= c;
-    //     }
-    // } else {
-    //     std::vector<std::thread> blocks;
-    //     size_t block_size = this->rows() / LPP::CONSTANTS::USE_THREADS;
-
-    //     for (size_t r = 0; r <= LPP::CONSTANTS::USE_THREADS; r++) {
-    //         size_t start  = r * block_size;
-    //         size_t end    = std::min( (r + 1) * block_size, this->rows() );
-
-    //         blocks.emplace_back(LPP::matrix_mult_helper, std::ref(*this), start, end, c);
-    //     }
-    //     for (auto& block : blocks) block.join();
-    // }
-    // return *this;
 }
 
 bool LPP::same_dims(const Matrix& m1, const Matrix& m2)
@@ -350,7 +282,7 @@ void LPP::Matrix::resize_and_set(size_t rows, size_t cols, float s)
     rows_ = rows;
     cols_ = cols;
     entries_.resize(rows_ * cols_);
-    set_all(s);
+    std::fill(entries_.begin(), entries_.end(), s);
 }
 
 void LPP::Matrix::resize(size_t rows, size_t cols)
@@ -358,4 +290,20 @@ void LPP::Matrix::resize(size_t rows, size_t cols)
     rows_ = rows;
     cols_ = cols;
     entries_.resize(rows_ * cols_);
+}
+
+inline void LPP::scale_then_decrement(Matrix& to_decrement, float scale, const Matrix& to_scale)
+{
+    const size_t n = to_decrement.rows_ * to_decrement.cols_;
+    for (size_t i = 0; i < n; i++) {
+        to_decrement.entries_[i] -= scale * to_scale.entries_[i];
+    }
+}
+
+inline void LPP::scale_then_decrement(std::vector<float>& to_decrement, float scale, const std::vector<float>& to_scale)
+{
+    for (size_t i = 0; i < to_decrement.size(); i++)
+    {
+        to_decrement[i] -= scale * to_scale[i];
+    }
 }
