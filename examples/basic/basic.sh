@@ -1,6 +1,7 @@
 #!/bin/bash
 
 g++ -std=c++20 -O3 -march=native -ffast-math ../../src/checking/check.cpp -c
+g++ -std=c++20 -O3 -march=native -ffast-math ../../src/checking/timer.cpp -c
 g++ -std=c++20 -O3 -march=native -ffast-math ../../src/functions/activations.cpp -c
 g++ -std=c++20 -O3 -march=native -ffast-math ../../src/functions/losses.cpp -c
 g++ -std=c++20 -O3 -march=native -ffast-math ../../src/functions/random_gen.cpp -c

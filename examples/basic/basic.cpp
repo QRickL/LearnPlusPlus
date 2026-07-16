@@ -23,14 +23,20 @@ int main() {
         }
     );
 
+    auto timer = LPP::Timer();
+    timer.click();
+
     // Train the model!
     example_model.train(
         explanatory_variates,           // Features 
         response_variates,              // Responses
-        5000,                            // Number of epochs
+        500,                            // Number of epochs
         0.005,                          // Learning rate
         &LPP::loss::mean_squared_error  // Loss function
     );
+
+    timer.click();
+    std::cout << "Training took " << timer.time() << " ms\n\n";
 
     // See how it did on training data
     std::cout << "First 10 examples:" << std::endl;
