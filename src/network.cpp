@@ -305,11 +305,11 @@ std::vector<float> LPP::Network::inference(const std::vector<float>& x) const
 }
 std::vector<float> LPP::Network::inference(const std::span<const float> x) const
 {
-    std::vector<float> x_v;
-    x_v.assign(x.begin(), x.end());
+    // std::vector<float> x_v;
+    // x_v.assign(x.begin(), x.end());
 
     return forward_propagation_(
-        x_v,
+        std::vector<float>(x.begin(), x.end()),
         false
     );  // false indicates not training
 }
@@ -584,10 +584,11 @@ float LPP::Network::validation_loss_(
         X.assign(validation_features[t].begin(), validation_features[t].end());
         estimated_validation_responses_.set_row(
             t,
-            forward_propagation_(
-                X,
-                false /* only final result is needed */
-            )
+            // forward_propagation_(
+            //     X,
+            //     false /* only final result is needed */
+            // )
+            inference(validation_features[t])
         );
     }
 
