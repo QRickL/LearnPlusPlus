@@ -11,8 +11,6 @@ g++ -std=c++20 -O3 -march=native -ffast-math ../../src/mathobj/vector_overloads.
 g++ -std=c++20 -O3 -march=native -ffast-math ../../src/network.cpp -c
 g++ -std=c++20 -O3 -march=native -ffast-math ../../src/options/classify.cpp -c
 g++ -std=c++20 -O3 -march=native -ffast-math ../../src/options/training_options.cpp -c
-# g++ -std=c++20 ../src/parallel/matrix_parallel.cpp -c
-# g++ -std=c++20 ../src/parallel/vector_parallel.cpp -c
 g++ -std=c++20 -O3 -march=native -ffast-math ../../src/regular/regularizers.cpp -c
 
 g++ -std=c++20 -O3 -march=native -ffast-math basic.cpp -c

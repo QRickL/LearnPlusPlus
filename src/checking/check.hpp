@@ -5,7 +5,7 @@
 
 // Difference between the two is that we can turn off __lpp_check__ to save time during runtime if desired
 
-#define LPP_ENABLE_CHECKS
+// #define LPP_ENABLE_CHECKS
 #ifdef LPP_ENABLE_CHECKS
 
 #define __lpp_check__(cond, msg)                     \

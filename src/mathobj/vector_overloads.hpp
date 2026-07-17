@@ -9,6 +9,8 @@ std::vector<float> operator+(const std::vector<float>& v1, const std::vector<flo
 std::vector<float> operator-(const std::vector<float>& v1, const std::vector<float>& v2);
 std::vector<float> operator/(const std::vector<float>& v1, const std::vector<float>& v2);    // Division is defined by entry
 
+// Vector dot product and vector addition have been directly injected into function bodies to help the compiler
+
 // Vector dot product
 /*
 float operator*(const std::vector<float>&v1, const std::vector<float>& v2);

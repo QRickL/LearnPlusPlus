@@ -9,7 +9,6 @@ namespace LPP
 {
 
 class ExtraTrainingOptions {
-
     // Mini batch size
     // If this is not null, then we will use gradient descent
     std::unique_ptr<size_t> mini_batch_size_option_;
@@ -34,30 +33,29 @@ class ExtraTrainingOptions {
 public:
 
 ExtraTrainingOptions();
+    void set_mini_batch_size(size_t s);
+    bool use_mini_batch() const;
+    size_t mini_batch_size() const;
 
-void set_mini_batch_size(size_t s);
-bool use_mini_batch() const;
-size_t mini_batch_size() const;
+    void set_training_output_stream(std::ostream& os);
+    bool has_output_stream() const;
+    std::ostream& output_stream() const;
 
-void set_training_output_stream(std::ostream& os);
-bool has_output_stream() const;
-std::ostream& output_stream() const;
+    void set_training_metadata_stream(std::ostream& os);
+    bool has_metadata_stream() const;
+    std::ostream& metadata_stream() const;
 
-void set_training_metadata_stream(std::ostream& os);
-bool has_metadata_stream() const;
-std::ostream& metadata_stream() const;
+    void set_validation_data(const Matrix& validation_features, const Matrix& validation_responses);
+    bool use_validation() const;
+    const Matrix& validation_features() const;
+    const Matrix& validation_responses() const;
 
-void set_validation_data(const Matrix& validation_features, const Matrix& validation_responses);
-bool use_validation() const;
-const Matrix& validation_features() const;
-const Matrix& validation_responses() const;
+    void set_regularization(regular::Regularizer* r);
+    bool use_regularization() const;
+    regular::Regularizer* regularizer() const;
 
-void set_regularization(regular::Regularizer* r);
-bool use_regularization() const;
-regular::Regularizer* regularizer() const;
-
-void set_performs_classification(bool b);
-bool performs_classification() const;
+    void set_performs_classification(bool b);
+    bool performs_classification() const;
 
 };
     

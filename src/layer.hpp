@@ -16,7 +16,7 @@ class Layer {
     mutable Vec pre_activation_vals_;     // Needed for backpropagation, holds z = Wx + b
     mutable Vec post_activation_vals_;    // Needed for backpropagation, holds a = σ(z)
                                           // Two vectors are allocated at construction. Copying does not use extra allocation
-    const activations::Activation* activation_func_; // Pointer to activation function used by layer
+    const activations::Activation* activation_func_;
 
     friend class Network;
 

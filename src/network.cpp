@@ -8,11 +8,7 @@
 
 LPP::Network::Network(
     size_t input_size,
-    const std::vector<std::tuple<
-        size_t,
-        const activations::Activation*,
-        distribution::ProbabilityDistribution*
-    >>& layer_info
+    const std::vector< std::tuple<size_t, const activations::Activation*, distribution::ProbabilityDistribution*> >& layer_info
 ) : max_layer_size_{0}, loss_func_{nullptr} // Loss function will be assigned when training
 {
     enforce_condition(!layer_info.empty(), "Network::Network - layer_info vector cannot be empty");
@@ -213,7 +209,7 @@ void LPP::Network::back_propagation_(
             // Don't call it 'next_layer' because it could be confused with next layer in the backwards loop
             auto& forward_layer = layers_[cur_layer_idx+1];
             const size_t forward_layer_size = forward_layer.weights_.rows();
-            const bool forward_layer_activation_elements_non_interdependent = forward_layer.activation_func_->elements_non_interdependent_();
+            const bool forward_layer_activation_elements_non_interdependent = forward_layer.activation_func_->elements_non_interdependent();
 
             // Looking at non-last layer, calculate gradient recursively
             // current_gradient stores the derivative of loss wrt activation in current layer
@@ -251,7 +247,7 @@ void LPP::Network::back_propagation_(
             }
         }
 
-        const bool layer_activation_elements_non_interdependent = layer.activation_func_->elements_non_interdependent_();
+        const bool layer_activation_elements_non_interdependent = layer.activation_func_->elements_non_interdependent();
         // Calculate jacobian for this layer's loss wrt activation
         if (!layer_activation_elements_non_interdependent) {
             current_jacobian_.resize_and_set(current_layer_size, current_layer_size, 0.f);
@@ -426,7 +422,6 @@ void LPP::Network::train(
         
         // Compute training data loss
         float training_data_loss = loss_func_->apply_loss(estimated_training_responses, training_responses);
-
         // Compute penalty loss
         float penalty_loss = 0.f;
         if (options.use_regularization()) {
@@ -434,7 +429,6 @@ void LPP::Network::train(
                 penalty_loss += options.regularizer()->add_regularization_loss_penalty(layer.weights_);
             }
         }
-
         float training_loss = training_data_loss + penalty_loss;
 
         // Compute valiation loss if applicable
@@ -445,8 +439,7 @@ void LPP::Network::train(
             validation_loss += penalty_loss;
         }
 
-        float training_accuracy;
-        float validation_accuracy;
+        float training_accuracy, validation_accuracy;
         if (options.performs_classification()) {
             training_accuracy = compute_accuracy(training_responses, estimated_training_responses);
 
@@ -524,9 +517,7 @@ void LPP::Network::process_training_examples_(
     LPP::Matrix& estimated_training_responses,
     const std::unique_ptr<std::vector<size_t>>& permutation
 ) const {
-    /*
-    X_i_ and Y_i_ have been allocated at the start of train();
-    */
+    // X_i_ and Y_i_ have been allocated at the start of train();
 
     for (size_t t = start; t < end; t++) {
         size_t idx = permutation ? (*permutation)[t] : t;
@@ -560,9 +551,8 @@ void LPP::Network::update_parameters_(
         {
             delL_delW[cur_layer_idx]        *= 1.f / batch_size;
             regularization_option->add_regularization_term_derivative(
-                layers_[cur_layer_idx].weights_,
-                delL_delW[cur_layer_idx]
-            );
+                layers_[cur_layer_idx].weights_, delL_delW[cur_layer_idx]);
+            
             delL_delW[cur_layer_idx]        *= cur_learning_rate;
             layers_[cur_layer_idx].weights_ -= delL_delW[cur_layer_idx];
         }
