@@ -26,6 +26,7 @@ class Network {
     mutable Matrix current_jacobian_;
     mutable Vec X_i_;
     mutable Vec Y_i_;
+    mutable Matrix estimated_validation_responses_;
 
     // Fire through the network. Layer outputs, pre and post activation, are saved if training = true
     Vec forward_propagation_(

@@ -362,6 +362,10 @@ void LPP::Network::train(
         std::iota(permutation->begin(), permutation->end(), 0); // permutation = {0, 1, ..., n-1}
     }
 
+    if (options.use_validation()) {
+        estimated_validation_responses_ = Matrix(options.validation_responses().rows(), options.validation_responses().cols());
+    }
+
     // How many batches we need to loop through per epoch
     // Add extra batch to train on remainder... this is probably unstable if the remainder is small
     size_t num_batches = num_training_examples / mini_batch_size;
@@ -434,6 +438,7 @@ void LPP::Network::train(
         float training_loss = training_data_loss + penalty_loss;
 
         // Compute valiation loss if applicable
+        // This step will populate the estimated_validation_responses_ field
         float validation_loss;
         if (options.use_validation()) {
             validation_loss = validation_loss_(options.validation_features(), options.validation_responses());
@@ -446,8 +451,7 @@ void LPP::Network::train(
             training_accuracy = compute_accuracy(training_responses, estimated_training_responses);
 
             if (options.use_validation()) {
-                // implement this later. problem is that estimated response for validation is within validation_loss_ stack, just move its def to current training loop
-                validation_accuracy = -1.f;
+                validation_accuracy = compute_accuracy(options.validation_responses(), estimated_validation_responses_);
             }
         }
 
@@ -583,13 +587,12 @@ float LPP::Network::validation_loss_(
     const LPP::Matrix& validation_responses
 ) const {
     // Calculate estimated response
-    LPP::Matrix estimated_validation_responses(validation_responses.rows(), validation_responses.cols());
     std::vector<float> X(validation_features.cols());
 
     for (size_t t = 0; t < validation_responses.rows(); t++)
     {
         X.assign(validation_features[t].begin(), validation_features[t].end());
-        estimated_validation_responses.set_row(
+        estimated_validation_responses_.set_row(
             t,
             forward_propagation_(
                 X,
@@ -599,5 +602,5 @@ float LPP::Network::validation_loss_(
     }
 
     // Return validation loss
-    return loss_func_->apply_loss(estimated_validation_responses, validation_responses);
+    return loss_func_->apply_loss(estimated_validation_responses_, validation_responses);
 }
