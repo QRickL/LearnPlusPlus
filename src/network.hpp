@@ -27,6 +27,7 @@ class Network {
     mutable Vec X_i_;
     mutable Vec Y_i_;
     mutable Matrix estimated_validation_responses_;
+    mutable Vec inference_buffer_;
 
     // Fire through the network. Layer outputs, pre and post activation, are saved if training = true
     Vec forward_propagation_(
@@ -53,7 +54,7 @@ class Network {
         std::vector<Vec>& delL_delb_partial_sum
     ) const;
 
-    void process_training_examples_(
+    void train_on_batch_(
         std::vector<Matrix>&           delL_delW,
         std::vector<Vec>&              delL_delb,
         size_t                         start,
@@ -75,6 +76,25 @@ class Network {
     float validation_loss_(
         const Matrix& validation_features,
         const Matrix& validation_responses
+    ) const;
+
+    void compute_losses_(
+        const ExtraTrainingOptions& options,
+        float& train_loss,
+        float& val_loss,
+        float& train_acc,
+        float& val_acc,
+        const Matrix& y,
+        const Matrix& y_hat
+    ) const;
+
+    void print_losses_(
+        const ExtraTrainingOptions& options,
+        float train_loss,
+        float val_loss,
+        float train_acc,
+        float val_acc,
+        size_t epoch
     ) const;
 
 public:
