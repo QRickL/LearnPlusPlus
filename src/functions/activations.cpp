@@ -90,7 +90,6 @@ void LPP::activations::Softmax::apply_activation(std::vector<float>& v) const
 
     float denom = 0.f;
     for (float& x : v) {
-        // x = std::exp(x-m);
         x = std::exp(x);
         denom += x;
     }
@@ -110,13 +109,7 @@ void LPP::activations::Softmax::calculate_jacobian(const std::vector<float>& fv,
 
     for (size_t i = 0; i < n; i++) {
         for (size_t j = 0; j < n; j++) {
-            // if (i != j) {
-            //     J[i][j] = -1 * fv[i] * fv[j];
-            // } else {
-            //     J[i][j] = fv[i] * (1.f - fv[i]);
-            // }
-            J[i][j] = -fv[i]*fv[j];
-            if (i == j) J[i][j] += fv[i];
+            J[i][j] = (i == j) ? fv[i]*(1.f - fv[i]) : -fv[i]*fv[j];
         }
     }
 }
