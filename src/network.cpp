@@ -160,22 +160,16 @@ std::vector<float> LPP::Network::forward_propagation_(std::vector<float> current
 
         if (training) {
             // Store copy 'z' if training
-            std::copy(
-                current_fire.begin(),
-                current_fire.end(),
-                layer.pre_activation_vals_.begin()
-            );
+            std::copy(current_fire.begin(), current_fire.end(),
+                layer.pre_activation_vals_.begin());
         }
 
         // a = σ(z)
         layer.activation_func_->apply_activation(current_fire); // current_fire is modified in place
         if (training) {
             // Store copy 'a' if training
-            std::copy(
-                current_fire.begin(),
-                current_fire.end(),
-                layer.post_activation_vals_.begin()
-            );
+            std::copy(current_fire.begin(), current_fire.end(),
+                layer.post_activation_vals_.begin());
         }
     }
     return current_fire;
@@ -205,7 +199,14 @@ void LPP::Network::back_propagation_(
         if (cur_layer_idx == layers_.size() - 1) {
             // Looking at last layer, calculate gradient using loss
             // Differentiate directly
+
+            current_gradient_.resize(response.size());
+            loss_func_->find_gradient_then_write(layer.post_activation_vals_, response, current_gradient_);
+
+            /*
+            Performs this without allocation:
             current_gradient_ = loss_func_->find_gradient(layer.post_activation_vals_, response);
+            */
         }
         else {
             // 'forward_layer' is the layer which comes after current layer when firing
@@ -229,7 +230,7 @@ void LPP::Network::back_propagation_(
                     {
                         float delL_dela1 = prev_gradient_[k];
                         float dela1_delz = forward_layer.activation_func_->apply_derivative(forward_layer.pre_activation_vals_[k]);
-                        float delz_dela0 = forward_layer.weights_.get(k,i);
+                        float delz_dela0 = forward_layer.weights_[k][i];
                         
                         // Chain rule: delL_dela0 = delL_dela1 * dela1_delz * delz_dela0
                         current_gradient_[i] += delL_dela1 * dela1_delz * delz_dela0;
@@ -242,7 +243,7 @@ void LPP::Network::back_propagation_(
                         for (size_t c = 0; c < forward_layer_size; c++)
                         {
                             float dela1_k_delz_c = prev_jacobian_[k][c];
-                            imed_val += dela1_k_delz_c * forward_layer.weights_.get(c,i);
+                            imed_val += dela1_k_delz_c * forward_layer.weights_[c][i];
                         }
                         current_gradient_[i] += delL_dela1 * imed_val;
                     }
@@ -308,8 +309,11 @@ std::vector<float> LPP::Network::inference(const std::vector<float>& x) const
 }
 std::vector<float> LPP::Network::inference(const std::span<const float> x) const
 {
+    std::vector<float> x_v;
+    x_v.assign(x.begin(), x.end());
+
     return forward_propagation_(
-        std::vector<float>(x.begin(), x.end()),
+        x_v,
         false
     );  // false indicates not training
 }
@@ -437,14 +441,14 @@ void LPP::Network::train(
         }
 
         float training_accuracy;
+        float validation_accuracy;
         if (options.performs_classification()) {
             training_accuracy = compute_accuracy(training_responses, estimated_training_responses);
-        }
-        float validation_accuracy;
-        if (options.performs_classification() && options.use_validation()) {
-            // implement this later. problem is that estimated response for validation is within validation_loss_ stack, just move its def to current training loop
-            // validation_accuracy = compute_accuracy();
-            validation_accuracy = -1.f;
+
+            if (options.use_validation()) {
+                // implement this later. problem is that estimated response for validation is within validation_loss_ stack, just move its def to current training loop
+                validation_accuracy = -1.f;
+            }
         }
 
         if (options.has_output_stream()) {

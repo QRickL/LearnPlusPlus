@@ -17,7 +17,7 @@ LPP::Layer::Layer(
     if (pd != nullptr) {
         weights_ = Matrix(output_size, input_size, pd);
     } else {
-        auto he = distribution::Normal(0, 2.f / (float)input_size);
+        auto he = distribution::Normal(0, std::sqrt( 2.f / (float)input_size ));
         weights_ = Matrix(output_size, input_size, &he);
     }
     biases_ = std::vector<float>(output_size, 0.f); // biases typically initialized as 0

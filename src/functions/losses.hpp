@@ -14,16 +14,20 @@ namespace LPP {
 namespace loss {
 
 class Loss {
+protected:
+    using Vec = std::vector<float>;
 public:
     virtual float apply_loss(const Matrix& y_hat, const Matrix& y) const = 0;
-    virtual std::vector<float> find_gradient(const std::vector<float>& y_hat, const std::vector<float>& y) const = 0;
+    virtual Vec find_gradient(const Vec& y_hat, const Vec& y) const = 0;
+    virtual void find_gradient_then_write(const Vec& y_hat, const Vec& y, Vec& to_write) const = 0;
     virtual ~Loss() = 0;
 };
 
 class MeanSquaredError : public Loss {
 public:
     float apply_loss(const Matrix& y_hat, const Matrix& y) const override;
-    std::vector<float> find_gradient(const std::vector<float>& y_hat, const std::vector<float>& y) const override;
+    Vec find_gradient(const Vec& y_hat, const Vec& y) const override;
+    virtual void find_gradient_then_write(const Vec& y_hat, const Vec& y, Vec& to_write) const override;
     ~MeanSquaredError() {}
 };
 
@@ -31,14 +35,16 @@ public:
 class BinaryCrossEntropy : public Loss {
 public:
     float apply_loss(const Matrix& y_hat, const Matrix& y) const override;
-    std::vector<float> find_gradient(const std::vector<float>& y_hat, const std::vector<float>& y) const override;
+    Vec find_gradient(const Vec& y_hat, const Vec& y) const override;
+    virtual void find_gradient_then_write(const Vec& y_hat, const Vec& y, Vec& to_write) const override;
     ~BinaryCrossEntropy() {}
 };
 
 class CrossEntropy : public Loss {
 public:
     float apply_loss(const Matrix& y_hat, const Matrix& y) const override;
-    std::vector<float> find_gradient(const std::vector<float>& y_hat, const std::vector<float>& y) const override;
+    Vec find_gradient(const Vec& y_hat, const Vec& y) const override;
+    virtual void find_gradient_then_write(const Vec& y_hat, const Vec& y, Vec& to_write) const override;
     ~CrossEntropy() {}
 };
 
@@ -46,7 +52,7 @@ inline const auto mean_squared_error   = MeanSquaredError();
 inline const auto binary_cross_entropy = BinaryCrossEntropy();
 inline const auto cross_entropy        = CrossEntropy();
 
-inline const float loss_epsilon = 1e-7f;
+inline constexpr float loss_epsilon = 1e-7f;
 
 } // namespace loss
 

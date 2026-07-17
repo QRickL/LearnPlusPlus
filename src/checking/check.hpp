@@ -3,9 +3,22 @@
 
 #include <string>
 
-// difference between the two is that we can turn off __lpp_check__ to save time during runtime if desired
+// Difference between the two is that we can turn off __lpp_check__ to save time during runtime if desired
 
-void __lpp_check__(bool condition, const std::string& error_message);
+#define LPP_ENABLE_CHECKS
+#ifdef LPP_ENABLE_CHECKS
+
+#define __lpp_check__(cond, msg)                     \
+    do {                                            \
+        if (!(cond))                                \
+            throw std::runtime_error(msg);          \
+    } while (0)
+
+#else
+
+#define __lpp_check__(cond, msg) ((void)0)
+
+#endif
 
 namespace LPP {
 
