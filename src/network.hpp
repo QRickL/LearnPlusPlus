@@ -88,6 +88,9 @@ class Network {
         const Matrix& y_hat
     ) const;
 
+    void print_epoch_(const ExtraTrainingOptions& options, size_t epoch) const;
+    void print_mini_batch_(const ExtraTrainingOptions& options, size_t cur_batch, size_t total_batch) const;
+
     void print_losses_(
         const ExtraTrainingOptions& options,
         float train_loss,

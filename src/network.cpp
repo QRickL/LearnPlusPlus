@@ -383,18 +383,14 @@ void LPP::Network::train(
 
     // Training actually begins!
     for (size_t cur_epoch = 0; cur_epoch < epochs; cur_epoch++) {
-        if (options.has_output_stream()) {
-            options.output_stream() << "Epoch " << cur_epoch + 1 << ':' << std::endl; // Flush in case of crash during training
-        }
+        print_epoch_(options, cur_epoch+1);
 
         // Shuffle training data if using stochastic gradient descent
         if (options.use_mini_batch()) std::shuffle(permutation->begin(), permutation->end(), shuffler);
 
         // If we are not using SGD, then the below will only trigger once
         for (size_t cur_mini_batch = 0; cur_mini_batch < num_batches; cur_mini_batch++) {
-            if (options.has_output_stream() && options.use_mini_batch()) {
-                options.output_stream() << "\r\tMini-batch " << cur_mini_batch + 1 << " / " << num_batches << std::flush;
-            }
+            print_mini_batch_(options, cur_mini_batch+1, num_batches);
 
             // Initialize derivatives to be filled in by backpropagation
             initialize_partial_sums_to_zero_(del_W, del_b);
@@ -560,6 +556,20 @@ void LPP::Network::compute_losses_(const ExtraTrainingOptions& options, float& t
         if (options.use_validation()) {
             val_acc = compute_accuracy(options.validation_responses(), estimated_validation_responses_);
         }
+    }
+}
+
+void LPP::Network::print_epoch_(const ExtraTrainingOptions& options, size_t epoch) const
+{
+    if (options.has_output_stream()) {
+        options.output_stream() << "Epoch " << epoch << ':' << std::endl; // Flush in case of crash during training
+    }
+}
+
+void LPP::Network::print_mini_batch_(const ExtraTrainingOptions& options, size_t cur_batch, size_t total_batch) const
+{
+    if (options.has_output_stream() && options.use_mini_batch()) {
+        options.output_stream() << "\r\tMini-batch " << cur_batch << " / " << total_batch << std::flush;
     }
 }
 
