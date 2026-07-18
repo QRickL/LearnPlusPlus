@@ -4,7 +4,10 @@ LearnPlusPlus is a C++ deep learning library that provides neural networks capab
 
 The user has complete freedom over model architecture (input size, hidden layers, activations). Model construction, training, and inference are all wrapped in a user-friendly interface through the ```LPP::Network``` class. After training, model architecture and weights may be exported.
 
-Mutlithreaded matrix operations allow lightning fast inference.  All memory management is handled using smart pointers, meaning that LearnPlusPlus will **never** introduce memory leaks into your program.
+LearnPlusPlus was developed with latency and memory safety in mind:
+- Mutlithreaded matrix operations enable lightning fast inference
+- Preallocated buffers ensure minimal memory allocations in the training hotpath
+- All memory management is handled using smart pointers, meaning LearnPlusPlus will **never** introduce memory leaks
 
 ## How to Use?
 
