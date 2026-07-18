@@ -15,19 +15,19 @@ class Network {
     using Vec = std::vector<float>;
 
     std::vector<Layer> layers_;
+    mutable Vec inference_buffer_;
 
     // For training
-    const loss::Loss* loss_func_;
-    mutable size_t max_layer_size_;
-    mutable Vec current_fire_buffer_;
-    mutable Vec prev_gradient_;
-    mutable Vec current_gradient_;
-    mutable Matrix prev_jacobian_;
-    mutable Matrix current_jacobian_;
-    mutable Vec X_i_;
-    mutable Vec Y_i_;
-    mutable Matrix estimated_validation_responses_;
-    mutable Vec inference_buffer_;
+    const loss::Loss*   loss_func_;
+    mutable size_t      max_layer_size_;
+    mutable Vec         current_fire_buffer_;
+    mutable Vec         prev_gradient_;
+    mutable Vec         current_gradient_;
+    mutable Matrix      prev_jacobian_;
+    mutable Matrix      current_jacobian_;
+    mutable Vec         X_i_;
+    mutable Vec         Y_i_;
+    mutable Matrix      estimated_validation_responses_;
 
     // Fire through the network. Layer outputs, pre and post activation, are saved if training = true
     Vec forward_propagation_(
@@ -51,7 +51,7 @@ class Network {
 
     void initialize_partial_sums_to_zero_(
         std::vector<Matrix>& delL_delW_partial_sum,
-        std::vector<Vec>& delL_delb_partial_sum
+        std::vector<Vec>&    delL_delb_partial_sum
     ) const;
 
     void train_on_batch_(
@@ -89,7 +89,7 @@ class Network {
     ) const;
 
     void print_epoch_(const ExtraTrainingOptions& options, size_t epoch) const;
-    void print_mini_batch_(const ExtraTrainingOptions& options, size_t cur_batch, size_t total_batch) const;
+    void print_mini_batch_(const ExtraTrainingOptions& options, size_t batch, size_t total_batches) const;
 
     void print_losses_(
         const ExtraTrainingOptions& options,
@@ -105,11 +105,7 @@ public:
     // See examples
     Network(
         size_t input_size,
-        const std::vector<std::tuple<
-            size_t,
-            const activations::Activation*,
-            distribution::ProbabilityDistribution*
-        >>& layer_info
+        const std::vector< std::tuple<size_t, const activations::Activation*, distribution::ProbabilityDistribution*> >& layer_info
     );
 
     // Load model + weights from file

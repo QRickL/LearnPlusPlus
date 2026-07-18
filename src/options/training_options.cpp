@@ -35,7 +35,7 @@ void LPP::ExtraTrainingOptions::set_validation_data(
         "ExtraTrainingOptions::set_validation_data - validaation features and reponses have different number of rows");
 
     validation_features_ = &validation_features;
-    validation_responeses_ = &validation_responses; // TODO: check if this is like... bad for me
+    validation_responeses_ = &validation_responses;
     use_validation_option_ = true;
 }
 

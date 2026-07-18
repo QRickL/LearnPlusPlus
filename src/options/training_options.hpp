@@ -20,6 +20,7 @@ class ExtraTrainingOptions {
     std::ostream* training_metadata_stream_;
 
     // Validation data
+    // If validation data lives on the stack, it must not go out of scope before training
     bool use_validation_option_;
     const Matrix* validation_features_;
     const Matrix* validation_responeses_;

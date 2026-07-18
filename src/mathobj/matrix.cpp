@@ -138,15 +138,20 @@ std::vector<float> LPP::Matrix::operator*(const std::vector<float>& v) const
     return res;
 }
 
+// accomplishes: to_write = M * to_mult + to_add
 void LPP::Matrix::mult_add_write(
     const std::vector<float>& to_mult,
     const std::vector<float>& to_add,
     std::vector<float>& to_write
 ) const {
-    // TODO: add checks later
+    __lpp_check__(to_mult.size() == cols_,
+        "Matrix::mult_add_write - mult vector size different from matrix columns");
+    __lpp_check__(to_add.size() == rows_,
+        "Matrix::mult_add_write - add vector size different from matrix rows");
+    __lpp_check__(to_write.size() == rows_,
+        "Matrix::mult_add_write - write vector size different from matrix rows");
 
     for (size_t r = 0; r < rows_; r++) {
-        //to_write[r] = this->operator[](r) * to_mult + to_add[r];
         to_write[r] = to_add[r];
         std::span<const float> row = (*this)[r];
         for (size_t c = 0; c < cols_; c++)

@@ -1,7 +1,7 @@
 #include "classify.hpp"
 #include "../checking/check.hpp"
 
-size_t LPP::to_label_idx(std::span<const float> x)
+size_t LPP::classify::to_label_idx(std::span<const float> x)
 {
     size_t ans = -1;
     float max_prob = 0.f;
@@ -20,7 +20,7 @@ size_t LPP::to_label_idx(std::span<const float> x)
     return ans;
 }
 
-float LPP::compute_accuracy(const LPP::Matrix& actual, const LPP::Matrix& estimated)
+float LPP::classify::compute_accuracy(const LPP::Matrix& actual, const LPP::Matrix& estimated)
 {
     __lpp_check__(same_dims(actual, estimated),
         "compute_accuracy - actual and estimated responses have different dimensions");

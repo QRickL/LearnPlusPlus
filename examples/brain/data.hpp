@@ -79,6 +79,9 @@ void load_X() {
     std::string path_train = "/LOCATION/OF/TRAINING/DATA/";
     std::string path_val = "/LOCATION/OF/VALIDATION/DATA/";
 
+    path_train = "/Users/rick/Desktop/Coding/LearnPlusPlus/examples/brain/archive/Training/";
+    path_val = "/Users/rick/Desktop/Coding/LearnPlusPlus/examples/brain/archive/Testing/";
+
     std::vector<std::pair<std::string, size_t>> p_train = {
         {"glioma/Tr-gl_", 1400},
         {"meningioma/Tr-me_", 1300},

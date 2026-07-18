@@ -38,10 +38,10 @@ LPP::Network::Network(
     inference_buffer_.resize(input_size);
 }
 
-// TODO: add comments for constructor using filepath
 LPP::Network::Network(const std::string& filepath, std::ostream& os)
     : max_layer_size_{0}, loss_func_{nullptr}
 {
+    // Open file
     std::ifstream model_file{filepath};
     enforce_condition(model_file.is_open(),
         "Network::Network - file failed to open...");
@@ -53,11 +53,11 @@ LPP::Network::Network(const std::string& filepath, std::ostream& os)
     getline(model_file, cur_line);
     enforce_condition(cur_line == "LearnPlusPlus",
         "Network::Network - not given a LearnPlusPlus file");
-
     getline(model_file, cur_line);
     enforce_condition(cur_line == "NeuralNetwork",
         "Network::Network - file type is not neural network");
     
+    // Purpose of this is to set size of inference_buffer_
     size_t input_size = 0;
 
     while (true) {
@@ -65,6 +65,7 @@ LPP::Network::Network(const std::string& filepath, std::ostream& os)
         model_file >> cur_line;
         if (cur_line == "END") break;
         
+        // Output input sizes respectively
         float val;
         size_t out, in;
         model_file >> out >> in;
@@ -94,7 +95,6 @@ LPP::Network::Network(const std::string& filepath, std::ostream& os)
         const activations::Activation* cur_act = nullptr;
         enforce_condition(LPP::activations::choose_activation.count(cur_line),
             "Network::Network - invalid activation function: " + cur_line);
-
         cur_act = LPP::activations::choose_activation.at(cur_line);
         os << "Activation function: " + cur_line << "\n\n";
 
@@ -110,7 +110,6 @@ LPP::Network::Network(const std::string& filepath, std::ostream& os)
     inference_buffer_.resize(input_size);
 }
 
-// TODO: add commends for saving model
 void LPP::Network::save_model(const std::string& filepath) const
 {
     std::ofstream model_file{filepath};
@@ -121,14 +120,14 @@ void LPP::Network::save_model(const std::string& filepath) const
     for (size_t cur_layer_idx = 0; cur_layer_idx < layers_.size(); cur_layer_idx++) {
         // What layer?
         model_file << "Layer" << cur_layer_idx << '\n';
-        auto& layer = layers_[cur_layer_idx];
+        const auto& layer = layers_[cur_layer_idx];
 
         // Matrix dimensions
         size_t out = layer.weights_.rows();
         size_t in = layer.weights_.cols();
         model_file << out << ' ' << in << '\n';
 
-        // Weight contents
+        // Store weights
         for (size_t i = 0; i < out; i++) {
             for (size_t j = 0; j < in; j++) {
                 model_file << layer.weights_[i][j] << ' ';
@@ -136,13 +135,13 @@ void LPP::Network::save_model(const std::string& filepath) const
             model_file << '\n';
         }
 
-        // Bias contents
+        // Store biases
         for (size_t i = 0; i < layer.biases_.size(); i++) {
             model_file << layer.biases_[i] << ' ';
         }
         model_file << '\n';
 
-        // activations::Activation function
+        // Store activation using string
         model_file << layer.activation_func_->who() << '\n';
     }
     model_file << "END\n";
@@ -153,12 +152,13 @@ void LPP::Network::save_model(const std::string& filepath) const
 LPP::Network::Vec LPP::Network::forward_propagation_(Vec current_fire, bool training) const
 {
     for (auto& layer : layers_) {
-        // z = Wx + b
         /*
-        Reason we do mult_add_write instead of:
-        current_fire = layer.weights_ * current_fire + layer.biases_;
-        is to avoid constructing a vector here during training
+            Reason we do mult_add_write instead of:
+            current_fire = layer.weights_ * current_fire + layer.biases_;
+            is to avoid constructing a vector here during training
         */
+       
+        // z = Wx + b
         current_fire_buffer_.resize(layer.weights_.rows());
         layer.weights_.mult_add_write(current_fire, layer.biases_, current_fire_buffer_);
         std::swap(current_fire, current_fire_buffer_);
@@ -199,7 +199,7 @@ void LPP::Network::back_propagation_(
     // Loop through layers from last layer back to first layer
     for (int cur_layer_idx = layers_.size() - 1; cur_layer_idx >=0 ; cur_layer_idx--) {
         auto& layer = layers_[cur_layer_idx];
-        size_t current_layer_size = layer.weights_.rows();
+        const size_t current_layer_size = layer.weights_.rows();
         
         if (cur_layer_idx == layers_.size() - 1) {
             // Looking at last layer, calculate gradient using loss
@@ -511,7 +511,7 @@ void LPP::Network::update_parameters_(
         delL_delb[cur_layer_idx]       *= cur_learning_rate / batch_size;
         layers_[cur_layer_idx].biases_ -= delL_delb[cur_layer_idx];
 
-        // TODO: replace these once proven to work
+        // TODO: replace these once proven to work + benchmarking
         // scale_then_decrement(layers_[cur_layer_idx].weights_, cur_learning_rate, delL_delW[cur_layer_idx]);
         // scale_then_decrement(layers_[cur_layer_idx].biases_, cur_learning_rate / batch_size, delL_delb[cur_layer_idx]);
     }
@@ -552,9 +552,9 @@ void LPP::Network::compute_losses_(const ExtraTrainingOptions& options, float& t
     }
 
     if (options.performs_classification()) {
-        train_acc = compute_accuracy(y, y_hat);
+        train_acc = classify::compute_accuracy(y, y_hat);
         if (options.use_validation()) {
-            val_acc = compute_accuracy(options.validation_responses(), estimated_validation_responses_);
+            val_acc = classify::compute_accuracy(options.validation_responses(), estimated_validation_responses_);
         }
     }
 }
@@ -566,10 +566,10 @@ void LPP::Network::print_epoch_(const ExtraTrainingOptions& options, size_t epoc
     }
 }
 
-void LPP::Network::print_mini_batch_(const ExtraTrainingOptions& options, size_t cur_batch, size_t total_batch) const
+void LPP::Network::print_mini_batch_(const ExtraTrainingOptions& options, size_t batch, size_t total_batches) const
 {
     if (options.has_output_stream() && options.use_mini_batch()) {
-        options.output_stream() << "\r\tMini-batch " << cur_batch << " / " << total_batch << std::flush;
+        options.output_stream() << "\r\tMini-batch " << batch << " / " << total_batches << std::flush;
     }
 }
 

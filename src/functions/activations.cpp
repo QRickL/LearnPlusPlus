@@ -82,12 +82,9 @@ const std::string& LPP::activations::Tanh::who() const {
     return STRING_TANH_;
 }
 
+// TODO: can subtract max/add min to improve numerical stability
 void LPP::activations::Softmax::apply_activation(std::vector<float>& v) const
 {
-    // TODO: come back to this
-    // Provide numerical stability
-    // float m = *std::max_element(v.begin(), v.end());
-
     float denom = 0.f;
     for (float& x : v) {
         x = std::exp(x);

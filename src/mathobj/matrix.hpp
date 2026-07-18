@@ -10,7 +10,6 @@ namespace LPP
 {
 
 class Matrix {
-    //std::vector<std::vector<float>> entries_; // TODO: replace this with single vector and update methods to make class more cache friendly
     size_t rows_;
     size_t cols_;
     std::vector<float> entries_;
